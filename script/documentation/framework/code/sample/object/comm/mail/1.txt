@@ -1,0 +1,19 @@
+$Mail = new sPHP\Comm\Mail(
+	new sPHP\Comm\MailContact("JohnDoe@MyDomain.Com", "John Doe"),
+	"A test email",
+	"
+		<p>Dear <b>John Doe</b>,</p>
+		<p>This is the first paragraph of the email message body.</p>
+		<p>And this is the second paragraph.</p>
+		<p>Regards,</p>
+		<p><b>My Application</b></p>
+	",
+	new sPHP\Comm\MailContact("Info@MyDomain.Com", "Information Desk")
+);
+
+if($Mail->Send()){
+	print "Email sent.";
+}
+else{
+	print "Error sending email!";
+}

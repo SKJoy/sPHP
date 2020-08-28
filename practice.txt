@@ -1,0 +1,14 @@
+﻿Use the built-in password hashing functions like <a href="http://php.net/manual/en/function.password-hash.php" target="_blank">password_hash()</a> and <a href="http://php.net/manual/en/function.password-verify.php" target="_blank">password_verify()</a> to hash and compare passwords.
+Use PDO and its prepared statement functionality.
+Use &lt;?php ?&gt; in place of &lt;? ?&gt;.
+Single vs. double quotes from a performance perspective: It doesn’t really matter.
+Lucky you: PHP has a built-in opcode cache!
+Use the PCRE (preg_*) family of functions.
+Use the filter_var() function.
+Use the htmlentities() function for simple sanitization and the HTML Purifier library for complex sanitization.
+Use the DateTime class.
+Use the === operator to check for null and boolean false values.
+PHP has a built in web server for development from 5.4 and newer, you don't need a seperate bulky one :)
+Use namespace and integrate as many resources you can without making a collission.
+Xdebug, PHP’s debugger, can be utilized by various IDEs to provide Breakpoints and stack inspection. It can also allow tools like PHPUnit and KCacheGrind to perform code coverage analysis and code profiling.
+A veteran package manager that some PHP developers enjoy is PEAR.

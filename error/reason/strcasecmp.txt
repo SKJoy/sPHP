@@ -1,0 +1,3 @@
+Make sure both the arguments are supplied with
+Both the arguments need to be STRINGs
+Trying to espace a string? Use <a href="http://php.net/manual/en/function.addslashes.php" target="_blank">addslashes</a> function

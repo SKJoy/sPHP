@@ -1,0 +1,7 @@
+$Mail = new sPHP\Comm\Mail();
+
+$Mail->To(new sPHP\Comm\MailContact("JohnDoe@MyDomain.Com", "John Doe"));
+$Mail->Subject("Test email");
+$Mail->Attachment(new sPHP\Comm\MailAttachment("./file/myfile.txt", "YourFile.log", DOCUMENT_TYPE_CSV));
+
+print $Mail->Send() ? "Email sent." : "Error sending email!";

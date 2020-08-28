@@ -1,0 +1,4 @@
+Misspelling of Array key (case sensitive).
+If the variable comes from another script, check the script is 'include'd or 'require'd at least once;
+Did you really define/set the Array element?
+Did you unset the Array element somewhere before?

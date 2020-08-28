@@ -1,0 +1,5 @@
+You cannot instantiate the object.
+The object is already made available for your use.
+The object cannot be used by the application.
+The object is for system only purposes.
+Environment, Terminal, Session, Application, Template & Debug objects under \sPHP namespace cannot be instantiated. Some of them are already made available to you through global variables like $Environment, $Terminal, $Session, $Application, $Template & $Debug ($ENV, $TRM, $SSN, $APP, $TPL & $DBG).

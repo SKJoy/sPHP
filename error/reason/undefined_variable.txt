@@ -1,0 +1,6 @@
+Misspelling of variable name (case sensitive), either where defined or where used.
+If the variable is defined within a for/while loop, check the loop executes at least once.
+If GET/POST, check you actually passed the URL argument or FORM input.
+If the variable comes from another script, check the script is 'include'd or 'require'd at least once;
+Did you really define/set the variable?
+Did you unset the variable somewhere before?

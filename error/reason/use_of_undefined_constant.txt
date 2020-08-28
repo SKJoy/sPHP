@@ -1,0 +1,3 @@
+Misspelling of constant name (case sensitive), either where defined or where used.
+If the constant comes from another script, check the script is 'include'd or 'require'd at least once;
+Did you really define/set the constant?

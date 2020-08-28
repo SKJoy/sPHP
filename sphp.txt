@@ -1,0 +1,7 @@
+\system\configuration.php	Take a patient look into this configuration script and your application will be up and running in less than 5 minutes.
+\system\pre.php	Use this script to execute any common PHP code before your application loads. But don't make any output here.
+\system\post.php	Use this script to execute any common PHP code after your application finishes. But don't make any output here.
+sPHP location	Keep sPHP somewhere out of your application path which is not reachable directly by the web clients. This is a security practice applicatble for any general purpose framework.
+PHP output buffer	Don't, don't and never use any output buffer related function of PHP (like ob_start, ob_flush, ob_clean, ob_end, etc.) in your sPHP application if you don't want to screw yourself.
+Output compression	sPHP application output is already compressed if the client browser supports it. You don't need to put any extra effort to accomplish this.
+Debug\Checkpoint	Use Debug Checkpoints to measure execution times of your application code blocks with a detailed listing of time consumption, how much went where.

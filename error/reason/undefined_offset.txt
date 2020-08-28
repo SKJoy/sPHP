@@ -1,0 +1,4 @@
+That array element doesn't exist!
+Check the range if you are using a for, foreach, while loop
+Did you really define/set that Array element?
+Did you unset that Array element somewhere before?

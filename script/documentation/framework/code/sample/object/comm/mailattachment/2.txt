@@ -1,0 +1,9 @@
+namespace sPHP\Comm;
+
+$Mail = new Mail();
+
+$Mail->To(new MailContact("JohnDoe@MyDomain.Com", "John Doe"));
+$Mail->Subject("Test email");
+$Mail->Attachment(new MailAttachment("./file/myfile.txt", "YourFile.log", DOCUMENT_TYPE_CSV));
+
+print $Mail->Send() ? "Email sent." : "Error sending email!";

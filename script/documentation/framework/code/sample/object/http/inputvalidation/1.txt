@@ -1,0 +1,8 @@
+$FullNameValidation = new InputValidation("FullName", true, VALIDATION_TYPE_ALPHABETIC, "Full name");
+
+if($FullNameValidation->Validate()){
+	print $FullNameValidation->Caption() . " input is okay.";
+}
+else{
+	print "Validation error: " . $FullNameValidation->Message();
+}

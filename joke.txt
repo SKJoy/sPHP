@@ -1,0 +1,42 @@
+﻿A user interface is like a joke if you have to explain it, it's not that good.
+Documentaion is like sex. When it's good, it's very good. When it's bad, it's better than nothing.
+Programmer is a person who fixes a problem that you don't know you have in a way you don't understand.
+Algorithm is a word used by programmers when they do not want to explain what they did.
+What's the object-oriented way to become wealthy? Inheritance
+What is a programmer's favourite hangout place? Foo Bar
+Try it out in Internet Explorer. Did it work? No. It's HTML5.
+Software developers like to solve problems. If there are no problems available, they will create their own problems!
+A foo walks into a bar, takes a look around and says 'Hello World!'.
+99 little bugs in the code, 99 bugs in the code, 1 bug fixed... compile again, 100 little bugs in the code.
+3 Database SQL walked into a NoSQL bar. A little while later... they walked out because they couldn't find a table.
+The programmer got stuck in the shower because the instructions on the shampoo bottle said... Lather, Rinse, Repeat.
+A SQL query goes into a bar, walks up to two tables and asks... 'Can I join you?'
+UNIX is user friendly... It's just very particular about who its friends are.
+Optimist: The glass is half full<br>Pessimist: The glass is half empty<br>Programmer: The glass is twice as large than needed.
+"I don't see women as objects. I consider each to be in a class of her own."
+I'd like to make the world a better place... But they won't give me the source code.
+";" is the hide and seek champion since 1958
+if(sad() === true) {<br>&nbsp;&nbsp;&nbsp;&nbsp;sad.stop();<br>&nbsp;&nbsp;&nbsp;&nbsp;beAwsome();<br>}
+#wife {<br>&nbsp;&nbsp;&nbsp;&nbsp;right: 100%;<br>&nbsp;&nbsp;&nbsp;&nbsp;margin: 0;<br>}
+"It should be noted that no ethically-trained software engineer would ever consent to write a DestroyBaghdad procedure. Basic professional ethics would instead require him to write a DestroyCity procedure, to which Baghdad could be given as a parameter." - Nathaniel Borenstei
+How many programmers does it take to screw in a light bulb? None. It's a hardware problem.
+A programmer puts two glasses on his bedside table before going to sleep. A full one, in case he gets thirsty, and an empty one, in case he doesn’t.
+Java and C were telling jokes. It was C's turn, so he writes something on the wall, points to it and says "Do you get the reference?" But Java didn't.
+Programmer to his son: “Here, I brought you a new basketball.”<br>Son: “Thank you, daddy, but where is the user’s guide?”
+The C language combines all the power of assembly language with all the ease-of-use of assembly language.
+ASCII stupid question, get a stupid ANSI
+An SEO couple had twins. For the first time, they were happy with duplicate content.
+Why did the geek add body { padding-top: 1000px; } to his Facebook profile? He wanted to keep a low profile.
+These two strings walk into a bar and sit down. The bartender says, “So what’ll it be?”
+The first string says, “I think I’ll have a beer quag fulk boorg jdk^CjfdLk jk3s d#f67howe%^U r89nvy~~owmc63^Dz x.xvcu”, “Please excuse my friend,” the second string says, “He isn’t null-terminated.”
+There are two ways to write error-free programs; only the third one works.
+In order to understand recursion, you must first understand recursion.
+Why did the web designer drown? She didn’t know if she should { float:left } or { float:right }. She also had too many anchors.
+How can you tell that a web developer is working? You can hear him Grunting!
+Why did the web designer storm out of the restaurant? She was offended by the table layout.
+How do you comfort a JavaScript bug? You console it.
+Two young engineers tried to initiate their first baby. They committed to it often, almost everyday. They paired, and even merged a couple ideas they read about. Nothing. They brewed up the idea to call the doctor. The doctor examined them both, then gave them their update and later asked... Did you try pushing?
+Wife: "I can't open the JAR.". Programmer: "Download and install JAVA."
+How programmers run?<br><br>public void run()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;step++;<br>}
+Sometimes I believe compiler ignores all my comments
+/////////////////////////////////////// this is a well commented line
