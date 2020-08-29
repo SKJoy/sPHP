@@ -6,3 +6,6 @@ This is a very basic application development framework with PHP, basically homeg
 
 # Note
 This is unlike the conventional frameworks out there, and no other framework has been followed. This might feel unfamilier in many cases, so it is adviced not compare it against anything else.
+
+# sPHP App
+A model application built with sPHP framework for feature, functionality and usage demonstration. Find it here https://github.com/SKJoy/sPHPApp.git
