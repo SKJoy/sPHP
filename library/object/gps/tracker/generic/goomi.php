@@ -274,12 +274,12 @@ class GOOMI{
 		$Bit3to5 = substr($Bit, 2, 3);
 	//var_dump(["Byte" => $Byte, "Bit" => $Bit, "Bit3to5" => $Bit3to5, ]);
 		$Result = [
-			"Acc"		=>	$Bit[6] ? true : false,
-			"GPS"		=>	$Bit[1] ? true : false,
-			"Power"		=>	$Bit3to5 == "010" ? false : null,
-			"Panic"		=>	$Bit3to5 == "100" ? true : null, // Check and confirm
-			"Shock"		=>	$Bit3to5 == "001" ? true : null, // Check and confirm
-			//"IsSecureMode"	=>	$Bit[7] ? true : false, // Check and confirm, primary check showed reverse result
+			"Acc"			=>	$Bit[6] ? true : false,
+			"GPS"			=>	$Bit[1] ? true : false,
+			"Power"			=>	$Bit3to5 == "010" ? false : null,
+			"Panic"			=>	$Bit3to5 == "100" ? true : null, // Check and confirm
+			"Shock"			=>	$Bit3to5 == "001" ? true : null, // Check and confirm
+			"SecureMode"	=>	$Bit[7] ? true : false, 
 		];
 
 		return $Result;
