@@ -242,7 +242,7 @@ class Environment{
 
 			#region GeoLocation property
 			/*
-				// DISABLED FOR PERFORMANCE ENHANCEMENT
+			// DISABLED FOR PERFORMANCE ENHANCEMENT
 			if(($Data = $this->Property[__FUNCTION__]->IP2Geo($_SERVER["REMOTE_ADDR"])) !== false)$this->Property["Client"]["Location"] = [
 				"Geo"					=>	[
 													"Accuracy"		=>	$Data->location->accuracyRadius,
@@ -698,7 +698,7 @@ class Terminal{
 
     public function Flush(){
         ob_clean(); // Fire the output handler for internal buffer management
-//DebugDump("Terminal->Flush()");
+        //DebugDump("Terminal->Flush()");
         return null;
     }
 
@@ -713,7 +713,7 @@ class Terminal{
 		else{
 			$this->Buffer[$Mode] = [];
 		}
-//var_dump("Terminal->Clear({$Mode})");
+        //var_dump("Terminal->Clear({$Mode})");
         return $Result;
     }
 
@@ -879,7 +879,7 @@ class Terminal{
             $Result = $this->Property[__FUNCTION__];
         }
         else{
-//DebugDump("Terminal->Suspended({$Value})");
+            //DebugDump("Terminal->Suspended({$Value})");
             //if($Value)$this->Flush(); // Flush current output to apply suspension to the next/rest
             $this->Flush(); // We should flush regardless suspension state, otherise buffer won't clear!
 
@@ -963,18 +963,21 @@ class Session{
     #region Property variable
     private $Property = [
         "Environment"			=>	null,
-        "Name"					=>	null,
         "Guest"					=>	null,
         "Lifetime"				=>	20 * 60, // In seconds
         "Isolate"				=>	true,
-		"User"					=>	null,
+        "User"					=>	null,
+        "Name"					=>	null,
+		"ContentEditMode"		=>	false,
+        "DebugMode"				=>	false,
+        "IgnoreActivity"        =>  false, 
+        
+        // Read only
 		"LastActivityTime"		=>	null,
 		"ID"					=>	null,
         "IsFresh"				=>	false,
         "IsReset"				=>	false,
         "IsGuest"				=>	null,
-		"ContentEditMode"		=>	false,
-		"DebugMode"				=>	false,
 		"UserSetTime"			=>	null,
 		"Impersonated"			=>	false,
     ];
@@ -985,7 +988,7 @@ class Session{
     #endregion Variable
 
     #region Method
-    public function __construct($Environment = null, $Guest = null, $Lifetime = null, $Isolate = null, $User = null){
+    public function __construct($Environment = null, $Guest = null, $Lifetime = null, $Isolate = null, $User = null, $Name = null, $ContentEditMode = null, $DebugMode = null, $IgnoreActivity = null){
 		// Check if already instantiated and throw error if tried again
 		if($this::$AlreadyInstantiated)trigger_error("Instantiation is prohibited for " . __CLASS__ .  " object.");
 		$this::$AlreadyInstantiated = true;
@@ -997,7 +1000,7 @@ class Session{
     }
 
     public function __destruct(){
-        $_SESSION["LastActivityTime"] = time();
+        if(!$this->Property["IgnoreActivity"])$_SESSION["LastActivityTime"] = time();
 
         return true;
     }
@@ -1005,7 +1008,6 @@ class Session{
     public function Start(){
 		// Customize session name than the PHP default
 		session_name($this->Property["Environment"]->Utility()->ValidVariableName($this->Property["Name"]));
-
         session_start(); // Start the session
 
         if(!isset($_SESSION["LastActivityTime"])){ // Session doesn't exist, it is Fresh
@@ -1049,19 +1051,6 @@ class Session{
 
     #region Property
     public function Environment($Value = null){
-        if(is_null($Value)){
-            $Result = $this->Property[__FUNCTION__];
-        }
-        else{
-            $this->Property[__FUNCTION__] = $Value;
-
-            $Result = true;
-        }
-
-        return $Result;
-    }
-
-    public function Name($Value = null){
         if(is_null($Value)){
             $Result = $this->Property[__FUNCTION__];
         }
@@ -1135,34 +1124,15 @@ class Session{
         return $Result;
     }
 
-    public function LastActivityTime(){
-        $Result = $_SESSION[__FUNCTION__];
+    public function Name($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
 
-        return $Result;
-    }
-
-    public function ID(){
-        $Result = session_id();
-
-        return $Result;
-    }
-
-    public function IsFresh(){
-        $Result = $this->Property[__FUNCTION__];
-
-        return $Result;
-    }
-
-    public function IsReset(){
-        $Result = $this->Property[__FUNCTION__];
-
-        return $Result;
-    }
-
-    public function IsGuest(){
-		if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = $_SESSION["User"]->Email() == $this->Property["Guest"]->Email() ? true : false;
-
-        $Result = $this->Property[__FUNCTION__];
+            $Result = true;
+        }
 
         return $Result;
     }
@@ -1191,6 +1161,51 @@ class Session{
 
             $Result = true;
         }
+
+        return $Result;
+    }
+
+    public function IgnoreActivity($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+            $Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function LastActivityTime(){
+        $Result = $_SESSION[__FUNCTION__];
+
+        return $Result;
+    }
+
+    public function ID(){
+        $Result = session_id();
+
+        return $Result;
+    }
+
+    public function IsFresh(){
+        $Result = $this->Property[__FUNCTION__];
+
+        return $Result;
+    }
+
+    public function IsReset(){
+        $Result = $this->Property[__FUNCTION__];
+
+        return $Result;
+    }
+
+    public function IsGuest(){
+		if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = $_SESSION["User"]->Email() == $this->Property["Guest"]->Email() ? true : false;
+
+        $Result = $this->Property[__FUNCTION__];
 
         return $Result;
     }
@@ -1309,11 +1324,26 @@ class Application{
 		$this->Property["Terminal"]->Environment()->SMTPUser($Configuration["SMTPUser"]);
 		$this->Property["Terminal"]->Environment()->SMTPPassword($Configuration["SMTPPassword"]);
 
+        // Assume default script to execute if no script is requested
+        // Moved here from below to allow ignoring session activity
+        // for specific scripts
+		$_POST["_Script"] = strtolower(SetVariable("_Script", $this->Property["DefaultScript"]));
+
         // Set session configuration
 		$this->Property["Session"]->Name($Configuration["SessionName"]);
 		$this->Property["Session"]->Lifetime($Configuration["SessionLifetime"]);
         $this->Property["Session"]->Isolate($Configuration["SessionIsolate"]);
         $this->Property["Session"]->Guest($this->Property["Guest"]);
+
+        // Ignore session activity for specific scripts as set with Configuration
+        // Special care taken in case if this Configuration parameter is not set!
+        // Remove the special care in future release once confirmed all applications have it
+        foreach(isset($Configuration["SessionIgnoreScript"]) ? $Configuration["SessionIgnoreScript"] : [] as $SessionIgnoreScript){
+            if($_POST["_Script"] == strtolower($SessionIgnoreScript)){ // Match found
+                $this->Property["Session"]->IgnoreActivity(true);
+                break; // Match found, no need to check anymore
+            }
+        }
 
 		// Set up database
 		if(
@@ -1378,8 +1408,9 @@ class Application{
 		if($Configuration["ContentEditMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["ContentEditModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["ContentEditModeClient"]))))))$this->Property["Session"]->ContentEditMode(true);
 		if($Configuration["DebugMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeClient"]))))))$this->Property["Session"]->DebugMode(true);
 
-        // Assume default script to execute if no script is requested
-		$_POST["_Script"] = strtolower(SetVariable("_Script", $this->Property["DefaultScript"]));
+        //
+        // Assuming default script has been move above from here
+        //
 
 		// Configure stylesheet inclusion
         if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}script/{$_POST["_Script"]}.css"))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}script/{$_POST["_Script"]}.css";
@@ -1522,12 +1553,88 @@ class Application{
 				NotificationIsActive,
 				TimeInserted
 			) VALUES " . implode(", ", $SQL_INSERT_VALUE) . ";";
-//DebugDump("<pre>{$SQL}</pre>");
+            //DebugDump("<pre>{$SQL}</pre>");
 			$Recordset = $Database->Query($SQL);
 		}
 
 		return true;
-	}
+    }
+    
+    public function NotifyUserDevice($Message, $UserID = null, $Subject = null, $UserGroupIdentifier = null, $EventTime = null){
+        if(!is_array($UserID))$UserID = is_null($UserID) ? [] : [$UserID];
+        if(!$Subject)$Subject = $this->Property["Name"];
+        if(!is_array($UserGroupIdentifier))$UserGroupIdentifier = is_null($UserGroupIdentifier) ? [] : [$UserGroupIdentifier];
+        if(is_null($EventTime))$EventTime = date("Y-m-d H:i:s");
+
+        $UserIDFrom = intval($this->Property["Session"]->User()->ID()); // Needed to exlude current user + Signature
+    
+        $SQL = "
+            # Create notification
+            INSERT INTO sphp_notification (
+                NotificationSignature, 
+                NotificationEventTime, 
+                NotificationSubject, 
+                NotificationMessage, 
+                NotificationTypeID, 
+                NotificationSourceID, 
+                NotificationTo, 
+                UserIDFrom, # Should we really use this
+                NotificationSentTime, 
+                NotificationIsActive, 
+                TimeInserted
+            ) VALUES (
+                MD5(CONCAT('{$UserIDFrom}.{$Message}')), 
+                '{$EventTime}', # NotificationEventTime
+                '{$this->Property["Database"]->Escape($Subject)}', # NotificationSubject
+                '{$this->Property["Database"]->Escape($Message)}', # NotificationMessage
+                (SELECT NT.NotificationTypeID FROM sphp_notificationtype AS NT WHERE NT.NotificationTypeIdentifier = 'PUSH'), # NotificationTypeID
+                (SELECT NS.NotificationSourceID FROM sphp_notificationsource AS NS WHERE NS.NotificationSourceIdentifier = 'SYSTEM'), # NotificationSourceID
+                '', # NotificationTo
+                {$UserIDFrom}, # UserIDFrom # Should we really use this
+                NOW(), # NotificationSentTime, 
+                1, # NotificationIsActive
+                NOW() # TimeInserted
+            );
+    
+            # Tag Notification to UserUserDevice
+            INSERT IGNORE INTO sphp_useruserdevicenotification (UserUserDeviceID, NotificationID, UserUserDeviceNotificationIsRead, UserUserDeviceNotificationIsActive, TimeInserted)
+            SELECT			UUD.UserUserDeviceID, 
+                            @@IDENTITY, 
+                            0, 1, NOW()
+                            #, UUG.UserID, UUG.UserGroupID, UUD.UserDeviceID
+            FROM			sphp_useruserdevice AS UUD
+                LEFT JOIN	sphp_user AS U ON U.UserID = UUD.UserID
+                LEFT JOIN	sphp_userusergroup AS UUG ON UUG.UserID = U.UserID
+                LEFT JOIN	sphp_usergroup AS UG ON UG.UserGroupID = UUG.UserGroupID
+            WHERE			TRUE
+                AND			" . (count($UserID) ? "UUG.UserID IN (" . implode(", ", $UserID) . ")" : "TRUE") . " # Filter User
+                AND			" . (count($UserGroupIdentifier) ? "UG.UserGroupIdentifier IN ('" . implode("', '", $UserGroupIdentifier) . "')" : "TRUE") . " # Filter UserGroupIdentifier
+                AND         U.UserID != {$UserIDFrom} # Exclude the User generating the notification
+                AND			U.UserIsActive = 1
+                AND			UG.UserGroupIsActive = 1
+                AND			UUG.UserUserGroupIsActive = 1
+                AND			UUD.UserUserDeviceID IS NOT NULL # Must have a device to notify on
+            ;
+    
+            SELECT 'DONE' AS Status;
+        "; //DebugDump("<pre>{$SQL}</pre>");
+
+        if(!is_null($this->Property["Database"]->Connection())){ // We have a working database
+            if(isset($this->Property["Database"]->Query($SQL)[0][0]["Status"])){ // Database query succeeded
+                $Result = true;
+                //print HTML\UI\MessageBox("Notification created successfully", "System");
+            }
+            else{ // Database query failed
+                $Result = false;
+                print HTML\UI\MessageBox("Failed creating notification!", "System", "MessageBoxError");
+            }
+        }
+        else{ // Database is not available
+            $Result = true;
+        }
+    
+        return $Result;    
+    }
     #endregion Method
 
     #region Property
@@ -2258,26 +2365,26 @@ class Utility{
 		if(is_null($SetPOST))$SetPOST = true;
 		if(is_null($MustRename))$MustRename = true;
 		if(is_null($ForbiddenExtension))$ForbiddenExtension = "asp, aspx, bat, bin, cfm, cfc, com, exe, jsp, pl, py, sh, shtml";
-//var_dump($_FILES);
+        //var_dump($_FILES);
 		$POSTFileField = array_keys($_FILES);
 		if(count($POSTFileField) && !is_dir($Path))mkdir($Path, 0777, true); // Create the target folder it doesn't exist
-//var_dump($POSTFileField);
+        //var_dump($POSTFileField);
 		foreach(isset($Field) ? array_intersect(explode(",", str_replace(" ", null, $Field)), $POSTFileField) : $POSTFileField as $Field){
-//var_dump($Field);
+            //var_dump($Field);
 			if(is_array($_FILES[$Field]["name"])){
-//var_dump($_FILES[$Field]["name"]);
+                //var_dump($_FILES[$Field]["name"]);
 				foreach($_FILES[$Field]["name"] as $Key=>$Value){
 					$Result[$Field][$Key] = $this->MoveUploadedItem($Path, $Value, $_FILES[$Field]["tmp_name"][$Key], $MustRename, $AllowedExtension, $ForbiddenExtension);
 					if($SetPOST)$_POST[$Field][$Key] = $Result[$Field][$Key];
 				}
 			}
 			else{
-//var_dump($Path, $_FILES[$Field]["name"], $_FILES[$Field]["tmp_name"]);
+                //var_dump($Path, $_FILES[$Field]["name"], $_FILES[$Field]["tmp_name"]);
 				$Result[$Field] = $this->MoveUploadedItem($Path, $_FILES[$Field]["name"], $_FILES[$Field]["tmp_name"], $MustRename, $AllowedExtension, $ForbiddenExtension);
 				if($SetPOST)$_POST[$Field] = $Result[$Field];
 			}
 		}
-//var_dump($Result);
+        //var_dump($Result);
 		return isset($Result) ? $Result : false;
 	}
 

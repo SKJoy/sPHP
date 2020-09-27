@@ -22,6 +22,7 @@ foreach($Table["{$Entity}"]->Get("
 		" . ($Configuration["SendNotification"] ? "TRUE" : "FALSE") . "
 	AND	N.{$Entity}SentTime IS NULL
 	AND	N.TimeInserted > DATE_ADD(NOW(), INTERVAL -1 DAY)
+	AND	NT.{$Entity}TypeIdentifier IN ('" . NOTIFICATION_TYPE_MOBILE_SMS . "', '" . NOTIFICATION_TYPE_EMAIL . "')
 	AND	N.{$Entity}Attempt < 3
 	AND	N.{$Entity}IsActive = 1
 ", "N.TimeInserted DESC", 1, 120) as $Notification){

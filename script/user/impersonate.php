@@ -6,6 +6,7 @@ if(isset($_POST["btnSubmit"])){
 
 	if($Result === true){
 		print HTML\UI\MessageBox("Impersonation authenticated and intiated. Please <a href=\"{$Application->URL()}\">click here</a> to proceed.");
+		$Application->NotifyUserDevice("{$User->Name()} impersonated \"{$_POST["UserEmail"]}\" on " . date("F d, Y H:i:s") . "", null, "Impersonation", "ADMINISTRATOR");
 		//$Application->Terminal()->Redirect($Application->URL());
 	}
 	else{

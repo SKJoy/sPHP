@@ -57,7 +57,7 @@ class Database{
 
 	public function Connect(){
 		$this->Disconnect(); // Close any previous connection
-//var_dump("Trying connecting to database..."); exit;
+		//var_dump("Trying connecting to database..."); exit;
 		if($this->Property["Type"] == DATABASE_TYPE_MYSQL){
 			try{
 				$this->Property["Connection"] = new \PDO("mysql:host={$this->Property["Host"]};dbname={$this->Property["Name"]}", $this->Property["User"], $this->Property["Password"], [
@@ -65,7 +65,7 @@ class Database{
                 ]);
 			}
 			catch(\Throwable $Exception){
-//file_put_contents(__DIR__ . "/error.log", "Database connection attempt failed! {$Exception->getMessage()}");
+				//file_put_contents(__DIR__ . "/error.log", "Database connection attempt failed! {$Exception->getMessage()}");
 				trigger_error($Exception->getMessage(), E_USER_ERROR);
 
 				/*
@@ -91,7 +91,7 @@ class Database{
 				");
 
 				if($this->Property["Transactional"])$this->Property["Connection"]->beginTransaction(); // Encapsulate execution within transaction
-//var_dump($this->Query("SHOW TABLES"), $this->Query("SHOW TABLES")[0]);
+				//var_dump($this->Query("SHOW TABLES"), $this->Query("SHOW TABLES")[0]);
 				if(is_array($Tables = $this->Query("SHOW TABLES")[0])){
 					foreach($Tables as $Table)$this->Property["Table"][] = $Table[array_keys($Table)[0]];
 				}
@@ -168,19 +168,19 @@ class Database{
 		if(is_null($NoHistory))$NoHistory = !$this->Property["KeepQueryHistory"];
 		if(is_null($Verbose))$Verbose = $this->Property["Verbose"];
 
-//var_dump($SQL);
+		//var_dump($SQL);
 		if($Verbose)print "<div class=\"MessageBox\"><div class=\"Container\"><div class=\"Title\">sPHP\Database-&gt;Query</div><div class=\"Content\"><pre class=\"Code\">" . trim($SQL) . "</pre></div></div></div>";
 
 		if(is_null($this->Property["Connection"])){
 			if($Verbose)print "<div class=\"MessageBox\"><div class=\"Container\"><div class=\"Title\">sPHP\Database-&gt;" . __FUNCTION__ . "</div><div class=\"Content\">No database connection!</div></div></div>";
 			$Result = false;
-//file_put_contents(__DIR__ . "/error.log", "No database connection!");
+			//file_put_contents(__DIR__ . "/error.log", "No database connection!");
 		}
 		else{
 			if(($Query = $this->Property["Connection"]->prepare($SQL)) === false){ // Database server failed to prepare the statement
 				if($Verbose)print "<div class=\"MessageBox\"><div class=\"Container\"><div class=\"Title\">sPHP\Database-&gt;" . __FUNCTION__ . "</div><div class=\"Content\">Statement preparation failed!</div></div></div>";
 				$Result = false;
-//file_put_contents(__DIR__ . "/error.log", "Database statement preparation failed!");
+				//file_put_contents(__DIR__ . "/error.log", "Database statement preparation failed!");
 			}
 			else{ // Database server successully prepared the statment
 				if(!$NoHistory){ // Set query counters
@@ -192,7 +192,7 @@ class Database{
 					$Query->execute(is_null($Parameter) ? [] : $Parameter);
 				}
 				catch(\Throwable $Exception){
-//var_dump($SQL);
+					//var_dump($SQL);
 					$Result = false;
 					$ErrorMessage = $Exception->getMessage();
 
@@ -233,7 +233,7 @@ class Database{
 				do{// Generate mutiple recordset
 					if($Dataset = $Query->fetchAll(\PDO::FETCH_ASSOC))$Recordset[] = $Dataset;
 				}while($Query->nextRowset());
-	//var_dump($Recordset);
+				//var_dump($Recordset);
 				// Enable error exception back
 				$this->Property["Connection"]->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
@@ -255,7 +255,7 @@ class Database{
 				if(!$NoHistory)$this->Property["QueryHistory"][] = ["SQL" => $SQL, "Parameter" => $Parameter, "Duration" => $this->Property["LastDuration"], "Result" => $Result];
 			}
 		}
-//var_dump($Result);
+		//var_dump($Result);
 		return $Result;
 	}
 

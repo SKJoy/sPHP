@@ -67,6 +67,7 @@ else{
 }
 
 if($Result){
+	$Application->NotifyUserDevice("{$Session->User()->Name()} signed in on " . date("F d, Y H:i:s") . "", null, "User sign in", "ADMINISTRATOR");
 	//$Terminal->Redirect($_POST["_Referer"]);
 	$Terminal->Redirect($Application->URL());
 }

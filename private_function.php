@@ -83,6 +83,10 @@ function ___ExecuteApplicationScript($Application, $Template, $Configuration){
 		if(!isset($_POST["_NoHeader"])){ // Header
 			$Application->Terminal()->Mode(OUTPUT_BUFFER_MODE_HEADER); // Change buffer to header mode
 			$DebugCheckpointID = $Debug->StartCheckpoint("template/header.php");
+
+			// This is put here to exclusively use for Terminals that are real browsing devices
+			require __DIR__ . "/include/useruserdevice_add.php"; // Register user device
+
 			require "{$Environment->Path()}template/header.php"; // Execute header script
 			$Debug->StopCheckpoint($DebugCheckpointID);
 			$Application->Terminal()->Flush(); // Required to set the contents in order of header and main
@@ -92,6 +96,10 @@ function ___ExecuteApplicationScript($Application, $Template, $Configuration){
 			$Application->Terminal()->Mode(OUTPUT_BUFFER_MODE_MAIN); // Change back buffer to main mode
 			$DebugCheckpointID = $Debug->StartCheckpoint("template/footer.php");
 			require "{$Environment->Path()}template/footer.php"; // Execute footer script
+
+			// This is put here to exclusively use for Terminals that are real browsing devices
+			require __DIR__ . "/include/useruserdevicenotification_fetch.php"; // Fetch UserUserDeviceNotification
+			
 			$Debug->StopCheckpoint($DebugCheckpointID);
 		}
 	}
