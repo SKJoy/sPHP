@@ -1,9 +1,11 @@
 <?php
 namespace sPHP;
-
+/*
+*/
 if(
 		!is_null($Database->Connection()) // We have a connected database
 	&&	!$Session->IsGuest() // Ignore for Guest user
+	&&	time() - $Session->UserSetTime() < 2 // Avoid blind repeatative trials
 ){
 	$UserID = intval($User->ID()); // For some reason, $User->ID() returns NULL even with an authenticated user!
 
