@@ -1570,7 +1570,7 @@ class Application{
     
         $SQL = "
             # Create notification
-            INSERT INTO sphp_notification (
+            INSERT IGNORE INTO sphp_notification (
                 NotificationSignature, 
                 NotificationEventTime, 
                 NotificationSubject, 
