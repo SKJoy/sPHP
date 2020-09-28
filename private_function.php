@@ -98,7 +98,7 @@ function ___ExecuteApplicationScript($Application, $Template, $Configuration){
 			require "{$Environment->Path()}template/footer.php"; // Execute footer script
 
 			// This is put here to exclusively use for Terminals that are real browsing devices
-			require __DIR__ . "/include/useruserdevicenotification_fetch.php"; // Fetch UserUserDeviceNotification
+			if($Configuration["UserDeviceNotification"])require __DIR__ . "/include/useruserdevicenotification_fetch.php"; // Fetch UserUserDeviceNotification
 			
 			$Debug->StopCheckpoint($DebugCheckpointID);
 		}
