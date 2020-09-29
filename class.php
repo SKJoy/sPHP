@@ -644,8 +644,8 @@ class Terminal{
 
         #region sPHP custom header
         header("XX-Powered-By: {$this->Property["Environment"]->Name()}/{$this->Property["Environment"]->Version()->Full()}");
-        header("XX-sPHP-Developer: Binary Men");
-        header("XX-sPHP-Developer-URL: http://Binary.Men");
+        //header("XX-sPHP-Developer: Binary Men");
+        //header("XX-sPHP-Developer-URL: http://Binary.Men");
         #endregion sPHP custom header
 
         header("Content-Type: " . EXTENSION_MIMETYPE[strtolower($this->Property["DocumentType"])] . (!is_null($this->Property["CharacterSet"]) ? "; charset={$this->Property["CharacterSet"]}" : null));
