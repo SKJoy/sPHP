@@ -11,11 +11,11 @@ $Cron = new Cron( // Cron job (service)
 	$CronProcessName, // Unique process name
 	[ // Jobs
 		// Application managed
-		new Cron\Job("{$Environment->ScriptPath()}cron/maintenance/database/clean.php", $DayInterval, null, "Database: Clean (application)"),
+		new Cron\Job("{$Environment->ScriptPath()}cron/maintenance/database/clean.php", $HourInterval, null, "Database: Clean (application)"),
 
 		// System managed
-		new Cron\Job("{$Environment->SystemScriptPath()}cron/notification/send.php", $MinimumInterval, null, "Notification: Send"),
-		new Cron\Job("{$Environment->SystemScriptPath()}cron/maintenance/database/clean.php", $DayInterval, null, "Database: Clean"),
+		new Cron\Job("{$Environment->SystemScriptPath()}cron/notification/send.php", $Configuration["CronNotificationInterval"], null, "Notification: Send"),
+		new Cron\Job("{$Environment->SystemScriptPath()}cron/maintenance/database/clean.php", $DayInterval, null, "Database: Clean (system)"),
 		new Cron\Job("{$Environment->SystemScriptPath()}cron/maintenance/applicationtraffic/geolocation/update.php", $HourInterval, null, "Application traffic: GeoLocation: Update"),
 
 		// Other
@@ -28,13 +28,16 @@ $Cron = new Cron( // Cron job (service)
 		"Configuration" => $Configuration,
 	],
 	$Configuration["CronMaximumExecutionTime"], // Maximum execution time in seconds
-	isset($_POST["Execute"]) ? null : $MinimumInterval, // Service iternation interval in seconds; Non positive value disables service mode
+	SetVariable("Command") == "EXECUTE" ? null : $MinimumInterval, // Service iternation interval in seconds; Non positive value disables service mode
 	null, // Custom EXIT command
 	true // Verbose mode
-);
+); //DebugDump($Cron);
 
-if(isset($_POST["SetExit"]))$Cron->Command("EXIT");
-if(isset($_POST["SetResume"]))$Cron->Command("RESUME");
-//DebugDump($Cron);
-print HTML\UI\MessageBox("{$CronProcessName}: " . ($Cron->Execute() ? "Success" : "Failed") . "", "Cron");
+if(in_array($_POST["Command"], ["EXIT", "RESUME"])){
+	$Cron->Command($_POST["Command"]);
+	print HTML\UI\MessageBox("{$CronProcessName}: Command: {$_POST["Command"]}", "Cron");
+}
+else{
+	print HTML\UI\MessageBox("{$CronProcessName}: " . ($Cron->Execute() ? "Success" : "Failed") . "", "Cron");
+}
 ?>
