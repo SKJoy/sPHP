@@ -176,6 +176,8 @@ class Pad{
 
     public function HTML(){
 		if(!$this->Property[__FUNCTION__]){
+            $HTML = [];
+
 			foreach(array_filter($this->Property["Item"]) as $ItemKey => $Item){
 				$Item->AccordionName($this->Property["AccordionName"]);
 				$Item->PadKey($this->Property["Key"]);
@@ -188,7 +190,7 @@ class Pad{
 
 			$IsActive = (!isset($_POST["_{$this->Property["AccordionName"]}_PadKey"]) && $this->Property["Default"]) || (isset($_POST["_{$this->Property["AccordionName"]}_PadKey"]) && $_POST["_{$this->Property["AccordionName"]}_PadKey"] == $this->Property["Key"]) ? true: false;
 
-			$this->Property[__FUNCTION__] = "
+			$this->Property[__FUNCTION__] = count($HTML) ? "
 				<div class=\"Pad" . ($IsActive ? " Active" : null) . "\">
 					<input type=\"" . ($this->Property["SinglePad"] ? "radio" : "checkbox") . "\" name=\"_{$this->Property["AccordionName"]}_Pad\" id=\"_{$this->Property["AccordionName"]}_PadKey[{$this->Property["Key"]}]\"" . ($IsActive ? " checked" : null) . " class=\"Switch\">
 
@@ -196,9 +198,9 @@ class Pad{
 						" . ($this->Property["Icon"] ? "<img src=\"{$this->Property["Icon"]}\" alt=\"{$this->Property["Caption"]}\" class=\"Icon\">" : null) . "" . ($this->Property["Caption"] ? "<span class=\"Caption\">{$this->Property["Caption"]}</span>" : null) . "
 					</label>
 
-					<div class=\"Option\">" . implode(null, $HTML) . "</div>
+					" . (count($HTML) ? "<div class=\"Option\">" . implode(null, $HTML) . "</div>" : null) . "
 				</div>
-			";
+			" : "";
 		}
 
 		$Result = $this->Property[__FUNCTION__];
