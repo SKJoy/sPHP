@@ -93,7 +93,7 @@ class Table{
 			}
 		}
 		else{
-die("Database type not supported!");
+			die("Database type not supported!");
 		}
 
 		$Result = false;
@@ -101,13 +101,13 @@ die("Database type not supported!");
 
 		if(is_null($this->Property["BeforeGet"]) || $this->Property["BeforeGet"]($WholeSQL)){
 			if($Verbose)print "<div class=\"MessageBox\"><div class=\"Container\"><div class=\"Title\">" . __CLASS__ . "-&gt;" . __FUNCTION__ . "</div><div class=\"Content\"><pre class=\"Code\">" . trim($SQL) . "</pre></div></div></div>";
-//var_dump($WholeSQL);
+			//var_dump($WholeSQL);
 			//if($this->Property["Database"]->Query($WholeSQL) && count($this->Property["Database"]->Recordset())){
 			if($this->Property["Database"]->Query($WholeSQL)){
 				$this->Property["LastDuration"] = $this->Property["Database"]->LastDuration();
 				$this->Property["Duration"] = $this->Property["Duration"] + $this->Property["LastDuration"];
 				if($this->Property["Database"]->KeepQueryHistory())$this->Property["QueryHistory"][] = $this->Property["Database"]->QueryHistory()[count($this->Property["Database"]->QueryHistory()) - 1];
-//var_dump(count($this->Property["Database"]->Recordset())); //exit;
+				//var_dump(count($this->Property["Database"]->Recordset())); //exit;
 				$Result = count($this->Property["Database"]->Recordset()) ? $this->Property["Database"]->Recordset()[0] : [];
 				$this->Property["Count"] = $From ? $this->Property["Database"]->Query("SELECT COUNT(1) AS Count FROM ({$SQL}) AS ___Recordset", null, null, true)[0][0]["Count"] : count($Result);
 			}
@@ -126,13 +126,19 @@ die("Database type not supported!");
 		foreach($Data as $Row){
 			$Row = array_values($Row);
 			$INSERTColumnSQL = [];
-//var_dump($Row);
+			//var_dump($Row);
 			foreach($Field as $ColumnIndex=>$Column){
+				#region DEBUG
+				if(is_array($Row[$ColumnIndex])){
+					file_put_contents(__DIR__ . "/debug.json", json_encode(debug_backtrace()));
+				}
+				#endregion DEBUG
+
 				if(!strlen($Row[$ColumnIndex]) && in_array($Column, $this->Structure()["Nullable"])){
 					$Value = "NULL";
 				}
 				else{
-//var_dump($Column, in_array($Column, array_merge($this->Structure()["Date"], $this->Structure()["Time"], $this->Structure()["DateTime"], $this->Structure()["String"])), array_merge($this->Structure()["Date"], $this->Structure()["Time"], $this->Structure()["DateTime"], $this->Structure()["String"]));
+					//var_dump($Column, in_array($Column, array_merge($this->Structure()["Date"], $this->Structure()["Time"], $this->Structure()["DateTime"], $this->Structure()["String"])), array_merge($this->Structure()["Date"], $this->Structure()["Time"], $this->Structure()["DateTime"], $this->Structure()["String"]));
 					if(in_array($Column, array_merge($this->Structure()["Date"], $this->Structure()["Time"], $this->Structure()["DateTime"], $this->Structure()["String"]))){
 						$Value = "'" . str_replace(["'", "\\"], ["''", "\\\\"], $Row[$ColumnIndex]) . "'";
 					}
@@ -178,7 +184,7 @@ die("Database type not supported!");
 
 		if(is_null($this->Property["BeforePut"]) || $this->Property["BeforePut"]($Data, $Field)){
 			if(is_null($this->Property["Before{$ModeName}"]) || $this->Property["Before{$ModeName}"]($ApplicableSQL, $Data, $Field)){
-//var_dump($ApplicableSQL);
+				//var_dump($ApplicableSQL);
 				$Result = $this->Property["Database"]->Query($ApplicableSQL, null, $Verbose);
 				if(!is_null($this->Property["After{$ModeName}"]))$Result = $this->Property["After{$ModeName}"]($Result, $ApplicableSQL, $Data, $Field);
 			}else{$Result = false;}
@@ -282,7 +288,7 @@ die("Database type not supported!");
 				$FieldSQL[] = "(" . implode(", ", $ColumnData) . ")";
 			}
 		}
-//var_dump($FieldSQL);
+		//var_dump($FieldSQL);
 		$this->Property["Database"]->Query("INSERT IGNORE INTO {$this->Property["Prefix"]}{$this->Property["Name"]} (" . implode(", ", $ColumnNameSQL) . ") VALUES " . implode(", ", $FieldSQL) . "", null, false);
 
         return $Result;
@@ -749,8 +755,7 @@ die("Database type not supported!");
 	#region Private function
 	private function __AnalyzeStructure(){
 		$Result = true;
-
-//var_dump($this->Structure()); exit;
+		//var_dump($this->Structure()); exit;
 		return $Result;
 	}
 	#endregion Private function
