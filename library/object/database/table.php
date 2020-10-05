@@ -130,7 +130,10 @@ class Table{
 			foreach($Field as $ColumnIndex=>$Column){
 				#region DEBUG
 				if(is_array($Row[$ColumnIndex])){
-					file_put_contents(__DIR__ . "/debug.json", json_encode(debug_backtrace()));
+					file_put_contents(__DIR__ . "/debug_table_RowColumnIndexIsNotString.json", json_encode([
+						"Row[{$ColumnIndex}]" => $Row[$ColumnIndex], 
+						"BackTrace" => debug_backtrace(), 
+					]));
 				}
 				#endregion DEBUG
 
