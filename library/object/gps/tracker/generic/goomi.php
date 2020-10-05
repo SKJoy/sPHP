@@ -35,25 +35,40 @@ class GOOMI{
 
 	// On the fly method, does not affect any property, rather used by property setter and on demand
 	public function DecodeMessage($Data){
-		$StartMarkerLength = strlen($this->Property["PacketStartMarker"]);
+		$StartMarkerLength = strlen($this->Property["PacketStartMarker"]); //var_dump("StartMarkerLength = {$StartMarkerLength}");
 
 		// If BIN (raw) data is passed, convert to double byte HEX series
 		if(substr($Data, 0, $StartMarkerLength) != $this->Property["PacketStartMarker"])$Data = strtoupper(bin2hex($Data));
 
 		// Extract the first/initial valid packet wrapped by valid start and end markers
-		$StartMarkerPosition = strpos($Data, $this->Property["PacketStartMarker"]);
-		$EndMarkerLength = strlen($this->Property["PacketEndMarker"]);
-		$Data = substr($Data, $StartMarkerPosition, strpos($Data, $this->Property["PacketEndMarker"], $StartMarkerPosition + $StartMarkerLength) - $StartMarkerPosition + $EndMarkerLength);
-//var_dump($Data);
+		$StartMarkerPosition = strpos($Data, $this->Property["PacketStartMarker"]); //var_dump("StartMarkerPosition = {$StartMarkerPosition}");
+		$EndMarkerLength = strlen($this->Property["PacketEndMarker"]); //var_dump("EndMarkerLength = {$EndMarkerLength}");
+
+		$Data = substr(
+			$Data, 
+			$StartMarkerPosition, 
+			strpos(
+				$Data, 
+				$this->Property["PacketEndMarker"], 
+				$StartMarkerPosition + $StartMarkerLength
+			) - $StartMarkerPosition + $EndMarkerLength
+		); //var_dump("Data = {$Data}");
+
 		$CommonResponsePacketLengthDataLength = strlen($this->Property["CommonResponsePacketLength"]);
 		// Minimum valid length = START + Packet length + Protocol number + Minimum 1 byte data + Serial number + Error check + STOP
 		if(strlen($Data) >= $StartMarkerLength + $CommonResponsePacketLengthDataLength + $this->Property["ProtocolNumberDataLength"] + 1 + $this->Property["SerialNumberDataLength"] + strlen($this->Property["CommonResponseErrorCheck"]) + $EndMarkerLength){
-			$ProtocolNumber = substr($Data, 6, 2);
+			$ProtocolNumber = substr($Data, 6, 2); //var_dump("ProtocolNumber = {$ProtocolNumber}");
 			$ProtocolData = substr($Data, $StartMarkerLength + $CommonResponsePacketLengthDataLength + $this->Property["ProtocolNumberDataLength"], strlen($Data) - ($StartMarkerLength + $CommonResponsePacketLengthDataLength + $this->Property["ProtocolNumberDataLength"] + $EndMarkerLength));
 			$ProtocolDataLength = strlen($ProtocolData);
-//var_dump(["Data" => $Data, "ProtocolNumber" => $ProtocolNumber, "ProtocolData" => $ProtocolData, ]);
-			if($ProtocolNumber == "01" && $ProtocolDataLength == 24){
-				$Result = $this->DecodeMessage_LogIn($ProtocolData);
+			//var_dump(["Data" => $Data, "ProtocolNumber" => $ProtocolNumber, "ProtocolData" => $ProtocolData, ]);
+			if(
+					$ProtocolNumber == "01" 
+				&&	(
+							$ProtocolDataLength == 24 // Original GOOMI
+						||	$ProtocolDataLength == 32 // Concox OBD22
+					)
+			){
+				$Result = $this->DecodeMessage_LogIn($ProtocolData, $ProtocolDataLength);
 			}
 			elseif($ProtocolNumber == "13" && $ProtocolDataLength == 18){
 				$Result = $this->DecodeMessage_Status($ProtocolData);
@@ -74,7 +89,7 @@ class GOOMI{
 
 		if($Result)$Result = array_merge([
 			"ProtocolNumber" => $ProtocolNumber,
-		], $Result);
+		], $Result); //var_dump("Result", $Result);
 
 		return $Result;
 	}
@@ -191,7 +206,7 @@ class GOOMI{
 			"LocationAreaCode" => hexdec(substr($Data, 8, 4)),
 			"CellID" => hexdec(substr($Data, 12, 6)),
 		];
-//var_dump($Data);
+		//var_dump($Data);
 		return $Result;
 	}
 
@@ -272,7 +287,7 @@ class GOOMI{
 
 		$Bit = str_pad(base_convert($Byte, 16, 2), 8, "0", STR_PAD_LEFT);
 		$Bit3to5 = substr($Bit, 2, 3);
-	//var_dump(["Byte" => $Byte, "Bit" => $Bit, "Bit3to5" => $Bit3to5, ]);
+		//var_dump(["Byte" => $Byte, "Bit" => $Bit, "Bit3to5" => $Bit3to5, ]);
 		$Result = [
 			"Acc"			=>	$Bit[6] ? true : false,
 			"GPS"			=>	$Bit[1] ? true : false,
@@ -306,7 +321,7 @@ class GOOMI{
 	}
 
 	private function Decode_DateTime($Data){
-	//var_dump($Data);
+		//var_dump($Data);
 		$Result = implode("-", [
 			substr(date("Y"), 0, 2) . str_pad(hexdec(substr($Data, 0, 2)), 2, "0", STR_PAD_LEFT),
 			str_pad(hexdec(substr($Data, 2, 2)), 2, "0", STR_PAD_LEFT),
@@ -320,18 +335,32 @@ class GOOMI{
 		return $Result;
 	}
 
-	private function DecodeMessage_LogIn($Data){
+	private function DecodeMessage_LogIn($Data, $ProtocolDataLength = 24){
 		/*
 		Data must be a continuous STRING of double byte HEX representation of the single byte BINARY (raw) data seriese
 
 		78780D010866005040143457002C50340D0A
 		*/
 
+		// Packet serial number
+		if($ProtocolDataLength == 24){ // Original GOOMI
+			$PacketSerial = substr($Data, 16, 4);
+			$ErrorCheck = substr($Data, 20, 4);
+		}
+		elseif($ProtocolDataLength == 32){ // Concox OBD22
+			$PacketSerial = substr($Data, 24, 4);
+			$ErrorCheck = substr($Data, 28, 4);
+		}
+		else{
+			$PacketSerial = null;
+			$ErrorCheck = null;
+		}
+
 		$Result = [
 			"ProtocolName" => "Log in",
 			"TerminalID" => substr($Data, 0, 16),
-			"Serial" => substr($Data, 16, 4), // Packet serial number
-			"ErrorCheck" => substr($Data, 20, 4), // Error check data
+			"Serial" => $PacketSerial, // Packet serial number
+			"ErrorCheck" => $ErrorCheck, // Error check data
 		];
 
 		return $Result;
@@ -427,6 +456,7 @@ class GOOMI{
 
 	private function ResponseMessage_LogIn($DecodedData){
 		$Result = "{$this->Property["PacketStartMarker"]}{$this->Property["CommonResponsePacketLength"]}{$DecodedData["ProtocolNumber"]}{$DecodedData["Serial"]}{$this->Property["CommonResponseErrorCheck"]}{$this->Property["PacketEndMarker"]}"; // Static D9DC as Error check!!!
+		//$Result = "{$this->Property["PacketStartMarker"]}{$this->Property["CommonResponsePacketLength"]}{$DecodedData["ProtocolNumber"]}{$DecodedData["Serial"]}{$DecodedData["ErrorCheck"]}{$this->Property["PacketEndMarker"]}"; // Static D9DC as Error check!!!
 
 		return $Result;
 	}
