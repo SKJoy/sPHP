@@ -112,13 +112,17 @@ class EntityManagement{
 		else{
 			$Result = false;
 		}
-//var_dump(ListToArray($this->Property["DefaultFromSearchColumn"]), $this->Property["SearchInputPrefix"], );
+        //var_dump(ListToArray($this->Property["DefaultFromSearchColumn"]), $this->Property["SearchInputPrefix"], );
 		foreach(ListToArray($this->Property["DefaultFromSearchColumn"]) as $Column)SetVariable($Column, SetVariable("{$this->Property["SearchInputPrefix"]}{$Column}"));
-//var_dump($_POST);
+        //var_dump($_POST);
 		return $Result;
 	}
 
-	public function Input(){
+	public function Input($WHERE = null){
+        /*
+            $WHERE = Additional WHERE clause upon UPDATE
+        */
+
 		$Form = new HTML\UI\Form(null, null, null, $this->Property["EncryptionKey"], null, null, null, null, $_POST["_ID"], null, null, null, $this->Property["InputValidation"]);
 
 		if($Form->Verify()){
@@ -128,7 +132,7 @@ class EntityManagement{
 
 				// Load existing record
 				if($this->Property["EntityID"])$Record = $this->Property["Table"]->Get("{$this->Property["Table"]->Alias()}.{$this->Property["Table"]->Structure()["Primary"][0]} = {$this->Property["EntityID"]}")[0];
-//var_dump($Record); exit;
+                //var_dump($Record); exit;
 				// Delete existing files for uploaded new file or when asked to delete
 				foreach($FilePOSTKey as $Column){
 					// Set POST value for no file uploaded
@@ -154,8 +158,14 @@ class EntityManagement{
 				}
 
 				if(!is_null($this->Property["BeforeInput"]))$this->Property["BeforeInput"]($this->Property["Table"]->EntityName(), isset($Record) ? $Record : null);
-//var_dump($_POST);
-				$this->Property["Table"]->Put($_POST, $this->Property["EntityID"] ? "{$this->Property["Table"]->Structure()["Primary"][0]} = {$this->Property["EntityID"]}" : null, null, $this->Property["Verbose"]);
+                //var_dump($_POST);
+                $this->Property["Table"]->Put(
+                    $_POST, 
+                    $this->Property["EntityID"] ? "{$this->Property["Table"]->Structure()["Primary"][0]} = {$this->Property["EntityID"]}" . ($WHERE ? " AND ({$WHERE})" : null) . "" : null, 
+                    null, 
+                    $this->Property["Verbose"]
+                );
+                
 				$AffectedRecord = $this->Property["Table"]->Get("{$this->Property["Table"]->Alias()}.{$this->Property["Table"]->Structure()["Primary"][0]} = " . ($this->Property["EntityID"] ? $this->Property["EntityID"] : "@@IDENTITY") . "", null, null, null, null, null, $this->Property["Verbose"])[0];
 
 				if(!is_null($this->Property["AfterInput"]))$this->Property["AfterInput"]($this->Property["Table"]->EntityName(), $AffectedRecord, isset($Record) ? $Record : null, $this->Property["Table"]);
@@ -232,7 +242,7 @@ class EntityManagement{
 	}
 
 	public function Export(){
-//var_dump($this->Property["Environment"]); exit;
+        //var_dump($this->Property["Environment"]); exit;
 		foreach($_POST as $ColumnKey=>$ThisColumn)if(substr($ColumnKey, 0, strlen($Marker = "Column_")) == $Marker)$Column[] = substr($ColumnKey, strlen("Column_"));
 		//return $this->Property["Table"]->Export($Column, null, $_POST["Format"], "{$this->Property["TempPath"]}Export_{$this->Property["Table"]->EntityName()}.csv", $_POST["{$this->Property["Table"]->EntityName()}IDList"] ? "OP.{$this->Property["Table"]->EntityName()}ID IN ({$_POST["{$this->Property["Table"]->EntityName()}IDList"]})" : null, "{$_POST["OrderBy"]} {$_POST["Order"]}");
 
@@ -804,7 +814,7 @@ class EntityManagement{
 					&&	strlen($Value)
 				)$SearchArgument[] = "{$Key}=" . urlencode($Value) . "";
 			}
-//var_dump($_POST, $this->Property["OrderBy"], SetVariable("OrderBy", $this->Property["OrderBy"]));
+            //var_dump($_POST, $this->Property["OrderBy"], SetVariable("OrderBy", $this->Property["OrderBy"]));
 			$this->Property[__FUNCTION__] = "
 				" . HTML\UI\Datagrid(
 					// WHERE clause for search

@@ -465,7 +465,7 @@ class Table{
 					}
 				}
 			}
-//var_dump($this->Property[__FUNCTION__]);
+			//var_dump($this->Property[__FUNCTION__]);
             $Result = $this->Property[__FUNCTION__];
         }
         else{
@@ -745,7 +745,7 @@ class Table{
 				$this->Property[__FUNCTION__]["Column"] = $ColumnStructure;
 			}
 			else{
-die("Database type not supported!");
+				die("Database type not supported!");
 			}
 		}
 

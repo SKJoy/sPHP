@@ -365,7 +365,7 @@ class Datagrid{
 			#endregion Column title
 
 			$SerialStart = (($_POST["{$ParameterPrefix}Page"] - 1) * $this->Property["RowPerPage"]) + 1;
-//var_dump($this->Property["Action"]);
+            //var_dump($this->Property["Action"]);
 			foreach($this->Property["Data"] as $DataIndex => $Data){ // Generate rows from data
 				$FieldHTML = $ActionHTML = [];
 
