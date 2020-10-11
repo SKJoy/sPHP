@@ -127,7 +127,7 @@ class Table{
 			$Row = array_values($Row);
 			$INSERTColumnSQL = [];
 			//var_dump($Row);
-			foreach($Field as $ColumnIndex=>$Column){
+			foreach($Field as $ColumnIndex => $Column){
 				#region DEBUG
 				if(is_array($Row[$ColumnIndex])){
 					file_put_contents(__DIR__ . "/debug_table_RowColumnIndexIsNotString.json", json_encode([
