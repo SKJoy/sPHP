@@ -134,14 +134,14 @@ class Content{
         if(is_null($Value)){ // GET
 			if(is_null($this->Property[__FUNCTION__])){
 				if(isset(self::$Cache["Value"][$this->Property["FileName"]])){
-//var_dump("Serve content for '{$this->Property["Name"]}' from cache");
+                    //var_dump("Serve content for '{$this->Property["Name"]}' from cache");
 					$this->Property[__FUNCTION__] = self::$Cache["Value"][$this->Property["FileName"]];
 				}
 				else{
 					if(file_exists($File)){ // File exists
-//var_dump("Serve content for '{$this->Property["Name"]}' from file");
+                        //var_dump("Serve content for '{$this->Property["Name"]}' from file");
 						require $File;
-						$this->Property[__FUNCTION__] = unserialize($___Content);
+						$this->Property[__FUNCTION__] = json_decode($___Content);
 
 						if(is_array($this->Property["DefaultValue"])){
 							if(is_array($this->Property[__FUNCTION__])){
@@ -154,7 +154,7 @@ class Content{
 						}
 					}
 					else{ // File doesn't exist
-//var_dump("Serve content for '{$this->Property["Name"]}' as default");
+                        //var_dump("Serve content for '{$this->Property["Name"]}' as default");
 						//$this->Value(is_null($this->Property["DefaultValue"]) ? "" : $this->Property["DefaultValue"]);
 						$this->Property[__FUNCTION__] = $this->Property["DefaultValue"];
 					}
@@ -166,9 +166,9 @@ class Content{
 			$Result = $this->Property[__FUNCTION__];
         }
         else{ // Set
-//var_dump("Write content for '{$this->Property["Name"]}'");
+            //var_dump("Write content for '{$this->Property["Name"]}'");
             $this->Property[__FUNCTION__] = self::$Cache["Value"][$this->Property["FileName"]] = $Value;
-			$Result = file_put_contents($File, "<?php\n	\$___Content = \"" . str_replace(["\\", "\$", "\"", ], ["\\\\", "\\\$", "\\\"", ], serialize($this->Property[__FUNCTION__])) . "\";\n\n	if(count(debug_backtrace()) == 0)print \"<html><body style=\\\"margin: 60px; color: Red; font-family: Sans-serif, Verdana, Tahoma, Arial; font-size: 24px; text-align: center;\\\">Please please please! I beg you, don't screw me.</body></html>\";\n?>") === false ? false : true;
+			$Result = file_put_contents($File, "<?php\n	\$___Content = \"" . str_replace(["\\", "\$", "\"", ], ["\\\\", "\\\$", "\\\"", ], json_encode($this->Property[__FUNCTION__])) . "\";\n\n	if(count(debug_backtrace()) == 0)print \"<html><body style=\\\"margin: 60px; color: Red; font-family: Sans-serif, Verdana, Tahoma, Arial; font-size: 24px; text-align: center;\\\">Please please please! I beg you, don't screw me.</body></html>\";\n?>") === false ? false : true;
         }
 
         return $Result;
