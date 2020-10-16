@@ -4,7 +4,7 @@
 	require __DIR__ . "/../../common/languagebyhtmlcode.php";
 
 	$Content = new Content($_POST["Name"], null, $Environment->ContentPath(), null, $Language[$_POST["LanguageHTMLCode"]]);
-
+	//DebugDump($Content->Value());
 	if(is_array($Content->Value())){ // Array of content items
 		$Input = explode(",", $_POST["Input"]);
 		$ItemCounter = -1;
