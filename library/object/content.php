@@ -20,7 +20,7 @@ class Content{
 		"Value"				=>	null,
 		"EditURL"			=>	"./?_Script=utility/content/input",
 		"AnchorID"			=>	null,
-		"EditAnchor"			=>	null,
+		"EditAnchor"		=>	null,
     ];
     #endregion Property
 
@@ -129,7 +129,8 @@ class Content{
     }
 
     public function Value($Value = null){
-		$File = "{$this->Property["Path"]}{$this->FileName()}.php";
+        $File = "{$this->Property["Path"]}{$this->FileName()}.php";
+        //var_dump("Content file = {$File}");
 
         if(is_null($Value)){ // GET
 			if(is_null($this->Property[__FUNCTION__])){
@@ -153,7 +154,8 @@ class Content{
 							}
 						}
 					}
-					else{ // File doesn't exist
+                    else{ // File doesn't exist
+                        //var_dump("Content file '{$File}' not found. Did you provide with Path property?");
                         //var_dump("Serve content for '{$this->Property["Name"]}' as default");
 						//$this->Value(is_null($this->Property["DefaultValue"]) ? "" : $this->Property["DefaultValue"]);
 						$this->Property[__FUNCTION__] = $this->Property["DefaultValue"];
@@ -188,8 +190,8 @@ class Content{
         return $Result;
     }
 
-	public function EditAnchor($Hide = false){
-		if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = "<a href=\"{$this->EditURL()}\" title=\"Edit {$this->Name()}\" class=\"ContentEditAnchor\">✎</a>";
+	public function EditAnchor($Hide = false, $NewWindow = false){
+		if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = "<a href=\"{$this->EditURL()}\" title=\"Edit {$this->Name()}\"" . ($NewWindow ? " target=\"_blank\"" : null) . " class=\"ContentEditAnchor\">✎</a>";
 
 		$Result = $Hide ? null : $this->Property[__FUNCTION__];
 
