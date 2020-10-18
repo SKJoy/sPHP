@@ -142,7 +142,7 @@ class Content{
 					if(file_exists($File)){ // File exists
                         //var_dump("Serve content for '{$this->Property["Name"]}' from file");
 						require $File;
-						$this->Property[__FUNCTION__] = unserialize($___Content);
+						$this->Property[__FUNCTION__] = unserialize(base64_decode($___Content));
 
 						if(is_array($this->Property["DefaultValue"])){
 							if(is_array($this->Property[__FUNCTION__])){
@@ -170,7 +170,7 @@ class Content{
         else{ // Set
             //var_dump("Write content for '{$this->Property["Name"]}'");
             $this->Property[__FUNCTION__] = self::$Cache["Value"][$this->Property["FileName"]] = $Value;
-			$Result = file_put_contents($File, "<?php\n	\$___Content = \"" . str_replace(["\\", "\$", "\"", ], ["\\\\", "\\\$", "\\\"", ], serialize($this->Property[__FUNCTION__])) . "\";\n\n	if(count(debug_backtrace()) == 0)print \"<html><body style=\\\"margin: 60px; color: Red; font-family: Sans-serif, Verdana, Tahoma, Arial; font-size: 24px; text-align: center;\\\">Please please please! I beg you, don't screw me.</body></html>\";\n?>") === false ? false : true;
+			$Result = file_put_contents($File, "<?php\n	\$___Content = \"" . str_replace(["\\", "\$", "\"", ], ["\\\\", "\\\$", "\\\"", ], base64_encode(serialize($this->Property[__FUNCTION__]))) . "\";\n\n	if(count(debug_backtrace()) == 0)print \"<html><body style=\\\"margin: 60px; color: Red; font-family: Sans-serif, Verdana, Tahoma, Arial; font-size: 24px; text-align: center;\\\">Please please please! I beg you, don't screw me.</body></html>\";\n?>") === false ? false : true;
         }
 
         return $Result;

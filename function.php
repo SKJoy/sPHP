@@ -30,6 +30,12 @@ namespace sPHP{
 		return $Environment->Utility()->ValidFileName($Name, $ReplacementCharacter);
 	}
 
+	function ValidVariableName($Name, $ReplacementCharacter = "_"){
+		global $Environment;
+
+		return $Environment->Utility()->ValidVariableName($Name, $ReplacementCharacter);
+	}
+
 	function UniqueFileName($File){
 		global $Environment;
 
