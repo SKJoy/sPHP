@@ -80,7 +80,7 @@ class Mail{
 
 		$PHPMailer->Subject = $this->Property["Subject"];
 		$PHPMailer->Body = $Message = $this->Property["HTML"] ? "<html><body" . ($this->Property["BodyStyle"] ? " style=\"{$this->Property["BodyStyle"]}\"" : "") . ">{$this->Property["Message"]}</body></html>" : $this->Property["Message"];
-		if($this->Property["ReplyTo"])$PHPMailer->AddReplyTo($this->Property["ReplyTo"]->Email(), $this->Property["ReplyTo"]->Name());
+		if($this->Property["ReplyTo"])$PHPMailer->AddReplyTo($this->Property["ReplyTo"]->Address(), $this->Property["ReplyTo"]->Name());
 		if($this->Property["HTML"])$PHPMailer->IsHTML(true);
 		$PHPMailer->CharSet = 'UTF-8';
 
@@ -95,7 +95,7 @@ class Mail{
 			$PHPMailer->Username = $this->Property["User"];
 			if($this->Property["Password"])$PHPMailer->Password = $this->Property["Password"];
 		}
-//var_dump($PHPMailer, realpath($this->Property["LogPath"]));
+        //var_dump($PHPMailer, realpath($this->Property["LogPath"]));
 		try{
 			if(($Result = $PHPMailer->send()) && realpath($this->Property["LogPath"]) !== false)file_put_contents("{$this->Property["LogPath"]}" . str_replace(str_split(" :"), "_", date("r")) . "_" . \sPHP\GUID() . ".eml", "Subject: {$this->Property["Subject"]}
 To: White Services <info@white.services>
@@ -108,7 +108,7 @@ xContent-Type: text/html; charset=iso-8859-1
 {$Message}");
 		}
 		catch(Exception $Exception){
-//\sPHP\DebugDump($Exception);
+            //\sPHP\DebugDump($Exception);
 			print \sPHP\HTML\UI\MessageBox("Failed sending email! Please contact support.", "Error", "MessageBox_Error");
 			$Result = false;
 		}
