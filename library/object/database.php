@@ -242,13 +242,23 @@ class Database{
 					$this->Property["Duration"] = $this->Property["Duration"] + $this->Property["LastDuration"];
 					$this->Property["QueryCount"]++;
 				}
-
-				if(isset($Recordset)){
-					$Result = $this->Property["Recordset"] = $Recordset;
+				
+				$QueryError = $Query->errorInfo();
+				
+				if($QueryError[0] != "00000"){ // Throw query error exception
+					$this->Property["Recordset"] = [];
+					$Result = false;
+					
+					trigger_error($QueryError[2], E_USER_ERROR);
 				}
 				else{
-					$this->Property["Recordset"] = [];
-					$Result = true;
+					if(isset($Recordset)){
+						$Result = $this->Property["Recordset"] = $Recordset;
+					}
+					else{
+						$this->Property["Recordset"] = [];
+						$Result = true;
+					}
 				}
 
 				// Add query to history
