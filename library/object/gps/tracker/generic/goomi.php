@@ -365,7 +365,7 @@ class GOOMI{
 			"TerminalID" => substr($Data, 0, 16),
 			"Serial" => $PacketSerial, // Packet serial number
 			"ErrorCheck" => $ErrorCheck, // Error check data
-			"Raw" => $Data, 
+			//"Raw" => $Data, 
 		];
 
 		return $Result;
@@ -500,7 +500,7 @@ class GOOMI{
 		*/
 
 		$Result = [
-			"ProtocolName" => "Location x22",
+			"ProtocolName" => "Location",
 			"DateTime" => $this->Decode_DateTime($DataPart[0]),
 			"Velocity" => hexdec($DataPart[4]),
 			"GPSSatellite" => hexdec($DataPart[1]),
@@ -528,11 +528,9 @@ class GOOMI{
 
 	private function ResponseMessage_LogIn($DecodedData){
 		$Data = "{$this->Property["CommonResponsePacketLength"]}{$DecodedData["ProtocolNumber"]}{$DecodedData["Serial"]}";
-		$ErrorCheck = strtoupper(dechex($this->CRC_16(str_split($Data, 2))));
-		//var_dump($Data, $ErrorCheck);
-		//var_dump($DecodedData, CRC_16(str_split($DecodedData[""], 2)));
+		$ErrorCheck = $this->ErrorCheckSignature($Data); //var_dump($ErrorCheck);
 
-		$Result = "{$this->Property["PacketStartMarker"]}{$this->Property["CommonResponsePacketLength"]}{$DecodedData["ProtocolNumber"]}{$DecodedData["Serial"]}{$ErrorCheck}{$this->Property["PacketEndMarker"]}";
+		$Result = "{$this->Property["PacketStartMarker"]}{$Data}{$ErrorCheck}{$this->Property["PacketEndMarker"]}";
 		//$Result = "{$this->Property["PacketStartMarker"]}{$this->Property["CommonResponsePacketLength"]}{$DecodedData["ProtocolNumber"]}{$DecodedData["Serial"]}{$this->Property["CommonResponseErrorCheck"]}{$this->Property["PacketEndMarker"]}"; // Static D9DC as Error check!!!
 		//$Result = "{$this->Property["PacketStartMarker"]}{$this->Property["CommonResponsePacketLength"]}{$DecodedData["ProtocolNumber"]}{$DecodedData["Serial"]}{$DecodedData["ErrorCheck"]}{$this->Property["PacketEndMarker"]}";
 
@@ -540,11 +538,11 @@ class GOOMI{
 	}
 
 	private function ResponseMessage_Status($DecodedData){
-		$Data = "{$this->Property["CommonResponsePacketLength"]}{$DecodedData["ProtocolNumber"]}{$DecodedData["Serial"]}";
-		$ErrorCheck = strtoupper(dechex($this->CRC_16(str_split($Data, 2))));
+		$Data = "{$this->Property["CommonResponsePacketLength"]}{$DecodedData["ProtocolNumber"]}{$DecodedData["Serial"]}"; //var_dump($Data);
+		$ErrorCheck = $this->ErrorCheckSignature($Data); //var_dump($ErrorCheck);
 		
 		// Looks like the Chinese technical manual is wrong/confusing about the example of the Protocol number for this response!
-		$Result = "{$this->Property["PacketStartMarker"]}{$this->Property["CommonResponsePacketLength"]}{$DecodedData["ProtocolNumber"]}{$DecodedData["Serial"]}{$ErrorCheck}{$this->Property["PacketEndMarker"]}"; // Static D9DC as Error check!!!
+		$Result = "{$this->Property["PacketStartMarker"]}{$Data}{$ErrorCheck}{$this->Property["PacketEndMarker"]}"; // Static D9DC as Error check!!!
 		//$Result = "{$this->Property["PacketStartMarker"]}{$this->Property["CommonResponsePacketLength"]}{$DecodedData["ProtocolNumber"]}{$DecodedData["Serial"]}{$this->Property["CommonResponseErrorCheck"]}{$this->Property["PacketEndMarker"]}"; // Static D9DC as Error check!!!
 
 		return $Result;
@@ -631,6 +629,10 @@ class GOOMI{
 
         return $crc;
     }
+
+	private function ErrorCheckSignature($Data){
+		return str_pad(strtoupper(dechex($this->CRC_16(str_split($Data, 2)))), 4, "0", STR_PAD_LEFT);
+	}
 	#endregion Private function
 }
 ?>
