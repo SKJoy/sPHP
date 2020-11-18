@@ -389,7 +389,7 @@ class GOOMI{
 			"ProtocolName" => "Status",
 			"Terminal" => $this->Decode_TerminalInformation(substr($Data, 0, 2)),
 			"Voltage" => round(substr($Data, 2, 2) * 16.66, 2), // Percentile
-			"GSM" => array_merge(["Signal" => substr($Data, 4, 2) * 25, ], ["Length" => null, "MobileCountryCode" => null, "MobileNetworkCode" => null, "LocationAreaCode" => null, "CellID" => null, ]),
+			"GSM" => array_merge(["Signal" => intval(substr($Data, 4, 2)) * 25, ], ["Length" => null, "MobileCountryCode" => null, "MobileNetworkCode" => null, "LocationAreaCode" => null, "CellID" => null, ]),
 			//"Alarm" => $this->Decode_Alarm(substr($Data, 6, 2)), // Manual has no translation about this!
 			"Language" => $this->Decode_Language(substr($Data, 8, 2)),
 			"Serial" => substr($Data, 10, 4), // Packet serial number

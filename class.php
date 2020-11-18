@@ -1257,6 +1257,7 @@ class Application{
         "StatusCode"			=>	HTTP_STATUS_CODE_OK,
 		"Data"					=>	[],
         "OpenGraph"             =>  null,
+        "UserDeviceNotification"    =>  false, 
     ];
     #endregion Property
 
@@ -1561,76 +1562,81 @@ class Application{
     }
     
     public function NotifyUserDevice($Message, $UserID = null, $Subject = null, $UserGroupIdentifier = null, $EventTime = null){
-        if(!is_array($UserID))$UserID = is_null($UserID) ? [] : [$UserID];
-        if(!$Subject)$Subject = $this->Property["Name"];
-        if(!is_array($UserGroupIdentifier))$UserGroupIdentifier = is_null($UserGroupIdentifier) ? [] : [$UserGroupIdentifier];
-        if(is_null($EventTime))$EventTime = date("Y-m-d H:i:s");
+        if($this->Property["UserDeviceNotification"]){
+            if(!is_array($UserID))$UserID = is_null($UserID) ? [] : [$UserID];
+            if(!$Subject)$Subject = $this->Property["Name"];
+            if(!is_array($UserGroupIdentifier))$UserGroupIdentifier = is_null($UserGroupIdentifier) ? [] : [$UserGroupIdentifier];
+            if(is_null($EventTime))$EventTime = date("Y-m-d H:i:s");
 
-        $UserIDFrom = intval($this->Property["Session"]->User()->ID()); // Needed to exlude current user + Signature
-    
-        $SQL = "
-            # Create notification
-            INSERT IGNORE INTO sphp_notification (
-                NotificationSignature, 
-                NotificationEventTime, 
-                NotificationSubject, 
-                NotificationMessage, 
-                NotificationTypeID, 
-                NotificationSourceID, 
-                NotificationTo, 
-                UserIDFrom, # Should we really use this
-                NotificationSentTime, 
-                NotificationIsActive, 
-                TimeInserted
-            ) VALUES (
-                MD5(CONCAT('{$UserIDFrom}.{$Message}')), 
-                '{$EventTime}', # NotificationEventTime
-                '{$this->Property["Database"]->Escape($Subject)}', # NotificationSubject
-                '{$this->Property["Database"]->Escape($Message)}', # NotificationMessage
-                (SELECT NT.NotificationTypeID FROM sphp_notificationtype AS NT WHERE NT.NotificationTypeIdentifier = 'PUSH'), # NotificationTypeID
-                (SELECT NS.NotificationSourceID FROM sphp_notificationsource AS NS WHERE NS.NotificationSourceIdentifier = 'SYSTEM'), # NotificationSourceID
-                '', # NotificationTo
-                {$UserIDFrom}, # UserIDFrom # Should we really use this
-                NOW(), # NotificationSentTime, 
-                1, # NotificationIsActive
-                NOW() # TimeInserted
-            );
-    
-            # Tag Notification to UserUserDevice
-            INSERT IGNORE INTO sphp_useruserdevicenotification (UserUserDeviceID, NotificationID, UserUserDeviceNotificationIsRead, UserUserDeviceNotificationIsActive, TimeInserted)
-            SELECT			UUD.UserUserDeviceID, 
-                            @@IDENTITY, 
-                            0, 1, NOW()
-                            #, UUG.UserID, UUG.UserGroupID, UUD.UserDeviceID
-            FROM			sphp_useruserdevice AS UUD
-                LEFT JOIN	sphp_user AS U ON U.UserID = UUD.UserID
-                LEFT JOIN	sphp_userusergroup AS UUG ON UUG.UserID = U.UserID
-                LEFT JOIN	sphp_usergroup AS UG ON UG.UserGroupID = UUG.UserGroupID
-            WHERE			TRUE
-                AND			" . (count($UserID) ? "UUG.UserID IN (" . implode(", ", $UserID) . ")" : "TRUE") . " # Filter User
-                AND			" . (count($UserGroupIdentifier) ? "UG.UserGroupIdentifier IN ('" . implode("', '", $UserGroupIdentifier) . "')" : "TRUE") . " # Filter UserGroupIdentifier
-                AND         U.UserID != {$UserIDFrom} # Exclude the User generating the notification
-                AND			U.UserIsActive = 1
-                AND			UG.UserGroupIsActive = 1
-                AND			UUG.UserUserGroupIsActive = 1
-                AND			UUD.UserUserDeviceID IS NOT NULL # Must have a device to notify on
-            ;
-    
-            SELECT 'DONE' AS Status;
-        "; //DebugDump("<pre>{$SQL}</pre>");
+            $UserIDFrom = intval($this->Property["Session"]->User()->ID()); // Needed to exlude current user + Signature
+        
+            $SQL = "
+                # Create notification
+                INSERT IGNORE INTO sphp_notification (
+                    NotificationSignature, 
+                    NotificationEventTime, 
+                    NotificationSubject, 
+                    NotificationMessage, 
+                    NotificationTypeID, 
+                    NotificationSourceID, 
+                    NotificationTo, 
+                    UserIDFrom, # Should we really use this
+                    NotificationSentTime, 
+                    NotificationIsActive, 
+                    TimeInserted
+                ) VALUES (
+                    MD5(CONCAT('{$UserIDFrom}.{$Message}')), 
+                    '{$EventTime}', # NotificationEventTime
+                    '{$this->Property["Database"]->Escape($Subject)}', # NotificationSubject
+                    '{$this->Property["Database"]->Escape($Message)}', # NotificationMessage
+                    (SELECT NT.NotificationTypeID FROM sphp_notificationtype AS NT WHERE NT.NotificationTypeIdentifier = 'PUSH'), # NotificationTypeID
+                    (SELECT NS.NotificationSourceID FROM sphp_notificationsource AS NS WHERE NS.NotificationSourceIdentifier = 'SYSTEM'), # NotificationSourceID
+                    '', # NotificationTo
+                    {$UserIDFrom}, # UserIDFrom # Should we really use this
+                    NOW(), # NotificationSentTime, 
+                    1, # NotificationIsActive
+                    NOW() # TimeInserted
+                );
+        
+                # Tag Notification to UserUserDevice
+                INSERT IGNORE INTO sphp_useruserdevicenotification (UserUserDeviceID, NotificationID, UserUserDeviceNotificationIsRead, UserUserDeviceNotificationIsActive, TimeInserted)
+                SELECT			UUD.UserUserDeviceID, 
+                                @@IDENTITY, 
+                                0, 1, NOW()
+                                #, UUG.UserID, UUG.UserGroupID, UUD.UserDeviceID
+                FROM			sphp_useruserdevice AS UUD
+                    LEFT JOIN	sphp_user AS U ON U.UserID = UUD.UserID
+                    LEFT JOIN	sphp_userusergroup AS UUG ON UUG.UserID = U.UserID
+                    LEFT JOIN	sphp_usergroup AS UG ON UG.UserGroupID = UUG.UserGroupID
+                WHERE			TRUE
+                    AND			" . (count($UserID) ? "UUG.UserID IN (" . implode(", ", $UserID) . ")" : "TRUE") . " # Filter User
+                    AND			" . (count($UserGroupIdentifier) ? "UG.UserGroupIdentifier IN ('" . implode("', '", $UserGroupIdentifier) . "')" : "TRUE") . " # Filter UserGroupIdentifier
+                    AND         U.UserID != {$UserIDFrom} # Exclude the User generating the notification
+                    AND			U.UserIsActive = 1
+                    AND			UG.UserGroupIsActive = 1
+                    AND			UUG.UserUserGroupIsActive = 1
+                    AND			UUD.UserUserDeviceID IS NOT NULL # Must have a device to notify on
+                ;
+        
+                SELECT 'DONE' AS Status;
+            "; //DebugDump("<pre>{$SQL}</pre>");
 
-        if(!is_null($this->Property["Database"]->Connection())){ // We have a working database
-            if(isset($this->Property["Database"]->Query($SQL)[0][0]["Status"])){ // Database query succeeded
-                $Result = true;
-                //print HTML\UI\MessageBox("Notification created successfully", "System");
+            if(!is_null($this->Property["Database"]->Connection())){ // We have a working database
+                if(isset($this->Property["Database"]->Query($SQL)[0][0]["Status"])){ // Database query succeeded
+                    $Result = true;
+                    //print HTML\UI\MessageBox("Notification created successfully", "System");
+                }
+                else{ // Database query failed
+                    $Result = false;
+                    print HTML\UI\MessageBox("Failed creating notification!", "System", "MessageBoxError");
+                }
             }
-            else{ // Database query failed
-                $Result = false;
-                print HTML\UI\MessageBox("Failed creating notification!", "System", "MessageBoxError");
+            else{ // Database is not available
+                $Result = true;
             }
         }
-        else{ // Database is not available
-            $Result = true;
+        else{
+            $Result = false;
         }
     
         return $Result;    
@@ -2037,6 +2043,19 @@ class Application{
     }
 
     public function OpenGraph($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+            $Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function UserDeviceNotification($Value = null){
         if(is_null($Value)){
             $Result = $this->Property[__FUNCTION__];
         }
