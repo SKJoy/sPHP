@@ -63,7 +63,8 @@ class EntityManagement{
         "ExportHTML"				=>	null,
 
 		"LowercaseEntityName"		=>	null,
-		"EntityID"					=>	null,
+        "EntityID"					=>	null,
+        "Recordset"                 =>  [], 
     ];
     #endregion Property
 
@@ -815,10 +816,12 @@ class EntityManagement{
 				)$SearchArgument[] = "{$Key}=" . urlencode($Value) . "";
 			}
             //var_dump($_POST, $this->Property["OrderBy"], SetVariable("OrderBy", $this->Property["OrderBy"]));
+            $this->Property["Recordset"] = $this->Property["Table"]->Get(implode(" AND ", array_filter($this->Property["SearchSQL"])), "" . SetVariable("OrderBy", $this->Property["OrderBy"]) . " " . SetVariable("Order", $this->Property["Order"]) . "", ((SetVariable("Page", 1) - 1) * ($this->Property["RecordsPerPage"])) + 1, $this->Property["RecordsPerPage"], null, null, $this->Property["Verbose"]);
+
 			$this->Property[__FUNCTION__] = "
 				" . HTML\UI\Datagrid(
 					// WHERE clause for search
-					$this->Property["Table"]->Get(implode(" AND ", array_filter($this->Property["SearchSQL"])), "" . SetVariable("OrderBy", $this->Property["OrderBy"]) . " " . SetVariable("Order", $this->Property["Order"]) . "", ((SetVariable("Page", 1) - 1) * ($this->Property["RecordsPerPage"])) + 1, $this->Property["RecordsPerPage"], null, null, $this->Property["Verbose"]),
+					$this->Property["Recordset"],
 					$this->Property["URL"] . (isset($SearchArgument) ? "&" . implode("&", $SearchArgument) : null) . "",
 					$this->Property["Table"]->Count(),
 					$this->Property["ListColumn"], // Columns to display
@@ -948,6 +951,12 @@ class EntityManagement{
     }
 
     public function EntityID(){
+        $Result = $this->Property[__FUNCTION__];
+
+        return $Result;
+    }
+
+    public function Recordset(){
         $Result = $this->Property[__FUNCTION__];
 
         return $Result;
