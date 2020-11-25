@@ -2622,7 +2622,7 @@ class Utility{
 		$ToLongitude = deg2rad($ToLongitude);
 
 		return 2 * asin(sqrt(pow(sin(($ToLatitude - $FromLatitude) / 2), 2) + cos($FromLatitude) * cos($ToLatitude) * pow(sin(($ToLongitude - $FromLongitude) / 2), 2))) * $EarthRadius;
-	}
+    }
 
 	public function SecondToTime($Second = 0){
 		$Second = intval($Second);
