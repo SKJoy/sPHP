@@ -762,7 +762,38 @@ class Terminal{
 		", "System");
 
 		return true;
-	}
+    }
+    
+    public function LetDownload($Content, $DocumentType = null, $FileName = null){
+        if(is_array($Content)){ // Create content from Array
+            if(!$DocumentType)$DocumentType = DOCUMENT_TYPE_CSV; // Default MIME/content type
+
+            if($DocumentType == DOCUMENT_TYPE_CSV){
+                $Content = $this->Property["Environment"]->Utility()->ArrayToCSV($Content);
+            }
+            elseif($DocumentType == DOCUMENT_TYPE_JSON){
+                $Content = json_encode($Content);
+            }
+            elseif($DocumentType == DOCUMENT_TYPE_XML){
+                $Content = "ARRAY to XML conversion is not implemented!";
+            }
+            else{
+                $Content = serialize($Content);
+            }
+        }
+
+        $_POST["_NoHeader"] = $_POST["_NoFooter"] = true; // Suppress header and footer
+
+        $this->Clear(); // Discard all previous output
+        if($DocumentType)$this->DocumentType($DocumentType); // MIME type for browser/terminal interaction
+        if($FileName)$this->DocumentName($FileName); // Set custom filename for browser/terminal download
+
+        print $Content; // Output content
+
+        $this->Suspended(true); // Suppress any further output
+
+        return true;
+    }
     #endregion Method
 
     #region Property
@@ -2660,11 +2691,26 @@ class Utility{
 		return str_replace($Field, $Data, $Content);
 	}
 
-	function CreatePath($Path){
+	public function CreatePath($Path){
 		if(!is_dir($Path))mkdir($Path, 0777, true);
 
 		return true;
-	}
+    }
+    
+    public function ArrayToCSV($Data, $Header = true, $Delimiter = ",", $Enclosure = "\"", $EscapeCharacter = "\\"){
+        $FileHandle = fopen('php://memory', 'r+'); // Create the file in memory for better performance
+
+        // Dynamic header: Disable | User defined | Auto from row keys
+        if($Header !== false)fputcsv($FileHandle, $Header === true && count($Data) ? array_keys($Data[0]) : explode(",", $Header), $Delimiter, $Enclosure, $EscapeCharacter);
+
+        //if(count($Data))fputcsv($FileHandle, array_keys($Data[0]), $Delimiter, $Enclosure, $EscapeCharacter); // Header
+        foreach($Data as $Row)fputcsv($FileHandle, $Row, $Delimiter, $Enclosure, $EscapeCharacter); // Rows
+        rewind($FileHandle); // Put file read pointer to beginning
+        $Result = stream_get_contents($FileHandle);
+        fclose($FileHandle); // Relase memory occupied
+
+        return $Result;
+    }
     #endregion Method
 
     #region Property
