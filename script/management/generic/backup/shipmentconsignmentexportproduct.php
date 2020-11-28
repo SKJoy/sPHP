@@ -3,99 +3,78 @@ namespace sPHP;
 
 $_POST["ShipmentID"] = intval($_POST["ShipmentID"]);
 $Entity = "ShipmentConsignmentExportProduct";
+$OptionEntity = "ConsignmentExportProduct";
 
-if(isset($_POST["btnSubmit"])){
-	$OptionEntity = "ConsignmentExportProduct";
-	$ExistingShipmentConsignmentExportProductID = [];
-//var_dump($_POST);
-	// Reindex pack count POST variable with export product ID
-	foreach($_POST["{$OptionEntity}ID"] as $Key=>$ConsignmentExportProductID){
-		$ShipmentConsignmentExportProductPackCount[$ConsignmentExportProductID] = $_POST["{$Entity}PackCount"][$Key];
-		$ShipmentConsignmentExportProductPackExtraCount[$ConsignmentExportProductID] = $_POST["{$Entity}PackExtraCount"][$Key];
-		$ShipmentConsignmentExportProductBatch[$ConsignmentExportProductID] = $_POST["{$Entity}Batch"][$Key];
-		//$ShipmentConsignmentExportProductCartonQuantityDefinition[$ConsignmentExportProductID] = $_POST["{$Entity}CartonQuantityDefinition"][$Key];
-		$ShipmentConsignmentExportProductCartonGrossWeight[$ConsignmentExportProductID] = $_POST["{$Entity}CartonGrossWeight"][$Key];
-		$ShipmentConsignmentExportProductCartonNetWeight[$ConsignmentExportProductID] = $_POST["{$Entity}CartonNetWeight"][$Key];
-		$ShipmentConsignmentExportProductCartonTotalGrossWeight[$ConsignmentExportProductID] = $_POST["{$Entity}CartonTotalGrossWeight"][$Key];
-		$ShipmentConsignmentExportProductCartonTotalNetWeight[$ConsignmentExportProductID] = $_POST["{$Entity}CartonTotalNetWeight"][$Key];
-		$ShipmentConsignmentExportProductCartonSerialFrom[$ConsignmentExportProductID] = $_POST["{$Entity}CartonSerialFrom"][$Key];
-		$ShipmentConsignmentExportProductCartonSerialTo[$ConsignmentExportProductID] = $_POST["{$Entity}CartonSerialTo"][$Key];
+if(isset($_POST["btnSubmit"])){ // Save ShipmentConsignmentExportProduct data
+	$Table[$Entity]->Remove("ShipmentID = {$_POST["ShipmentID"]} AND {$OptionEntity}ID NOT IN (" . implode(", ", $_POST["{$OptionEntity}ID"]) . ")");
+
+	// Update existing data
+	$ExistingConsignmentExportProductID = [];
+
+	if($ShipmentConsignmentExportProduct = $Table[$Entity]->Get("{$Table[$Entity]->Alias()}.ShipmentID = {$_POST["ShipmentID"]} AND {$Table[$Entity]->Alias()}.{$Entity}IsActive = 1"))foreach($ShipmentConsignmentExportProduct as $Record){
+		$ExistingConsignmentExportProductID[] = $Record["{$OptionEntity}ID"];
+		$Key = array_search($Record["{$OptionEntity}ID"], $_POST["{$OptionEntity}ID"]);
+
+		$Table[$Entity]->Put([ // Update
+			($Column = "{$Entity}PackCount")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}PackExtraCount")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}Batch")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}CartonGrossWeight")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}CartonNetWeight")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}CartonTotalGrossWeight")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}CartonTotalNetWeight")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}CartonSerialFrom")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}CartonSerialTo")=>$_POST[$Column][$Key],
+		], "{$Entity}ID = {$Record["{$Entity}ID"]}");
 	}
 
-	$Table["{$Entity}"]->Remove("ShipmentID = {$_POST["ShipmentID"]} AND ConsignmentExportProductID NOT IN (" . implode(", ", $_POST["ConsignmentExportProductID"]) . ")");
-
-	// Update existing export product
-	if($ShipmentConsignmentExportProduct = $Table[$Entity]->Get("{$Table[$Entity]->Alias()}.ShipmentID = {$_POST["ShipmentID"]} AND {$Table[$Entity]->Alias()}.{$OptionEntity}ID IN (" . implode(", ", $_POST["{$OptionEntity}ID"]) . ")"))foreach($ShipmentConsignmentExportProduct AS $Product){
-		$ExistingShipmentConsignmentExportProductID[] = $Product["{$OptionEntity}ID"];
-
-		$Table[$Entity]->Put([
-			($Column = "{$Entity}PackCount")=>$ShipmentConsignmentExportProductPackCount[$Product["{$OptionEntity}ID"]],
-			($Column = "{$Entity}PackExtraCount")=>$ShipmentConsignmentExportProductPackExtraCount[$Product["{$OptionEntity}ID"]],
-			($Column = "{$Entity}Batch")=>$ShipmentConsignmentExportProductBatch[$Product["{$OptionEntity}ID"]],
-			//($Column = "{$Entity}CartonQuantityDefinition")=>$ShipmentConsignmentExportProductCartonQuantityDefinition[$Product["{$OptionEntity}ID"]],
-			($Column = "{$Entity}CartonGrossWeight")=>$ShipmentConsignmentExportProductCartonGrossWeight[$Product["{$OptionEntity}ID"]],
-			($Column = "{$Entity}CartonNetWeight")=>$ShipmentConsignmentExportProductCartonNetWeight[$Product["{$OptionEntity}ID"]],
-			($Column = "{$Entity}CartonTotalGrossWeight")=>$ShipmentConsignmentExportProductCartonTotalGrossWeight[$Product["{$OptionEntity}ID"]],
-			($Column = "{$Entity}CartonTotalNetWeight")=>$ShipmentConsignmentExportProductCartonTotalNetWeight[$Product["{$OptionEntity}ID"]],
-			($Column = "{$Entity}CartonSerialFrom")=>$ShipmentConsignmentExportProductCartonSerialFrom[$Product["{$OptionEntity}ID"]],
-			($Column = "{$Entity}CartonSerialTo")=>$ShipmentConsignmentExportProductCartonSerialTo[$Product["{$OptionEntity}ID"]],
-		], "{$Table[$Entity]->Structure()["Primary"][0]} = {$Product[$Table[$Entity]->Structure()["Primary"][0]]}", null, null);
-	}
-
-	// Add new export product
-	foreach(array_diff($_POST["{$OptionEntity}ID"], $ExistingShipmentConsignmentExportProductID) as $ConsignmentExportProductID){
-		$Table[$Entity]->Put([
-			($Column = "{$OptionEntity}ID")=>$ConsignmentExportProductID,
+	foreach(array_keys(array_diff($_POST["{$OptionEntity}ID"], $ExistingConsignmentExportProductID)) as $Key){
+		$Table[$Entity]->Put([ // Insert new data
 			($Column = "ShipmentID")=>$_POST[$Column],
-			($Column = "{$Entity}PackCount")=>$ShipmentConsignmentExportProductPackCount[$ConsignmentExportProductID],
-			($Column = "{$Entity}PackExtraCount")=>$ShipmentConsignmentExportProductPackExtraCount[$ConsignmentExportProductID],
-			($Column = "{$Entity}Batch")=>$ShipmentConsignmentExportProductBatch[$ConsignmentExportProductID],
-			//($Column = "{$Entity}CartonQuantityDefinition")=>$ShipmentConsignmentExportProductCartonQuantityDefinition[$ConsignmentExportProductID],
-			($Column = "{$Entity}CartonGrossWeight")=>$ShipmentConsignmentExportProductCartonGrossWeight[$ConsignmentExportProductID],
-			($Column = "{$Entity}CartonNetWeight")=>$ShipmentConsignmentExportProductCartonNetWeight[$ConsignmentExportProductID],
-			($Column = "{$Entity}CartonTotalGrossWeight")=>$ShipmentConsignmentExportProductCartonTotalGrossWeight[$ConsignmentExportProductID],
-			($Column = "{$Entity}CartonTotalNetWeight")=>$ShipmentConsignmentExportProductCartonTotalNetWeight[$ConsignmentExportProductID],
-			($Column = "{$Entity}CartonSerialFrom")=>$ShipmentConsignmentExportProductCartonSerialFrom[$ConsignmentExportProductID],
-			($Column = "{$Entity}CartonSerialTo")=>$ShipmentConsignmentExportProductCartonSerialTo[$ConsignmentExportProductID],
+			($Column = "{$OptionEntity}ID")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}PackCount")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}PackExtraCount")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}Batch")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}CartonGrossWeight")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}CartonNetWeight")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}CartonTotalGrossWeight")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}CartonTotalNetWeight")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}CartonSerialFrom")=>$_POST[$Column][$Key],
+			($Column = "{$Entity}CartonSerialTo")=>$_POST[$Column][$Key],
 			($Column = "{$Entity}IsActive")=>1,
-		], null, null, null);
-	}
-
-	$Terminal->Redirect($_POST["_Referer"], "Operation completed successfully.");
-}
-
-// Load currently saved shipment consignment export product particulars
-if($ShipmentConsignmentExportProduct = $Table["ShipmentConsignmentExportProduct"]->Get("{$Table["ShipmentConsignmentExportProduct"]->Alias()}.ShipmentID = {$_POST["ShipmentID"]}")){
-	foreach($ShipmentConsignmentExportProduct as $Product){
-		$ShipmentConsignmentExportProductPackCount[$Product["ProductID"]] = $Product["ShipmentConsignmentExportProductPackCount"];
-		$ShipmentConsignmentExportProductPackExtraCount[$Product["ProductID"]] = $Product["ShipmentConsignmentExportProductPackExtraCount"];
-		$ShipmentConsignmentExportProductBatch[$Product["ProductID"]] = $Product["ShipmentConsignmentExportProductBatch"];
-		//$ShipmentConsignmentExportProductCartonQuantityDefinition[$Product["ProductID"]] = $Product["ShipmentConsignmentExportProductCartonQuantityDefinition"];
-		$ShipmentConsignmentExportProductCartonGrossWeight[$Product["ProductID"]] = $Product["ShipmentConsignmentExportProductCartonGrossWeight"];
-		$ShipmentConsignmentExportProductCartonNetWeight[$Product["ProductID"]] = $Product["ShipmentConsignmentExportProductCartonNetWeight"];
-		$ShipmentConsignmentExportProductCartonTotalGrossWeight[$Product["ProductID"]] = $Product["ShipmentConsignmentExportProductCartonTotalGrossWeight"];
-		$ShipmentConsignmentExportProductCartonTotalNetWeight[$Product["ProductID"]] = $Product["ShipmentConsignmentExportProductCartonTotalNetWeight"];
-		$ShipmentConsignmentExportProductCartonSerialFrom[$Product["ProductID"]] = $Product["ShipmentConsignmentExportProductCartonSerialFrom"];
-		$ShipmentConsignmentExportProductCartonSerialTo[$Product["ProductID"]] = $Product["ShipmentConsignmentExportProductCartonSerialTo"];
+		]);
 	}
 }
 
-if($ConsignmentExportProduct = $Table[$OptionEntity = "ConsignmentExportProduct"]->Get("{$Table[$OptionEntity]->Alias()}.ConsignmentID = (SELECT S.ConsignmentID FROM sphp_shipment AS S WHERE S.ShipmentID = {$_POST["ShipmentID"]})")){
+// Load existing ShipmentConsignmentExportProduct data
+if($ShipmentConsignmentExportProduct = $Table[$Entity]->Get("{$Table[$Entity]->Alias()}.ShipmentID = {$_POST["ShipmentID"]} AND {$Table[$Entity]->Alias()}.{$Entity}IsActive = 1"))foreach($ShipmentConsignmentExportProduct as $Record){
+	$Data[$Record["{$OptionEntity}ID"]][$Column = "{$Entity}PackCount"] = $Record[$Column];
+	$Data[$Record["{$OptionEntity}ID"]][$Column = "{$Entity}PackExtraCount"] = $Record[$Column];
+	$Data[$Record["{$OptionEntity}ID"]][$Column = "{$Entity}Batch"] = $Record[$Column];
+	$Data[$Record["{$OptionEntity}ID"]][$Column = "{$Entity}CartonGrossWeight"] = $Record[$Column];
+	$Data[$Record["{$OptionEntity}ID"]][$Column = "{$Entity}CartonNetWeight"] = $Record[$Column];
+	$Data[$Record["{$OptionEntity}ID"]][$Column = "{$Entity}CartonTotalGrossWeight"] = $Record[$Column];
+	$Data[$Record["{$OptionEntity}ID"]][$Column = "{$Entity}CartonTotalNetWeight"] = $Record[$Column];
+	$Data[$Record["{$OptionEntity}ID"]][$Column = "{$Entity}CartonSerialFrom"] = $Record[$Column];
+	$Data[$Record["{$OptionEntity}ID"]][$Column = "{$Entity}CartonSerialTo"] = $Record[$Column];
+}
+
+//var_dump($Data); exit;
+if($ConsignmentExportProduct = $Table[$OptionEntity]->Get("{$Table[$OptionEntity]->Alias()}.ConsignmentID = (SELECT S.ConsignmentID FROM sphp_shipment AS S WHERE S.ShipmentID = {$_POST["ShipmentID"]})")){
 	foreach($ConsignmentExportProduct as $Key=>$Product){
 		$ConsignmentExportProductTableRowHTML[] = "
 			<tr>
 				<td class=\"Serial\">" . ($Key + 1) . "</td>
 				<td class=\"Product\">{$Product["ProductName"]}<input type=\"hidden\" name=\"{$OptionEntity}ID[]\" value=\"{$Product["{$OptionEntity}ID"]}\"></td>
-				<td><input type=\"number\" name=\"{$Entity}PackCount[]\" value=\"" . (isset($ShipmentConsignmentExportProductPackCount[$Product["ProductID"]]) ? $ShipmentConsignmentExportProductPackCount[$Product["ProductID"]] : $Product["{$OptionEntity}PackCount"]) . "\" style=\"width: 100px;\"></td>
-				<td><input type=\"number\" name=\"{$Entity}PackExtraCount[]\" value=\"" . (isset($ShipmentConsignmentExportProductPackExtraCount[$Product["ProductID"]]) ? $ShipmentConsignmentExportProductPackExtraCount[$Product["ProductID"]] : 0) . "\" style=\"width: 100px;\"></td>
-				<td><input type=\"text\" name=\"{$Entity}Batch[]\" value=\"" . (isset($ShipmentConsignmentExportProductBatch[$Product["ProductID"]]) ? $ShipmentConsignmentExportProductBatch[$Product["ProductID"]] : null) . "\" style=\"width: 150px;\"></td>
-				<!--<td><input type=\"text\" name=\"{$Entity}CartonQuantityDefinition[]\" value=\"" . (isset($ShipmentConsignmentExportProductCartonQuantityDefinition[$Product["ProductID"]]) ? $ShipmentConsignmentExportProductCartonQuantityDefinition[$Product["ProductID"]] : null) . "\" style=\"width: 250px;\"></td>-->
-				<td><input type=\"number\" name=\"{$Entity}CartonGrossWeight[]\" value=\"" . (isset($ShipmentConsignmentExportProductCartonGrossWeight[$Product["ProductID"]]) ? $ShipmentConsignmentExportProductCartonGrossWeight[$Product["ProductID"]] : 1) . "\" style=\"width: 100px;\"></td>
-				<td><input type=\"number\" name=\"{$Entity}CartonNetWeight[]\" value=\"" . (isset($ShipmentConsignmentExportProductCartonNetWeight[$Product["ProductID"]]) ? $ShipmentConsignmentExportProductCartonNetWeight[$Product["ProductID"]] : 1) . "\" style=\"width: 100px;\"></td>
-				<td><input type=\"number\" name=\"{$Entity}CartonTotalGrossWeight[]\" value=\"" . (isset($ShipmentConsignmentExportProductCartonTotalGrossWeight[$Product["ProductID"]]) ? $ShipmentConsignmentExportProductCartonTotalGrossWeight[$Product["ProductID"]] : 1) . "\" style=\"width: 100px;\"></td>
-				<td><input type=\"number\" name=\"{$Entity}CartonTotalNetWeight[]\" value=\"" . (isset($ShipmentConsignmentExportProductCartonTotalNetWeight[$Product["ProductID"]]) ? $ShipmentConsignmentExportProductCartonTotalNetWeight[$Product["ProductID"]] : 1) . "\" style=\"width: 100px;\"></td>
-				<td><input type=\"number\" name=\"{$Entity}CartonSerialFrom[]\" value=\"" . (isset($ShipmentConsignmentExportProductCartonSerialFrom[$Product["ProductID"]]) ? $ShipmentConsignmentExportProductCartonSerialFrom[$Product["ProductID"]] : 1) . "\" style=\"width: 100px;\"></td>
-				<td><input type=\"number\" name=\"{$Entity}CartonSerialTo[]\" value=\"" . (isset($ShipmentConsignmentExportProductCartonSerialTo[$Product["ProductID"]]) ? $ShipmentConsignmentExportProductCartonSerialTo[$Product["ProductID"]] : 1) . "\" style=\"width: 100px;\"></td>
+				<td><input type=\"number\" name=\"{$Entity}" . ($ColumnSuffix = "PackCount") . "[]\" value=\"" . (isset($Data[$Product["{$OptionEntity}ID"]][$Column = "{$Entity}{$ColumnSuffix}"]) ? $Data[$Product["{$OptionEntity}ID"]][$Column] : $Product["{$OptionEntity}{$ColumnSuffix}"]) . "\" min=\"0\" style=\"width: 100px;\"></td>
+				<td><input type=\"number\" name=\"{$Entity}" . ($ColumnSuffix = "PackExtraCount") . "[]\" value=\"" . (isset($Data[$Product["{$OptionEntity}ID"]][$Column = "{$Entity}{$ColumnSuffix}"]) ? $Data[$Product["{$OptionEntity}ID"]][$Column] : 0) . "\" min=\"0\" style=\"width: 100px;\"></td>
+				<td><input type=\"text\" name=\"{$Entity}" . ($ColumnSuffix = "Batch") . "[]\" value=\"" . (isset($Data[$Product["{$OptionEntity}ID"]][$Column = "{$Entity}{$ColumnSuffix}"]) ? $Data[$Product["{$OptionEntity}ID"]][$Column] : null) . "\" style=\"width: 150px;\"></td>
+				<td><input type=\"number\" name=\"{$Entity}" . ($ColumnSuffix = "CartonGrossWeight") . "[]\" value=\"" . (isset($Data[$Product["{$OptionEntity}ID"]][$Column = "{$Entity}{$ColumnSuffix}"]) ? $Data[$Product["{$OptionEntity}ID"]][$Column] : 1) . "\" min=\"0.001\" step=\"0.001\" style=\"width: 100px;\"></td>
+				<td><input type=\"number\" name=\"{$Entity}" . ($ColumnSuffix = "CartonNetWeight") . "[]\" value=\"" . (isset($Data[$Product["{$OptionEntity}ID"]][$Column = "{$Entity}{$ColumnSuffix}"]) ? $Data[$Product["{$OptionEntity}ID"]][$Column] : 1) . "\" min=\"0.001\" step=\"0.001\" style=\"width: 100px;\"></td>
+				<td><input type=\"number\" name=\"{$Entity}" . ($ColumnSuffix = "CartonTotalGrossWeight") . "[]\" value=\"" . (isset($Data[$Product["{$OptionEntity}ID"]][$Column = "{$Entity}{$ColumnSuffix}"]) ? $Data[$Product["{$OptionEntity}ID"]][$Column] : 1) . "\" min=\"0.001\" step=\"0.001\" style=\"width: 100px;\"></td>
+				<td><input type=\"number\" name=\"{$Entity}" . ($ColumnSuffix = "CartonTotalNetWeight") . "[]\" value=\"" . (isset($Data[$Product["{$OptionEntity}ID"]][$Column = "{$Entity}{$ColumnSuffix}"]) ? $Data[$Product["{$OptionEntity}ID"]][$Column] : 1) . "\" min=\"0.001\" step=\"0.001\" style=\"width: 100px;\"></td>
+				<td><input type=\"number\" name=\"{$Entity}" . ($ColumnSuffix = "CartonSerialFrom") . "[]\" value=\"" . (isset($Data[$Product["{$OptionEntity}ID"]][$Column = "{$Entity}{$ColumnSuffix}"]) ? $Data[$Product["{$OptionEntity}ID"]][$Column] : 1) . "\" min=\"1\" style=\"width: 100px;\"></td>
+				<td><input type=\"number\" name=\"{$Entity}" . ($ColumnSuffix = "CartonSerialTo") . "[]\" value=\"" . (isset($Data[$Product["{$OptionEntity}ID"]][$Column = "{$Entity}{$ColumnSuffix}"]) ? $Data[$Product["{$OptionEntity}ID"]][$Column] : 1) . "\" min=\"1\" style=\"width: 100px;\"></td>
 			</tr>
 		";
 	}

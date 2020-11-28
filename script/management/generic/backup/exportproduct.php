@@ -30,10 +30,11 @@ $EM->ValidateInput(function($Entity, $Database, $Table, $PrimaryKey, $ID){
 					{$Table->Alias()}." . ($Column = "ExportID") . " = " . intval($_POST["{$Column}"]) . "
 				AND	{$Table->Alias()}." . ($Column = "ProductID") . " = " . intval($_POST["{$Column}"]) . "
 				AND	{$Table->Alias()}." . ($Column = "PackID") . " = " . intval($_POST["{$Column}"]) . "
+				AND	{$Table->Alias()}." . ($Column = "{$Entity}Rate") . " = " . intval($_POST["{$Column}"]) . "
 			)
 			AND	{$PrimaryKey} <> {$ID}
 		"
-	, null, null, null, null, null, null))$Result = "Same product with same export in same pack exists!";
+	, null, null, null, null, null, null))$Result = "Same product with same export in same pack at same rate exists!";
 
 	return $Result;
 });
@@ -50,21 +51,20 @@ $EM->IntermediateEntity("Category, Event");
 $EM->DefaultFromSearchColumn("ExportID, ProductID, PackID");
 
 $EM->ListColumn([
-	new HTML\UI\Datagrid\Column("" . ($Caption = "Export") . "LookupCaption", "{$Caption}"),
 	new HTML\UI\Datagrid\Column("" . ($Caption = "Product") . "LookupCaption", "{$Caption}"),
-	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Pack") . "Count", "x {$Caption}", FIELD_TYPE_NUMBER),
+	new HTML\UI\Datagrid\Column("" . ($Caption = "Export") . "LookupCaption", "{$Caption}"),
 	new HTML\UI\Datagrid\Column("" . ($Caption = "Pack") . "LookupCaption", "{$Caption}"),
-	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "") . "Count", "x {$Caption}Product", FIELD_TYPE_NUMBER),
+	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Pack") . "Count", "x {$Caption}", FIELD_TYPE_NUMBER),
 	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Rate") . "", "{$Caption}", FIELD_TYPE_NUMBER),
 	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Price") . "", "{$Caption}", FIELD_TYPE_NUMBER),
-	new HTML\UI\Datagrid\Column("" . ($Caption = "Currency") . "Code", "{$Caption}"),
+	new HTML\UI\Datagrid\Column("" . ($Caption = "Currency") . "Code", "{$Caption}", null, ALIGN_CENTER),
+	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "") . "Count", "x {$Caption}Product", FIELD_TYPE_NUMBER),
 	new HTML\UI\Datagrid\Column("{$Entity}Is" . ($Caption = "Active") . "", "{$Caption}", FIELD_TYPE_BOOLEANICON),
 ]);
 
 $EM->Action([
-	//new HTML\UI\Datagrid\Action("{$Environment->IconURL()}" . strtolower($ActionEntity = "{$Entity}Property") . ".png", null, $Application->URL("Management/Generic/{$ActionEntity}")),
-	new HTML\UI\Datagrid\Action("{$Environment->IconURL()}edit.png", null, $Application->URL($_POST["_Script"], "btnInput")),
-	new HTML\UI\Datagrid\Action("{$Environment->IconURL()}delete.png", null, $Application->URL($_POST["_Script"], "btnDelete"), null, "return confirm('Are you sure to remove the information?');"),
+	new HTML\UI\Datagrid\Action("{$Environment->IconURL()}edit.png", null, $Application->URL($_POST["_Script"], "btnInput"), null, null, null, "Edit"),
+	new HTML\UI\Datagrid\Action("{$Environment->IconURL()}delete.png", null, $Application->URL($_POST["_Script"], "btnDelete"), null, "return confirm('Are you sure to remove the information?');", null, "Delete"),
 ]);
 
 $EM->BatchActionHTML([
@@ -75,8 +75,8 @@ $EM->BatchActionHTML([
 	HTML\UI\Button("<img src=\"{$Environment->IconURL()}import.png\" alt=\"Import\" class=\"Icon\">Import", BUTTON_TYPE_SUBMIT, "btnImport", true),
 ]);
 
-$EM->OrderBy("ExportInitiationDate");
-$EM->Order("DESC");
+$EM->OrderBy("ProductName");
+$EM->Order("ASC");
 $EM->URL($Application->URL($_POST["_Script"]));
 $EM->IconURL($Environment->IconURL());
 $EM->EncryptionKey($Application->EncryptionKey());
@@ -120,19 +120,27 @@ if(isset($_POST["btnDelete"])){
 
 if(isset($_POST["btnInput"])){
 	if(isset($_POST["btnSubmit"])){
-		$EM->Input();
-		$Terminal->Redirect($_POST["_Referer"]); // Redirect to previous location
+		if($EM->Input())$Terminal->Redirect($_POST["_Referer"]); // Redirect to previous location
 	}
 
 	$EM->LoadExistingData();
 
+	#region Custom code
+	$ProductInput = new HTML\UI\Input("Product", $EM->InputFullWidth(), null, null);
+	#endregion Custom code
+
 	$EM->InputUIHTML([
 		HTML\UI\Field(HTML\UI\Select("" . ($Caption = "Export") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get("{$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1"), null, "{$OptionEntity}LookupCaption"), "{$Caption}", null, null, $EM->FieldCaptionWidth()),
-		HTML\UI\Field(HTML\UI\Select("" . ($Caption = "Product") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get("{$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1"), null, "{$OptionEntity}LookupCaption"), "{$Caption}", true, null, $EM->FieldCaptionWidth()),
-		HTML\UI\Field(HTML\UI\Input("{$Entity}Pack" . ($Caption = "Count") . "", 100, null, true, INPUT_TYPE_NUMBER), "{$Caption}", true, null, $EM->FieldCaptionWidth()),
-		HTML\UI\Field(HTML\UI\Select("" . ($Caption = "Pack") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get("{$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1"), null, "{$OptionEntity}LookupCaption"), "{$Caption}", null, true, null),
-		HTML\UI\Field(HTML\UI\Input("{$Entity}" . ($Caption = "Rate") . "", 100, null, true, null), "{$Caption}", true, null, $EM->FieldCaptionWidth()),
+		HTML\UI\Field($ProductInput->HTML(), "Product", true, null, $EM->FieldCaptionWidth()),
+		HTML\UI\Field(HTML\UI\Select("" . ($Caption = "Pack") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get("{$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1", "{$OptionEntity}LookupCaption ASC"), null, "{$OptionEntity}LookupCaption"), "{$Caption}", true, null, $EM->FieldCaptionWidth()),
+		HTML\UI\Field(HTML\UI\Input("{$Entity}Pack" . ($Caption = "Count") . "", 100, null, true, INPUT_TYPE_NUMBER), "{$Caption}", null, true, null),
+		HTML\UI\Field(HTML\UI\Input("{$Entity}" . ($Caption = "Rate") . "", 100, null, true, null), "{$Caption}", null, true, null),
 		HTML\UI\Field(HTML\UI\RadioGroup("{$Entity}Is" . ($Caption = "Active") . "", [new HTML\UI\Radio(1, "Yes"), new HTML\UI\Radio(0, "No")]), "{$Caption}", true, null, $EM->FieldCaptionWidth()),
+		"
+			<script>
+				sJS.DHTML.Autofill.Make('{$ProductInput->ID()}', 3, '{$Application->URL("API/V1/AJAXEntity", "Entity=" . ($OptionEntity = "Product") . "&Column={$OptionEntity}Name,{$OptionEntity}GenericName")}', '{$OptionEntity}ID', null, '" . ($CaptionKey = "{$OptionEntity}LookupCaption") . "', null, '" . ($_POST["{$OptionEntity}ID"] ? $Table["{$OptionEntity}"]->Get("{$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}ID = {$_POST["{$OptionEntity}ID"]}")[0]["{$CaptionKey}"] : null) . "', {$_POST["{$OptionEntity}ID"]});
+			</script>
+		",
 	]);
 
 	print $EM->InputHTML();
@@ -149,7 +157,7 @@ $EM->SearchSQL([
 ]);
 
 $EM->SearchUIHTML([
-	HTML\UI\Field(HTML\UI\Select("{$Configuration["SearchInputPrefix"]}" . ($Caption = "Export") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get(), new Option(), "{$OptionEntity}LookupCaption"), "{$Caption}", null, true),
+	HTML\UI\Field(HTML\UI\Select("{$Configuration["SearchInputPrefix"]}" . ($Caption = "Export") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get(), new Option(), "{$OptionEntity}LookupCaption"), "{$Caption}", null, null),
 	HTML\UI\Field(HTML\UI\Select("{$Configuration["SearchInputPrefix"]}" . ($Caption = "Product") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get(), new Option(), "{$OptionEntity}LookupCaption"), "{$Caption}", null, true),
 	HTML\UI\Field(HTML\UI\Select("{$Configuration["SearchInputPrefix"]}" . ($Caption = "Pack") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get(), new Option(), "{$OptionEntity}LookupCaption"), "{$Caption}", null, true),
 	HTML\UI\Field(HTML\UI\Select("{$Configuration["SearchInputPrefix"]}" . ($Caption = "Currency") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get(), new Option(), "{$OptionEntity}LookupCaption"), "{$Caption}", null, true),

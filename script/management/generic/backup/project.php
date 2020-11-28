@@ -1,110 +1,155 @@
 <?php
 namespace sPHP;
 
-#region General section
-$Entity = "Project";
-$LowercaseEntity = strtolower($Entity);
-$EntityName = $Table[$Entity]->FormalName();
-$LowercaseEntityName = strtolower($Table[$Entity]->FormalName());
-$EntityUploadPath = "{$Environment->UploadPath()}{$LowercaseEntity}/";
-$EntityID = isset($_POST["{$Entity}ID"]) && (($_POST["{$Entity}ID"] = is_array($_POST["{$Entity}ID"]) ? $_POST["{$Entity}ID"] : intval($_POST["{$Entity}ID"])) || is_array($_POST["{$Entity}ID"])) ? $_POST["{$Entity}ID"] : 0;
-#endregion General section
+#region Entity management common configuration
+$EM = new EntityManagement($Table[$Entity = "Project"]);
 
-#region List section
-$ListSearchSQL[] = "1 = 1"; // Custom fixed search condition
-$ListSearchSQL[] = SetVariable("{$Configuration["SearchInputPrefix"]}" . ($Column = "{$Entity}Name") . "", SetVariable($Column)) ? "{$Table["{$Entity}"]->Alias()}.{$Column} LIKE '%{$Database->Escape($_POST["{$Configuration["SearchInputPrefix"]}{$Column}"])}%'" : null;
-$ListSearchSQL[] = SetVariable("{$Configuration["SearchInputPrefix"]}" . ($Column = "{$Entity}Description") . "", SetVariable($Column)) ? "{$Table["{$Entity}"]->Alias()}.{$Column} LIKE '%{$Database->Escape($_POST["{$Configuration["SearchInputPrefix"]}{$Column}"])}%'" : null;
-$ListSearchSQL[] = SetVariable("{$Configuration["SearchInputPrefix"]}" . ($Column = "PlatformID") . "", SetVariable($Column)) ? "{$Table["{$Entity}"]->Alias()}.{$Column} = " . intval($_POST["{$Configuration["SearchInputPrefix"]}{$Column}"]) . "" : null;
-$ListSearchSQL[] = SetVariable("{$Configuration["SearchInputPrefix"]}" . ($Column = "{$Entity}IsActive") . "", SetVariable($Column, "")) !== "" ? "{$Table["{$Entity}"]->Alias()}.{$Column} = " . intval($_POST["{$Configuration["SearchInputPrefix"]}{$Column}"]) . "" : null;
+$EM->ImportField([
+	new Database\Field("{$Entity}" . ($Field = "Name") . "", "{$Field}"),
+	new Database\Field("" . ($Field = "Platform") . "ID", "{$Field}", null, $Table["{$Field}"], "{$Field}Name"),
+	new Database\Field("{$Entity}Is" . ($Field = "Active") . "", "{$Field}"),
+]);
 
-$ListOrderBy = "{$Entity}Name";
-$ListOrder = "ASC";
-$ListRecordsPerPage = $Configuration["DatagridRowsPerPage"];
+$EM->InputValidation([
+	new HTTP\InputValidation("{$Entity}Name", true),
+	new HTTP\InputValidation("PlatformID", true, VALIDATION_TYPE_INTEGER),
+]);
 
-$ListColumn = [ // Columns to display
+$EM->ValidateInput(function($Entity, $Database, $Table, $PrimaryKey, $ID){
+	$Result = true;
+
+	if($Table->Get( // Check for duplicate values for UNIQUE columns
+		"
+			(
+					" . ($Column = "{$Entity}Name") . " = '{$Database->Escape($_POST["{$Column}"])}'
+				AND	{$Table->Alias()}." . ($Column = "PlatformID") . " = " . intval($_POST["{$Column}"]) . "
+			)
+			AND	{$PrimaryKey} <> {$ID}
+		"
+	, null, null, null, null, null, null))$Result = "Same " . strtolower($Table->FormalName()) . " on same platform exists!";
+
+	return $Result;
+});
+
+$EM->ThumbnailColumn("x{$Entity}Picture");
+
+$EM->BeforeInput(function($Entity, $Record){
+	//$_POST[$Field = "{$Entity}PasswordHash"] = strlen($_POST["{$Entity}Password"]) ? md5($_POST["{$Entity}Password"]) : (is_null($Record) ? null : $Record["{$Field}"]);
+
+	return true;
+});
+
+$EM->AfterInput(function($EntityName, $AffectedRecord, $Record, $Table){
+
+	return true;
+});
+
+$EM->IntermediateEntity("Category, Event");
+$EM->DefaultFromSearchColumn("PlatformID");
+
+$EM->ListColumn([
 	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Icon") . "URL", "{$Caption}", FIELD_TYPE_ICONURL),
 	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Name") . "", "{$Caption}"),
 	new HTML\UI\Datagrid\Column("" . ($Caption = "Platform") . "Name", "{$Caption}", null, ALIGN_CENTER),
 	new HTML\UI\Datagrid\Column("" . ($Caption = "Category") . "Name", "{$Caption}"),
 	new HTML\UI\Datagrid\Column("" . ($Caption = "Event") . "Name", "{$Caption}"),
 	new HTML\UI\Datagrid\Column("{$Entity}Is" . ($Caption = "Active") . "", "{$Caption}", FIELD_TYPE_BOOLEANICON),
-];
+]);
 
-$ListAction = [ // Action
-	//new HTML\UI\Datagrid\Action("{$Environment->IconURL()}{$LowercaseEntity}property.png", null, $Application->URL("Management/Generic/{$Entity}Property")),
-	new HTML\UI\Datagrid\Action("{$Environment->IconURL()}edit.png", null, $Application->URL($_POST["_Script"], "btnInput")),
-	new HTML\UI\Datagrid\Action("{$Environment->IconURL()}delete.png", null, $Application->URL($_POST["_Script"], "btnDelete"), null, "return confirm('Are you sure to remove the information?');"),
-];
+$EM->Action([
+	//new HTML\UI\Datagrid\Action("{$Environment->IconURL()}" . strtolower($ActionEntity = "{$Entity}Property") . ".png", null, $Application->URL("Management/Generic/{$ActionEntity}"), null, null, null, "{$ActionEntity}"),
+	new HTML\UI\Datagrid\Action("{$Environment->IconURL()}edit.png", null, $Application->URL($_POST["_Script"], "btnInput"), null, null, null, "Edit"),
+	new HTML\UI\Datagrid\Action("{$Environment->IconURL()}delete.png", null, $Application->URL($_POST["_Script"], "btnDelete"), null, "return confirm('Are you sure to remove the information?');", null, "Delete"),
+]);
 
-$ListBaseURL = $Environment->URL();
-$ListIconURL = $Environment->IconURL();
+$EM->BatchActionHTML([
+	HTML\UI\Button("<img src=\"{$Environment->IconURL()}search.png\" alt=\"Search\" class=\"Icon\">Search", BUTTON_TYPE_SUBMIT, "btnSearch", true),
+	HTML\UI\Button("<img src=\"{$Environment->IconURL()}add.png\" alt=\"Add new\" class=\"Icon\">Add new", BUTTON_TYPE_SUBMIT, "btnInput", true),
+	HTML\UI\Button("<img src=\"{$Environment->IconURL()}delete.png\" alt=\"Remove\" class=\"Icon\">Remove", BUTTON_TYPE_SUBMIT, "btnDelete", true, "return confirm('Are you sure to remove the information?');"),
+	HTML\UI\Button("<img src=\"{$Environment->IconURL()}export.png\" alt=\"Export\" class=\"Icon\">Export", BUTTON_TYPE_SUBMIT, "btnExport", true),
+	HTML\UI\Button("<img src=\"{$Environment->IconURL()}import.png\" alt=\"Import\" class=\"Icon\">Import", BUTTON_TYPE_SUBMIT, "btnImport", true),
+]);
 
-$ListSearchInterface = "
-	" . HTML\UI\Field(HTML\UI\Input("{$Configuration["SearchInputPrefix"]}{$Entity}" . ($Caption = "Name") . "", 200), "{$Caption}", null, null) . "
-	" . HTML\UI\Field(HTML\UI\Input("{$Configuration["SearchInputPrefix"]}{$Entity}" . ($Caption = "Description") . "", 200), "{$Caption}", null, true) . "
-	" . HTML\UI\Field(HTML\UI\Select("{$Configuration["SearchInputPrefix"]}" . ($Caption = "Platform") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get(), new Option(), "{$OptionEntity}LookupCaption"), "{$Caption}", null, true) . "
-	" . HTML\UI\Field(HTML\UI\Select("{$Configuration["SearchInputPrefix"]}{$Entity}Is" . ($Caption = "Active") . "", [new Option(), new Option(0, "No"), new Option(1, "Yes")]), "{$Caption}", null, true) . "
-";
+$EM->OrderBy("{$Entity}Name");
+$EM->Order("ASC");
+$EM->URL($Application->URL($_POST["_Script"]));
+$EM->IconURL($Environment->IconURL());
+$EM->EncryptionKey($Application->EncryptionKey());
+$EM->FieldCaptionWidth($Configuration["FieldCaptionWidth"]);
+$EM->FieldCaptionInlineWidth($Configuration["FieldCaptionInlineWidth"]);
+$EM->FieldContentFullWidth($Configuration["FieldContentFullWidth"]);
+$EM->InputWidth($Configuration["InputWidth"]);
+$EM->InputInlineWidth($Configuration["InputInlineWidth"]);
+$EM->InputFullWidth($Configuration["InputFullWidth"]);
+$EM->InputDateWidth($Configuration["InputDateWidth"]);
+$EM->TempPath($Environment->TempPath());
+$EM->SearchInputPrefix($Configuration["SearchInputPrefix"]);
+$EM->UploadPath($Environment->UploadPath());
+$EM->ThumbnailMaximumDimension(48);
+$EM->RecordsPerPage($Configuration["DatagridRowsPerPage"]);
+$EM->BaseURL($Environment->URL()); // ???????????
+#endregion Entity management common configuration
 
-$ListBatchActionInterface = "
-	" . HTML\UI\Button("<img src=\"{$Environment->IconURL()}search.png\" alt=\"Search\" class=\"Icon\">Search", BUTTON_TYPE_SUBMIT, "btnSearch", true) . "
-	" . HTML\UI\Button("<img src=\"{$Environment->IconURL()}add.png\" alt=\"Add new\" class=\"Icon\">Add new", BUTTON_TYPE_SUBMIT, "btnInput", true) . "
-	" . HTML\UI\Button("<img src=\"{$Environment->IconURL()}delete.png\" alt=\"Remove\" class=\"Icon\">Remove", BUTTON_TYPE_SUBMIT, "btnDelete", true, "return confirm('Are you sure to remove the information?');") . "
-	" . HTML\UI\Button("<img src=\"{$Environment->IconURL()}export.png\" alt=\"Export\" class=\"Icon\">Export", BUTTON_TYPE_SUBMIT, "btnExport", true) . "
-	" . HTML\UI\Button("<img src=\"{$Environment->IconURL()}import.png\" alt=\"Import\" class=\"Icon\">Import", BUTTON_TYPE_SUBMIT, "btnImport", true) . "
-";
-#endregion List section
+if(isset($_POST["btnExport"])){
+	if(isset($_POST["btnSubmit"])){
+		$EM->Export();
+		$Terminal->Redirect($_POST["_Referer"]);
+	}
 
-#region Input section
-$InputIsPermissionErrorMessage = ""; // Set a conditional error message to prevent unauthorized input
-$InputIntermediateEntityList = "Category, Event";
+	print $EM->ExportHTML();
+}
 
-$InputFieldValidation = [
-	new HTTP\InputValidation("{$Entity}Name", true),
-	new HTTP\InputValidation("PlatformID", true, VALIDATION_TYPE_INTEGER),
-];
+if(isset($_POST["btnImport"])){
+	if(isset($_POST["btnSubmit"])){
+		$EM->Import();
+		$Terminal->Redirect($_POST["_Referer"]);
+	}
 
-$InputDataVerificationSQL = "
-	(
-			" . ($Column = "{$Entity}Name") . " = '{$Database->Escape($_POST["{$Column}"])}'
-		AND	{$Table["{$Entity}"]->Alias()}." . ($Column = "PlatformID") . " = " . intval($_POST["{$Column}"]) . "
-	)
-	AND	{$Entity}ID <> {$EntityID}
-";
+	print $EM->ImportHTML();
+}
 
-$InputThumbnailColumnList = "x{$Entity}Picture, x{$Entity}Avatar";
-$InputThumbnailMaximumDimension = 48;
-$InputDefaultValueFromSearchFieldList = "PlatformID, xSomethingElseID";
+if(isset($_POST["btnDelete"])){
+	$EM->Delete();
+	$Terminal->Redirect($_SERVER["HTTP_REFERER"]);
+}
 
-require __DIR__ . "/../../common/entitymanagement_loadexistingdata.php"; // Load existing data
+if(isset($_POST["btnInput"])){
+	if(isset($_POST["btnSubmit"])){
+		if($EM->Input())$Terminal->Redirect($_POST["_Referer"]); // Redirect to previous location
+	}
 
-$InputInterface = "
-	" . HTML\UI\Field(HTML\UI\Input("{$Entity}" . ($Caption = "Name") . "", $Configuration["InputFullWidth"], null, true), "{$Caption}", null, null, $Configuration["FieldCaptionWidth"]) . "
-	" . HTML\UI\Field(HTML\UI\Select("" . ($Caption = "Platform") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get("{$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1"), null, "{$OptionEntity}LookupCaption"), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"]) . "
-	" . HTML\UI\Field(HTML\UI\Input("{$Entity}" . ($Caption = "Icon") . "", $Configuration["InputFullWidth"], "{$Environment->UploadURL()}{$LowercaseEntity}/" . (isset($_POST["{$Entity}{$Caption}"]) ? $_POST["{$Entity}{$Caption}"] : null) . "", null, INPUT_TYPE_FILE), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"]) . "
-	" . HTML\UI\Field(HTML\UI\Textarea("{$Entity}" . ($Caption = "Summary") . "", $Configuration["InputFullWidth"], $Configuration["TextareaHeight"]), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"], null, null, null, "Optional") . "
-	" . HTML\UI\Field(HTML\UI\Textarea("{$Entity}" . ($Caption = "Description") . "", $Configuration["InputFullWidth"], $Configuration["TextareaHeight"]), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"], null, null, null, "Optional") . "
-	" . HTML\UI\Field(HTML\UI\CheckboxGroup("" . ($Caption = "Category") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get("{$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1"), null, "{$OptionEntity}LookupCaption", null, "{$OptionEntity}ID"), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"], $Configuration["FieldContentFullWidth"]) . "
-	" . HTML\UI\Field(HTML\UI\CheckboxGroup("" . ($Caption = "Event") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get("{$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}ID IN (SELECT PE.{$OptionEntity}ID FROM sphp_{$LowercaseEntity}event AS PE WHERE PE.{$Entity}ID = {$EntityID}) OR ({$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}DateEnd >= CURDATE() AND {$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1)"), null, "{$OptionEntity}LookupCaption", null, "{$OptionEntity}ID"), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"], $Configuration["FieldContentFullWidth"]) . "
-	" . HTML\UI\Field(HTML\UI\RadioGroup("{$Entity}Is" . ($Caption = "Active") . "", [new HTML\UI\Radio(1, "Yes"), new HTML\UI\Radio(0, "No")]), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"]) . "
-	" . HTML\UI\Input("btn" . ($Caption = "Input") . "", $Configuration["InputWidth"], null, true, INPUT_TYPE_HIDDEN) . "
-	" . HTML\UI\Input("{$Entity}" . ($Caption = "ID") . "", $Configuration["InputWidth"], $EntityID, true, INPUT_TYPE_HIDDEN) . "
-";
-#endregion Input section
+	$EM->LoadExistingData();
 
-#region Import section
-$ImportField = [
-	new Database\Field("{$Entity}" . ($Field = "Name") . "", "{$Field}"),
-	new Database\Field("" . ($Field = "Platform") . "ID", "{$Field}", null, $Table["{$Field}"], "{$Field}Name"),
-	new Database\Field("{$Entity}Is" . ($Field = "Active") . "", "{$Field}"),
-];
-#endregion Import section
+	$EM->InputUIHTML([
+		HTML\UI\Field(HTML\UI\Input("{$Entity}" . ($Caption = "Name") . "", $EM->InputFullWidth(), null, true), "{$Caption}", null, null, $EM->FieldCaptionWidth()),
+		HTML\UI\Field(HTML\UI\Select("" . ($Caption = "Platform") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get("{$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1"), null, "{$OptionEntity}LookupCaption"), "{$Caption}", true, null, $EM->FieldCaptionWidth()),
+		HTML\UI\Field(HTML\UI\Input("{$Entity}" . ($Caption = "Icon") . "", $EM->InputFullWidth(), "{$Environment->UploadURL()}{$EM->LowercaseEntityName()}/" . (isset($_POST["{$Entity}{$Caption}"]) ? $_POST["{$Entity}{$Caption}"] : null) . "", null, INPUT_TYPE_FILE), "{$Caption}", true, null, $EM->FieldCaptionWidth()),
+		HTML\UI\Field(HTML\UI\Textarea("{$Entity}" . ($Caption = "Summary") . "", $EM->InputFullWidth(), $Configuration["TextareaHeight"]), "{$Caption}", true, null, $EM->FieldCaptionWidth(), null, null, null, "Optional"),
+		HTML\UI\Field(HTML\UI\Textarea("{$Entity}" . ($Caption = "Description") . "", $EM->InputFullWidth(), $Configuration["TextareaHeight"]), "{$Caption}", true, null, $EM->FieldCaptionWidth(), null, null, null, "Optional"),
+		HTML\UI\Field(HTML\UI\CheckboxGroup("" . ($Caption = "Category") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get("{$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1"), null, "{$OptionEntity}LookupCaption", null, "{$OptionEntity}ID"), "{$Caption}", true, null, $EM->FieldCaptionWidth(), $EM->FieldContentFullWidth()),
+		HTML\UI\Field(HTML\UI\CheckboxGroup("" . ($Caption = "Event") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get("{$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}ID IN (SELECT PE.{$OptionEntity}ID FROM sphp_{$EM->LowercaseEntityName()}event AS PE WHERE PE.{$Entity}ID = {$EM->EntityID()}) OR ({$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}DateEnd >= CURDATE() AND {$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1)"), null, "{$OptionEntity}LookupCaption", null, "{$OptionEntity}ID"), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"], $EM->FieldContentFullWidth()),
+		HTML\UI\Field(HTML\UI\RadioGroup("{$Entity}Is" . ($Caption = "Active") . "", [new HTML\UI\Radio(1, "Yes"), new HTML\UI\Radio(0, "No")]), "{$Caption}", true, null, $EM->FieldCaptionWidth()),
+	]);
 
-#region Delete section
-#endregion Delete section
+	print $EM->InputHTML();
+}
 
-#region Export section
-#endregion Export section
+#region List
+$EM->SearchSQL([
+	"1 = 1", // Custom fixed search condition
+	SetVariable("{$Configuration["SearchInputPrefix"]}" . ($Column = "{$Entity}Name") . "", SetVariable($Column)) ? "{$Table["{$Entity}"]->Alias()}.{$Column} LIKE '%{$Database->Escape($_POST["{$Configuration["SearchInputPrefix"]}{$Column}"])}%'" : null,
+	SetVariable("{$Configuration["SearchInputPrefix"]}" . ($Column = "{$Entity}Description") . "", SetVariable($Column)) ? "{$Table["{$Entity}"]->Alias()}.{$Column} LIKE '%{$Database->Escape($_POST["{$Configuration["SearchInputPrefix"]}{$Column}"])}%'" : null,
+	SetVariable("{$Configuration["SearchInputPrefix"]}" . ($Column = "PlatformID") . "", SetVariable($Column)) ? "{$Table["{$Entity}"]->Alias()}.{$Column} = " . intval($_POST["{$Configuration["SearchInputPrefix"]}{$Column}"]) . "" : null,
+	SetVariable("{$Configuration["SearchInputPrefix"]}" . ($Column = "{$Entity}IsActive") . "", SetVariable($Column, "")) !== "" ? "{$Table["{$Entity}"]->Alias()}.{$Column} = " . intval($_POST["{$Configuration["SearchInputPrefix"]}{$Column}"]) . "" : null,
+]);
 
-require __DIR__ . "/../../common/entitymanagement.php"; // Generic management process
+$EM->SearchUIHTML([
+	HTML\UI\Field(HTML\UI\Input("{$Configuration["SearchInputPrefix"]}{$Entity}" . ($Caption = "Name") . "", 200), "{$Caption}", null, null),
+	HTML\UI\Field(HTML\UI\Input("{$Configuration["SearchInputPrefix"]}{$Entity}" . ($Caption = "Description") . "", 200), "{$Caption}", null, true),
+	HTML\UI\Field(HTML\UI\Select("{$Configuration["SearchInputPrefix"]}" . ($Caption = "Platform") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get(), new Option(), "{$OptionEntity}LookupCaption"), "{$Caption}", null, true),
+	HTML\UI\Field(HTML\UI\Select("{$Configuration["SearchInputPrefix"]}{$Entity}Is" . ($Caption = "Active") . "", [new Option(), new Option(0, "No"), new Option(1, "Yes")]), "{$Caption}", null, true),
+]);
+
+print $EM->ListHTML();
+#region List
 ?>
