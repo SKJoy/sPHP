@@ -1,4 +1,0 @@
-$To = new sPHP\Comm\MailContact("JohnDoe@MyDomain.Com", "John Doe");
-$From = new sPHP\Comm\MailContact("Info@MyDomain.Com", "Information Desk");
-$Mail = new sPHP\Comm\Mail($To, "A test email", "This the test mail body content.", $From);
-print $Mail->Send() ? "Email sent." : "Error sending email!";

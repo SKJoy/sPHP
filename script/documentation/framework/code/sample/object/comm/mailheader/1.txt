@@ -1,8 +1,0 @@
-namespace sPHP\Comm;
-
-$Mail = new Mail();
-$Mail->To(new MailContact("JohnDoe@MyDomain.Com", "John Doe"));
-$Mail->Subject("Test email");
-$Mail->Header(new MailHeader("X-Mailer", "My Application/1.0"));
-
-print $Mail->Send() ? "Email sent." : "Error sending email!";

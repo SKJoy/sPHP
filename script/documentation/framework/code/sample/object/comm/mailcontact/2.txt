@@ -1,6 +1,0 @@
-namespace sPHP\Comm;
-
-$To = new MailContact("JohnDoe@MyDomain.Com", "John Doe");
-$From = new MailContact("Info@MyDomain.Com", "Information Desk");
-$Mail = new Mail($To, "A test email", "This the test mail body content.", $From);
-print $Mail->Send() ? "Email sent." : "Error sending email!";

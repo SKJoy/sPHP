@@ -1,9 +1,0 @@
-$MyForm = new sPHP\HTML\UI\Form(
-	"./ContactAction.php",
-	"
-		Name <input type=\"text\" name=\"FullName\">
-		<button type=\"submit\">Post</button>
-	"
-);
-
-print $MyForm->HTML();
