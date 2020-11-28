@@ -821,7 +821,7 @@ class EntityManagement{
 			$this->Property[__FUNCTION__] = "
 				" . HTML\UI\Datagrid(
 					// WHERE clause for search
-					$this->Property["Recordset"],
+					$this->Property["VisibleRecordset"],
 					$this->Property["URL"] . (isset($SearchArgument) ? "&" . implode("&", $SearchArgument) : null) . "",
 					$this->Property["Table"]->Count(),
 					$this->Property["ListColumn"], // Columns to display
