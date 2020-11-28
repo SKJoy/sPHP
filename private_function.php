@@ -85,7 +85,8 @@ function ___ExecuteApplicationScript($Application, $Template, $Configuration){
 			$DebugCheckpointID = $Debug->StartCheckpoint("template/header.php");
 
 			// This is put here to exclusively use for Terminals that are real browsing devices
-			require __DIR__ . "/include/useruserdevice_add.php"; // Register user device
+			// Do not waste system resource if User device notificatin is not required
+			if($Configuration["UserDeviceNotification"])require __DIR__ . "/include/useruserdevice_add.php"; // Register user device
 
 			require "{$Environment->Path()}template/header.php"; // Execute header script
 			$Debug->StopCheckpoint($DebugCheckpointID);
@@ -98,6 +99,7 @@ function ___ExecuteApplicationScript($Application, $Template, $Configuration){
 			require "{$Environment->Path()}template/footer.php"; // Execute footer script
 
 			// This is put here to exclusively use for Terminals that are real browsing devices
+			// Do not waste system resource if User device notificatin is not required
 			if($Configuration["UserDeviceNotification"])require __DIR__ . "/include/useruserdevicenotification_fetch.php"; // Fetch UserUserDeviceNotification
 			
 			$Debug->StopCheckpoint($DebugCheckpointID);

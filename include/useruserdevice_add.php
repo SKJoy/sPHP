@@ -1,7 +1,6 @@
 <?php
 namespace sPHP;
-/*
-*/
+
 if(
 		!is_null($Database->Connection()) // We have a connected database
 	&&	!$Session->IsGuest() // Ignore for Guest user
