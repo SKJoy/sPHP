@@ -64,7 +64,7 @@ class EntityManagement{
 
 		"LowercaseEntityName"		=>	null,
         "EntityID"					=>	null,
-        "Recordset"                 =>  [], 
+        "VisibleRecordset"          =>  [], // Recordset that are loaded in the datagrid, limited with FROM & TO
     ];
     #endregion Property
 
@@ -816,7 +816,7 @@ class EntityManagement{
 				)$SearchArgument[] = "{$Key}=" . urlencode($Value) . "";
 			}
             //var_dump($_POST, $this->Property["OrderBy"], SetVariable("OrderBy", $this->Property["OrderBy"]));
-            $this->Property["Recordset"] = $this->Property["Table"]->Get(implode(" AND ", array_filter($this->Property["SearchSQL"])), "" . SetVariable("OrderBy", $this->Property["OrderBy"]) . " " . SetVariable("Order", $this->Property["Order"]) . "", ((SetVariable("Page", 1) - 1) * ($this->Property["RecordsPerPage"])) + 1, $this->Property["RecordsPerPage"], null, null, $this->Property["Verbose"]);
+            $this->Property["VisibleRecordset"] = $this->Property["Table"]->Get(implode(" AND ", array_filter($this->Property["SearchSQL"])), "" . SetVariable("OrderBy", $this->Property["OrderBy"]) . " " . SetVariable("Order", $this->Property["Order"]) . "", ((SetVariable("Page", 1) - 1) * ($this->Property["RecordsPerPage"])) + 1, $this->Property["RecordsPerPage"], null, null, $this->Property["Verbose"]);
 
 			$this->Property[__FUNCTION__] = "
 				" . HTML\UI\Datagrid(
@@ -956,7 +956,7 @@ class EntityManagement{
         return $Result;
     }
 
-    public function Recordset(){
+    public function VisibleRecordset(){
         $Result = $this->Property[__FUNCTION__];
 
         return $Result;
