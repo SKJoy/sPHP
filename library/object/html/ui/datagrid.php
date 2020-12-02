@@ -473,7 +473,7 @@ class Datagrid{
 					}
 					#endregion Set explicit alignment
 
-					$FieldHTML[] = "<td" . (count($ColumnCSSSelector) ? " class=\"" . implode(" ", $ColumnCSSSelector) . "\"" : null) . ">{$ColumnData}</td>";
+					$FieldHTML[] = "<td" . (count($ColumnCSSSelector) ? " class=\"" . implode(" ", $ColumnCSSSelector) . "\"" : null) . "><span class=\"FieldCaption\">{$Column->Caption()}</span>{$ColumnData}</td>";
 				}
 
 				foreach(array_filter($this->Property["Action"]) as $Action){
