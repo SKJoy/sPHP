@@ -107,7 +107,7 @@ class Language{
 
     public function HTMLCode($Value = null){
         if(is_null($Value)){
-            $Result = is_null($this->Property[__FUNCTION__]) ? strtolower($this->Property["Code"]) . (!is_null($this->Property["RegionCode"]) ? "-" . strtoupper(strtoupper($this->Property["RegionCode"])) : null) : $this->Property[__FUNCTION__];
+            $Result = is_null($this->Property[__FUNCTION__]) ? strtolower($this->Property["Code"]) . (!is_null($this->Property["RegionCode"]) ? "-" . strtoupper($this->Property["RegionCode"]) : null) : $this->Property[__FUNCTION__];
         }
         else{
             $this->Property[__FUNCTION__] = $Value;
