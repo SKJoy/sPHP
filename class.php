@@ -668,7 +668,9 @@ class Terminal{
             #endregion Filter duplicate META by name
 
             foreach($this->HTML_Head_Link as $Item)$HTML_Head_Link[] = "<link" . ($Item["Relation"] ? " rel=\"{$Item["Relation"]}\"" : null) . ($Item["Type"] ? " type=\"{$Item["Type"]}\"" : null) . ($Item["URL"] ? " href=\"{$Item["URL"]}\"" : null) . ">";
-            $HTML_Head_Link[] = "<link rel=\"manifest\" href=\"{$this->Property["Manifest"]}\">";
+            //$HTML_Head_Link[] = "<link rel=\"manifest\" href=\"{$this->Property["Manifest"]}\">";
+            //$HTML_Head_Link[] = "<link rel=\"manifest\" href=\"{$this->Property["Environment"]->URL()}webapp_manifest.php\">";
+            $HTML_Head_Link[] = "<link rel=\"manifest\" href=\"{$this->Property["Environment"]->URL()}?_Script=WebApp/Manifest\">";
 
             foreach($this->HTML_Head_JavaScript as $Item)$HTML_Head_JavaScript[] = "<script" . ($Item["URL"] ? " src=\"{$Item["URL"]}\"" : null) . "></script>";
 
@@ -1325,6 +1327,7 @@ class Application{
         #region Set configuration
 		// Set up configuration with global vital effect
 		$this->Property["Terminal"]->Environment()->TimeZone($Configuration["Timezone"]);
+		$this->Property["Terminal"]->ThemeColor($Configuration["ThemeColor"]);
 
 		// Loop for direct properties for configuration items
         foreach($Configuration as $Key => $Value)if(!is_null($Value) && array_key_exists($Key, $this->Property))$this->$Key($Value);
