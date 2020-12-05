@@ -1,0 +1,36 @@
+--- June 17, 2018 ---
+Added debug check point for performance analysis
+
+Added debug server IP list in application configuration for automatic debugging
+
+Added debug client IP list in application configuration for automatic debugging
+
+Added debug region for visual region for execution flow analysis
+
+Support for host/server/domain name besides IP for debug server list
+
+Added debug back trace property
+
+Added DHTML JavaScript library
+
+Added DOM JavaScript library
+
+--- June 16, 2018 ---
+Isolated template script execution environment from core framework
+
+Moved custom error handler to environment object from terminal objet as environment is set before all other;
+
+Support for content (HTML/JavaScript/CSS/Any) in the HTML head section
+
+--- June 15, 2018 ---
+Deliver subsequent same template content from memory than file store for faster performance;
+
+Support for free text/html content with content variables besides PHP script for template view;
+
+Seperated Version object definition from core object definitions due to being user object;
+
+Seperated Language object definition from core object definitions due to being user object;
+
+Seperated User object definition from core object definitions due to being user object;
+
+Automatic version increment detecting actual sPHP development environment;

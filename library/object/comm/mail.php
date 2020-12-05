@@ -27,7 +27,7 @@ class Mail{
         "Cc"				=>	[], // Array of MailContact object
         "Bcc"				=>	[], // Array of MailContact object
         "Attachment"		=>	[],
-        "ReplyTo"			=>	[], // MailContact object
+        "ReplyTo"			=>	null, // MailContact object
 		"HTML"				=>	true,
         "Header"			=>	[],
         "Host"				=>	null,
@@ -82,11 +82,11 @@ class Mail{
 		$PHPMailer->Body = $Message = $this->Property["HTML"] ? "<html><body" . ($this->Property["BodyStyle"] ? " style=\"{$this->Property["BodyStyle"]}\"" : "") . ">{$this->Property["Message"]}</body></html>" : $this->Property["Message"];
 		if($this->Property["ReplyTo"])$PHPMailer->AddReplyTo($this->Property["ReplyTo"]->Address(), $this->Property["ReplyTo"]->Name());
 		if($this->Property["HTML"])$PHPMailer->IsHTML(true);
-		$PHPMailer->CharSet = 'UTF-8';
+		$PHPMailer->CharSet = "UTF-8";
 
 		if($this->Property["Host"]){
 			$PHPMailer->IsSMTP(true);
-			$PHPMailer->Host = $this->Property["Host"];
+			$PHPMailer->Host = strtolower($this->Property["Host"]);
 			if($this->Property["Port"])$PHPMailer->Port = $this->Property["Port"];
 		}
 
@@ -107,9 +107,25 @@ xContent-Type: text/html; charset=iso-8859-1
 
 {$Message}");
 		}
-		catch(Exception $Exception){
+        catch(Exception $Exception){ 
             //\sPHP\DebugDump($Exception);
-			print \sPHP\HTML\UI\MessageBox("Failed sending email! Please contact support.", "Error", "MessageBox_Error");
+            //\sPHP\DebugDump($PHPMailer->ErrorInfo);
+
+            print \sPHP\HTML\UI\MessageBox("
+                <!--Failed sending email! Please contact support.<hr>-->
+                {$PHPMailer->ErrorInfo}<hr>
+                <li>" . implode("</li><li>", array_filter([
+                    "To: " . (is_array($this->Property["To"]) ? $this->Property["To"][0]->Address() : $this->Property["To"]->Address()), 
+                    "From: {$this->Property["From"]->Address()}", 
+                    //"Subject: {$this->Property["Subject"]}", 
+                    "Reply to: " . ($this->Property["ReplyTo"] ? $this->Property["ReplyTo"]->Address() : null), 
+                    "Host: {$this->Property["Host"]}", 
+                    "Port: {$this->Property["Port"]}", 
+                    //"User: {$this->Property["User"]}", 
+                    //"Password: {$this->Property["Password"]}", 
+                ])) . "</li>
+            ", "Error", "MessageBoxError");
+            
 			$Result = false;
 		}
 
