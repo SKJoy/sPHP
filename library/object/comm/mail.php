@@ -43,7 +43,8 @@ class Mail{
 
     #region Method
     public function __construct($To = null, $Subject = null, $Message = null, $From = null, $BodyStyle = null, $LogPath = null, $Cc = null, $Bcc = null, $Attachment = null, $ReplyTo = null, $HTML = null, $Header = null, $Host = null, $Port = null, $User = null, $Password = null){
-		//$this->Utility = new Utility;
+        //$this->Utility = new Utility;
+        $this->Property["ReplyTo"] = new MailContact();
 
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
@@ -57,10 +58,11 @@ class Mail{
 
     public function Send($To = null, $Subject = null, $Message = null, $From = null, $BodyStyle = null, $LogPath = null, $Cc = null, $Bcc = null, $Attachment = null, $ReplyTo = null, $HTML = null, $Header = null, $Host = null, $Port = null, $User = null, $Password = null){
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
+        if(!is_array($this->Property["To"]))$this->Property["To"] = [$this->Property["To"]]; // Convert single item to array
 
 		$PHPMailer = new PHPMailer(true);
 
-		foreach(is_array($this->Property["To"]) ? $this->Property["To"] : [$this->Property["To"]] as $To){
+		foreach($this->Property["To"] as $To){
 			try{
 				$PHPMailer->addAddress($To->Address(), $To->Name());
 			}
@@ -80,7 +82,7 @@ class Mail{
 
 		$PHPMailer->Subject = $this->Property["Subject"];
 		$PHPMailer->Body = $Message = $this->Property["HTML"] ? "<html><body" . ($this->Property["BodyStyle"] ? " style=\"{$this->Property["BodyStyle"]}\"" : "") . ">{$this->Property["Message"]}</body></html>" : $this->Property["Message"];
-		if($this->Property["ReplyTo"])$PHPMailer->AddReplyTo($this->Property["ReplyTo"]->Address(), $this->Property["ReplyTo"]->Name());
+		if($this->Property["ReplyTo"]->Address())$PHPMailer->AddReplyTo($this->Property["ReplyTo"]->Address(), $this->Property["ReplyTo"]->Name());
 		if($this->Property["HTML"])$PHPMailer->IsHTML(true);
 		$PHPMailer->CharSet = "UTF-8";
 
@@ -115,10 +117,10 @@ xContent-Type: text/html; charset=iso-8859-1
                 <!--Failed sending email! Please contact support.<hr>-->
                 {$PHPMailer->ErrorInfo}<hr>
                 <li>" . implode("</li><li>", array_filter([
-                    "To: " . (is_array($this->Property["To"]) ? $this->Property["To"][0]->Address() : $this->Property["To"]->Address()), 
+                    "To: {$this->Property["To"][0]->Address()}", 
                     "From: {$this->Property["From"]->Address()}", 
                     //"Subject: {$this->Property["Subject"]}", 
-                    "Reply to: " . ($this->Property["ReplyTo"] ? $this->Property["ReplyTo"]->Address() : null), 
+                    "Reply to: {$this->Property["ReplyTo"]->Address()}", 
                     "Host: {$this->Property["Host"]}", 
                     "Port: {$this->Property["Port"]}", 
                     //"User: {$this->Property["User"]}", 
