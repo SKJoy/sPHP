@@ -21,7 +21,7 @@ class Mail{
         "To"				=>	[], // Array of MailContact object
         "Subject"			=>	null,
         "Message"			=>	null,
-        "From"				=>	[], // MailContact object
+        "From"				=>	null, // MailContact object
         "BodyStyle"			=>	null,
         "LogPath"			=>	"./NO_LOG_PATH_log/mail/",
         "Cc"				=>	[], // Array of MailContact object
@@ -44,6 +44,7 @@ class Mail{
     #region Method
     public function __construct($To = null, $Subject = null, $Message = null, $From = null, $BodyStyle = null, $LogPath = null, $Cc = null, $Bcc = null, $Attachment = null, $ReplyTo = null, $HTML = null, $Header = null, $Host = null, $Port = null, $User = null, $Password = null){
         //$this->Utility = new Utility;
+        $this->Property["From"] = new MailContact();
         $this->Property["ReplyTo"] = new MailContact();
 
         // Set property values from arguments passed during object instantiation
@@ -57,34 +58,28 @@ class Mail{
     }
 
     public function Send($To = null, $Subject = null, $Message = null, $From = null, $BodyStyle = null, $LogPath = null, $Cc = null, $Bcc = null, $Attachment = null, $ReplyTo = null, $HTML = null, $Header = null, $Host = null, $Port = null, $User = null, $Password = null){
-        foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
-        if(!is_array($this->Property["To"]))$this->Property["To"] = [$this->Property["To"]]; // Convert single item to array
+        // Update properties from the passed arguments
+        foreach(get_defined_vars() as $ArgumentName => $ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
+
+        // Convert single item to array
+        if(!is_array($this->Property["To"]))$this->Property["To"] = [$this->Property["To"]]; 
 
 		$PHPMailer = new PHPMailer(true);
 
-		foreach($this->Property["To"] as $To){
-			try{
-				$PHPMailer->addAddress($To->Address(), $To->Name());
-			}
-			catch(Exception $Exception){
-				// Do nothing
-			}
-		}
+        try{
+            foreach($this->Property["To"] as $To)$PHPMailer->addAddress($To->Address(), $To->Name());
+        }
+        catch(Exception $Exception){
+            // Do nothing
+        }
 
-		if($this->Property["From"]){
-			try{
-				$PHPMailer->setFrom($this->Property["From"]->Address(), $this->Property["From"]->Name());
-			}
-			catch(Exception $Exception){
-				// Do nothing
-			}
-		}
-
+		$PHPMailer->CharSet = "UTF-8";
 		$PHPMailer->Subject = $this->Property["Subject"];
-		$PHPMailer->Body = $Message = $this->Property["HTML"] ? "<html><body" . ($this->Property["BodyStyle"] ? " style=\"{$this->Property["BodyStyle"]}\"" : "") . ">{$this->Property["Message"]}</body></html>" : $this->Property["Message"];
+        $PHPMailer->Body = $Message = $this->Property["HTML"] ? "<html><body" . ($this->Property["BodyStyle"] ? " style=\"{$this->Property["BodyStyle"]}\"" : "") . ">{$this->Property["Message"]}</body></html>" : $this->Property["Message"];
+        
+		if($this->Property["From"]->Address())$PHPMailer->setFrom($this->Property["From"]->Address(), $this->Property["From"]->Name());
 		if($this->Property["ReplyTo"]->Address())$PHPMailer->AddReplyTo($this->Property["ReplyTo"]->Address(), $this->Property["ReplyTo"]->Name());
 		if($this->Property["HTML"])$PHPMailer->IsHTML(true);
-		$PHPMailer->CharSet = "UTF-8";
 
 		if($this->Property["Host"]){
 			$PHPMailer->IsSMTP(true);
@@ -99,13 +94,13 @@ class Mail{
 		}
         //var_dump($PHPMailer, realpath($this->Property["LogPath"]));
 		try{
-			if(($Result = $PHPMailer->send()) && realpath($this->Property["LogPath"]) !== false)file_put_contents("{$this->Property["LogPath"]}" . str_replace(str_split(" :"), "_", date("r")) . "_" . \sPHP\GUID() . ".eml", "Subject: {$this->Property["Subject"]}
-To: White Services <info@white.services>
+			if(($Result = $PHPMailer->send()) && realpath($this->Property["LogPath"]) !== false)file_put_contents("{$this->Property["LogPath"]}" . str_replace(str_split(" :\\/,.?*"), "_", date("r")) . "_" . \sPHP\GUID() . ".eml", "Subject: {$this->Property["Subject"]}
+To: " . ($this->Property["To"][0]->Name() ? "{$this->Property["To"][0]->Name()} " : null) . "<{$this->Property["To"][0]->Address()}>
 Date: " . date("r") . "
-From: {$this->Property["From"]->Name()} <{$this->Property["From"]->Address()}>
+From: " . ($this->Property["From"]->Name() ? "{$this->Property["From"]->Name()} " : null) . "<{$this->Property["From"]->Address()}>
 MIME-Version: 1.0
-Content-Type: text/html;charset=utf-8
-xContent-Type: text/html; charset=iso-8859-1
+Content-Type: text/html; charset=utf-8
+OLD-Content-Type: text/html; charset=iso-8859-1
 
 {$Message}");
 		}
