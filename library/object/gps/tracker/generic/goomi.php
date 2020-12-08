@@ -2,6 +2,18 @@
 namespace sPHP\GPS\Tracker\Generic;
 
 class GOOMI{
+	#region Constant
+	const COMMAND_IMEI = "IMEI";
+	const COMMAND_STATUS = "STATUS";
+	const COMMAND_LOCATION = "LOCATION";
+	const COMMAND_OIL_ELECTRICITY_CUT = "OIL_ELECTRICITY_CUT";
+	const COMMAND_OIL_ELECTRICITY_CONNECT = "OIL_ELECTRICITY_CONNECT";
+
+	const LANGUAGE_ENGLISH = "ENGLISH";
+	const LANGUAGE_CHINESE = "CHINESE";
+	#endregion Constant
+
+	#region Property
 	private $Property = [
 		"HexData"							=>	null,
 		"BinaryData"						=>	null,
@@ -16,6 +28,7 @@ class GOOMI{
 		"Message"							=>	null,
 		"MessageResponse"					=>	null,
 	];
+	#endregion Property
 
 	#region Method
 	public function __construct($HexData = null, $BinaryData = null){
@@ -190,6 +203,69 @@ class GOOMI{
 		if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = $this->EncodeMessageResponse($this->Message());
 
 		return $this->Property[__FUNCTION__];
+	}
+
+	public function Command($CommandIdentifier = self::COMMAND_LOCATION, $Command = null, $Password = null, $ServerCode = null, $Serial = 1, $Language = self::LANGUAGE_ENGLISH){
+		if(!$CommandIdentifier)$CommandIdentifier = self::COMMAND_LOCATION;
+		$CommandIdentifier = strtoupper($CommandIdentifier);
+
+		if(!$Command)$Command = str_replace([
+			self::COMMAND_IMEI, 
+			self::COMMAND_STATUS, 
+			self::COMMAND_LOCATION, 
+			self::COMMAND_OIL_ELECTRICITY_CUT, 
+			self::COMMAND_OIL_ELECTRICITY_CONNECT
+		], [
+			"IMEI", 
+			"STATUS", 
+			"WHERE", 
+			"DYD", 
+			"HFYD"
+		], $CommandIdentifier);
+
+		if(strlen($Password))$Password = str_pad($Password, 6, "0", STR_PAD_LEFT);
+		$ServerCode = str_pad($ServerCode, 4, chr(0), STR_PAD_RIGHT);
+
+		if(!$Serial)$Serial = 1;
+		$Serial = intval($Serial);
+
+		if(!$Language)$Language = self::LANGUAGE_ENGLISH;
+		if($Language)$Language = str_replace([self::LANGUAGE_ENGLISH, self::LANGUAGE_CHINESE], [2, 1], $Language);
+
+		$CommandString = implode(",", array_filter([$Command, $Password])) . "#";
+
+		$CommandData = [
+			"Start marker" => chr(0x78) . chr(0x78), // Start marker
+			"Packet length" => 5 + 7 + strlen($CommandString), // Packet length
+			"Protocol" => 128, // Protocol number
+			"Command length" => strlen("{$ServerCode}{$CommandString}"), // Command length
+			"Server" => $ServerCode, // Server code/flag bit
+			"Command" => $CommandString, // Command
+			"Language" => $Language, // Language
+			"Serial" => $Serial, // Serial number
+			"Error check" => null, // Error check
+			"Stop marker" => chr(0x0D) . chr(0x0A), // Stop marker
+		]; //var_dump($CommandData);
+
+		$CommandDataHEX["Start marker"] = bin2hex($CommandData["Start marker"]);
+		$CommandDataHEX["Packet length"] = str_pad(dechex($CommandData["Packet length"]), 2, "0", STR_PAD_LEFT);
+		$CommandDataHEX["Protocol"] = str_pad(dechex($CommandData["Protocol"]), 2, "0", STR_PAD_LEFT);
+		$CommandDataHEX["Command length"] = str_pad(dechex($CommandData["Command length"]), 2, "0", STR_PAD_LEFT);
+		$CommandDataHEX["Server"] = bin2hex($CommandData["Server"]);
+		$CommandDataHEX["Command"] = bin2hex($CommandData["Command"]);
+		$CommandDataHEX["Language"] = str_pad(dechex($CommandData["Language"]), 4, "0", STR_PAD_LEFT);
+		$CommandDataHEX["Serial"] = str_pad(dechex($CommandData["Serial"]), 4, "0", STR_PAD_LEFT);
+		$CommandDataHEX["Error check"] = $this->ErrorCheckSignature("{$CommandData["Packet length"]}{$CommandData["Protocol"]}{$CommandData["Serial"]}");
+		$CommandDataHEX["Stop marker"] = bin2hex($CommandData["Stop marker"]);
+		//var_dump($CommandDataHEX);
+
+		$Result = [
+			"Data" => $CommandData, 
+			"HEX Data" => $CommandDataHEX, 
+			"Command" => strtoupper(implode(null, $CommandDataHEX)), 
+		];
+
+		return $Result;
 	}
 	#endregion Property
 
@@ -531,13 +607,14 @@ class GOOMI{
 
 	private function DecodeMessage_CommandResponse($Data){
 		$Result = [
-			"ProtocolName" => "Command",
-		];
+			"ProtocolName" => "Command reply",
+			"Content" => hex2bin(substr($Data, 4, strlen($Data) - 4 - 6 - 4)), 
+		]; //var_dump($Result);
 
 		return $Result;
 	}
 
-	private function ResponseMessage_LogIn($DecodedData){
+	private function ResponseMessage_LogIn($DecodedData){ //var_dump($DecodedData);
 		$Data = "{$this->Property["CommonResponsePacketLength"]}{$DecodedData["ProtocolNumber"]}{$DecodedData["Serial"]}";
 		$ErrorCheck = $this->ErrorCheckSignature($Data); //var_dump($ErrorCheck);
 
@@ -548,7 +625,7 @@ class GOOMI{
 		return $Result;
 	}
 
-	private function ResponseMessage_Status($DecodedData){
+	private function ResponseMessage_Status($DecodedData){ //var_dump($DecodedData);
 		$Data = "{$this->Property["CommonResponsePacketLength"]}{$DecodedData["ProtocolNumber"]}{$DecodedData["Serial"]}"; //var_dump($Data);
 		$ErrorCheck = $this->ErrorCheckSignature($Data); //var_dump($ErrorCheck);
 		
@@ -581,7 +658,7 @@ class GOOMI{
 		return count($Result) ? $Result : false;
 	}
 
-	private function CRC_16($data){
+	private function CRC_16($Data){
 		$CRCTable = array(  
 			0x0000, 0x1189, 0x2312, 0x329B, 0x4624, 0x57AD,
 			0x6536, 0x74BF, 0x8C48, 0x9DC1, 0xAF5A, 0xBED3,
@@ -630,7 +707,7 @@ class GOOMI{
 
         $crc = 0xFFFF;
     
-        foreach ($data as $d) {
+        foreach($Data as $d) {
             $d = hexdec($d); //<-- This did the trick
             $crc = $CRCTable[($d ^ $crc) & 0xFF] ^ ($crc >> 8 & 0xFF);
         }
@@ -641,7 +718,7 @@ class GOOMI{
         return $crc;
     }
 
-	private function ErrorCheckSignature($Data){
+	private function ErrorCheckSignature($Data){ //var_dump($Data);
 		return str_pad(strtoupper(dechex($this->CRC_16(str_split($Data, 2)))), 4, "0", STR_PAD_LEFT);
 	}
 	#endregion Private function
