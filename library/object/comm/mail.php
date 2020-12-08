@@ -60,18 +60,16 @@ class Mail{
     public function Send($To = null, $Subject = null, $Message = null, $From = null, $BodyStyle = null, $LogPath = null, $Cc = null, $Bcc = null, $Attachment = null, $ReplyTo = null, $HTML = null, $Header = null, $Host = null, $Port = null, $User = null, $Password = null){
         // Update properties from the passed arguments
         foreach(get_defined_vars() as $ArgumentName => $ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
-
-        // Convert single item to array
+        
         if(!is_array($this->Property["To"]))$this->Property["To"] = [$this->Property["To"]]; 
+        $this->Property["To"] = array_filter($this->Property["To"]);
 
-		$PHPMailer = new PHPMailer(true);
-
-        try{
-            foreach($this->Property["To"] as $To)$PHPMailer->addAddress($To->Address(), $To->Name());
+        $PHPMailer = new PHPMailer(true);
+        
+        foreach($this->Property["To"] as $To)if($To->Address())try{
+            $PHPMailer->addAddress($To->Address(), $To->Name());
         }
-        catch(Exception $Exception){
-            // Do nothing
-        }
+        catch(Exception $Exception){} // Do nothing
 
 		$PHPMailer->CharSet = "UTF-8";
 		$PHPMailer->Subject = $this->Property["Subject"];
