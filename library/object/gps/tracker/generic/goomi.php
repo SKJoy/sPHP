@@ -82,6 +82,9 @@ class GOOMI{
 			elseif($ProtocolNumber == "22" && $ProtocolDataLength >= 66){ // Mileage data is optional!
 				$Result = $this->DecodeMessage_Location_x22($ProtocolData);
 			}
+			elseif($ProtocolNumber == "15"){ // Command response
+				$Result = $this->DecodeMessage_CommandResponse($ProtocolData);
+			}
 			else{
 				$Result = false;
 			}
@@ -522,6 +525,14 @@ class GOOMI{
 
 		// Override course GPSMode with direct GPSMode (Should we? Consult with manufacturer)
 		$Result["Course"]["GPSMode"] = $DataPart[12] == "00" ? "Realtime" : ($DataPart[12] == "01" ? "Reupload" : null);
+
+		return $Result;
+	}
+
+	private function DecodeMessage_CommandResponse($Data){
+		$Result = [
+			"ProtocolName" => "Command",
+		];
 
 		return $Result;
 	}
