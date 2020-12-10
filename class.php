@@ -1675,6 +1675,88 @@ class Application{
     
         return $Result;    
     }
+
+    public function OTP($Phone = null, $Email = null, $Length = 5, $ValidityFrom = null, $ValidityTo = null, $UserIDCreated = null, $UserIDFor = null){
+        $Error = [];
+        if(!$Phone && !$Email)$Error[] = "Either phone or email is required";
+
+        if(count($Error)){
+            $Result = ["Error" => $Error, ];
+        }
+        else{
+            $Length = intval($Length);
+            if(!$Length)$Length = 5; //DebugDump($Length);
+
+            if(!$ValidityFrom){
+                $ValidityFrom = time();
+                $ValidityTo = date("Y-m-d H:i:s", $ValidityFrom + (60 * 10)); // N minutes
+                $ValidityFrom = date("Y-m-d H:i:s", $ValidityFrom); // Format to string
+            }
+    
+            if(!$ValidityTo)$ValidityTo = date("Y-m-d H:i:s", strtotime($ValidityFrom) + (60 * 10)); // N minutes
+    
+            if(!$UserIDCreated)$UserIDCreated = $this->Property["Session"]->User()->ID();
+            $UserIDCreated = intval($UserIDCreated);
+
+            $UserIDFor = intval($UserIDFor);
+    
+            $Code = $this->Property["Terminal"]->Environment()->Utility()->RandomString($Length, true, false, false, false);
+            $Signature = "{$this->Property["Terminal"]->Environment()->Utility()->GUID()}-{$this->Property["Terminal"]->Environment()->Utility()->GUID()}";
+    
+            $SQL = "# sPHP: Application: OTP: Create
+                DELETE FROM sphp_otp WHERE DATEDIFF(NOW(), OTPValidityTimeTo) > 30; # Clean
+
+                SET @Code := '{$Code}';
+                SET @Signature := '{$Signature}';
+
+                INSERT IGNORE INTO sphp_otp (OTPCode, OTPPhone, OTPEmail, OTPSignature, OTPValidityTimeFrom, OTPValidityTimeTo, UserIDCreated, UserIDFor, OTPIsVerified, OTPIsActive, UserIDInserted, TimeInserted) 
+                VALUES (@Code, '{$Phone}', '$Email', @Signature, '{$ValidityFrom}', '{$ValidityTo}', {$UserIDCreated}, " . ($UserIDFor ? $UserIDFor : "NULL") . ", 0, 1, {$this->Property["Session"]->User()->ID()}, NOW());
+
+                SELECT * FROM sphp_otp WHERE OTPID = @@IDENTITY; #OTPCode = @Code AND OTPSignature = @Signature;
+            "; //DebugDump($SQL);
+
+            $Recordset = $this->Property["Database"]->Query($SQL);
+    
+            if(count($Recordset)){
+                $Result = ["Error" => [], "Response" => ["OTP" => [
+                    "ID" => $Recordset[0][0]["OTPID"], 
+                    "Code" => $Recordset[0][0]["OTPCode"], 
+                    "Signature" => $Recordset[0][0]["OTPSignature"], 
+                    "ValidityTime" => [
+                        "From" => $Recordset[0][0]["OTPValidityTimeFrom"], 
+                        "To" => $Recordset[0][0]["OTPValidityTimeTo"], 
+                    ], 
+                ], ], ];
+            }
+            else{
+                $Result = ["Error" => ["Databse query failed", ], ];
+            }
+        }
+
+        return $Result;
+    }
+
+    public function VerifyOTP($ID, $Signature, $Code){
+        $SQL = "# sPHP: Application: OTP: Verify
+            SELECT          OTP.OTPID
+            INTO            @OTPID 
+            FROM            sphp_otp AS OTP
+            WHERE           OTP.OTPID = {$ID} 
+                AND         NOW() BETWEEN OTP.OTPValidityTimeFrom AND OTP.OTPValidityTimeTo
+                AND         OTP.OTPCode = '{$Code}' 
+                AND         OTP.OTPSignature = '{$Signature}'
+                AND         OTP.OTPIsVerified = 0
+                AND         OTP.OTPIsActive = 1;
+
+            UPDATE          sphp_otp AS OTP 
+                SET         OTP.OTPIsVerified = 1
+            WHERE           OTPID = @OTPID;
+
+            SELECT @OTPID AS OTPID;
+        "; //DebugDump($SQL);
+
+        return $this->Property["Database"]->Query($SQL)[0][0]["OTPID"] ? true : false;
+    }
     #endregion Method
 
     #region Property
