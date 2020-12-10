@@ -851,7 +851,7 @@ class EntityManagement{
         return $Result;
     }
 
-    public function InputHTML(){
+    public function InputHTML($Header = null, $Footer = null){
         if(is_null($this->Property[__FUNCTION__])){
 			if(is_array($this->Property["EntityID"]))$this->Property["EntityID"] = 0;
 
@@ -867,8 +867,8 @@ class EntityManagement{
 						$this->Property["EntityID"] ? "Update" : "Insert", // Submit button caption
 						$this->Property["EncryptionKey"], // Signature modifier
 						"<img src=\"{$this->Property["IconURL"]}{$this->Property["LowercaseEntityName"]}.png\" alt=\"{$this->Property["Table"]->EntityName()}\" class=\"Icon\">" . ($this->Property["EntityID"] ? "Edit" : "Add new") . " " . strtolower($this->Property["InputTitle"] ? $this->Property["InputTitle"] : $this->Property["Table"]->FormalName()) . "", // Title
-						"Use the form below to add a new {$this->Property["LowercaseEntityName"]} record into the system.", // Header
-						"Press the 'Insert' or 'Update' button to save the information.", // Footer
+						is_null($Header) ? "Use the form below to add a new {$this->Property["LowercaseEntityName"]} record into the system." : $Header, // Header
+						is_null($Footer) ? "Press the 'Insert' or 'Update' button to save the information." : $Footer, // Footer
 						"All field(s) are required except marked optional.", // Status
 						"frm{$this->Property["Table"]->EntityName()}Input" // ID
 					) . "
