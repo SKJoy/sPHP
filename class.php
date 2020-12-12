@@ -48,6 +48,7 @@ class Environment{
         "Version"				=>	null,
 		"Client"				=>	null,
 		"CustomError"			=>	false,
+		"MemoryLimit"			=>	256, // Set memory limit in MB
     ];
     #endregion Property
 
@@ -60,6 +61,8 @@ class Environment{
 		// Check if already instantiated and throw error if tried again
 		if($this::$AlreadyInstantiated)trigger_error("Instantiation is prohibited for " . __CLASS__ .  " object.");
 		$this::$AlreadyInstantiated = true;
+
+        ini_set("memory_limit", "{$this->Property["MemoryLimit"]}M"); // Set PHP memory limit before everything
 
         $this->Property["Name"] = "sPHP";
         $this->Property["Version"] = new Version(10);
@@ -571,6 +574,21 @@ class Environment{
 			else{
 				restore_error_handler();
 			}
+
+            $Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function MemoryLimit($Value){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+			ini_set("memory_limit", "{$this->Property[__FUNCTION__]}M"); // Set memory limit
 
             $Result = true;
         }
@@ -2238,9 +2256,9 @@ class Template{
         return true;
     }
 
-	public function Content($Name, $Variable = [], $Process = null, $Lifetime = null, $DefaultContent = null){
+	public function Content($Name, $Variable = [], $Process = null, $Lifetime = null, $DefaultContent = null, $CacheName = null){
 		if(!isset($this->Cache[$Name])){ // Cache is not loaded into memory
-			if($this->Expired($Name, $Lifetime)){ // Cache is expired
+			if($this->Expired($Name, $Lifetime, $CacheName)){ // Cache is expired
 				// Create template view PHP with default content if missing
 				if(!file_exists($this->Property["ViewFilePath"]))file_put_contents($this->Property["ViewFilePath"], $DefaultContent ? $DefaultContent : "This is default content for the template '{$Name}' as set in the view script!");
 
@@ -2257,7 +2275,10 @@ class Template{
 
 				//$this->Property["Application"]->Terminal()->Flush();
 				$this->Property["Application"]->Terminal()->Mode($PreviousTerminalBufferMode); // Set output buffer mode back
-			}
+            }
+            else{
+                //DebugDump("Template->Content: Loaded from cache");
+            }
 
 			$this->Cache[$Name] = file_get_contents($this->Property["CacheFilePath"]); // Load cache into memory
 		}
@@ -2430,8 +2451,8 @@ class Template{
         return $Result;
     }
 
-	public function TimeToExpire($Name, $Lifetime = null){
-		$this->SetName($Name);
+	public function TimeToExpire($Name, $Lifetime = null, $CacheName = null){
+		$this->SetName($Name, $CacheName);
 		if(is_null($Lifetime))$Lifetime = $this->Property["Lifetime"];
 
 		$Result = (
@@ -2442,23 +2463,25 @@ class Template{
 		return $Result;
 	}
 
-	public function Expired($Name, $Lifetime = null){
-		$Result = $this->TimeToExpire($Name, $Lifetime) == 0 ? true : false;
+	public function Expired($Name, $Lifetime = null, $CacheName = null){
+		$Result = $this->TimeToExpire($Name, $Lifetime, $CacheName) == 0 ? true : false;
 
 		return $Result;
 	}
     #endregion Property
 
 	#region Function
-    private function SetName($Value){
-		$Result = true;
+    private function SetName($Value, $CacheName = null){
+        $Result = true;
+        
+        $CacheNameModifier = $CacheName ? "_{$this->Property["Application"]->Terminal()->Environment()->Utility()->ValidFileName($CacheName)}" : null;
 
 		$this->Property["FileName"] = "{$this->Property["Application"]->Terminal()->Environment()->Utility()->ValidFileName($Value)}";
 
 		$this->Property["ViewFile"] = "{$this->Property["FileName"]}.php";
 		$this->Property["ViewFilePath"] = "{$this->Property["ViewPath"]}{$this->Property["ViewFile"]}";
 
-		$CacheFilenamePrefix = "{$this->Property["FileName"]}_UserID_{$this->Property["Application"]->Session()->User()->ID()}";
+		$CacheFilenamePrefix = "{$this->Property["FileName"]}{$CacheNameModifier}_UserID_{$this->Property["Application"]->Session()->User()->ID()}";
 
 		$this->Property["CacheFile"] = "{$CacheFilenamePrefix}_" . md5($CacheFilenamePrefix) . ".tpc";
 		$this->Property["CacheFilePath"] = "{$this->Property["CachePath"]}{$this->Property["CacheFile"]}";
