@@ -190,8 +190,8 @@ class Content{
         return $Result;
     }
 
-	public function EditAnchor($Hide = false, $NewWindow = false){
-		if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = "<a href=\"{$this->EditURL()}\" title=\"Edit {$this->Name()}\"" . ($NewWindow ? " target=\"_blank\"" : null) . " class=\"ContentEditAnchor\">✎</a>";
+	public function EditAnchor($Hide = false, $NewWindow = false){ 
+        if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = "<a href=\"{$this->EditURL()}\" title=\"Edit {$this->Name()}\"" . ($NewWindow ? " target=\"_blank\"" : null) . " class=\"ContentEditAnchor\">✎</a>";
 
 		$Result = $Hide ? null : $this->Property[__FUNCTION__];
 
