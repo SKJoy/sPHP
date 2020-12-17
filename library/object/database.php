@@ -183,10 +183,7 @@ class Database{
 				//file_put_contents(__DIR__ . "/error.log", "Database statement preparation failed!");
 			}
 			else{ // Database server successully prepared the statment
-				if(!$NoHistory){ // Set query counters
-					$this->Property["LastDuration"] = 0;
-					$LastDurationStart = microtime(true);
-				}
+				$LastDurationStart = microtime(true);
 
 				try{
 					$Query->execute(is_null($Parameter) ? [] : $Parameter);
@@ -237,11 +234,10 @@ class Database{
 				// Enable error exception back
 				$this->Property["Connection"]->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-				if(!$NoHistory){ // Set query counters
-					$this->Property["LastDuration"] = microtime(true) - $LastDurationStart;
-					$this->Property["Duration"] = $this->Property["Duration"] + $this->Property["LastDuration"];
-					$this->Property["QueryCount"]++;
-				}
+				// Set query counters
+				$this->Property["LastDuration"] = microtime(true) - $LastDurationStart;
+				$this->Property["Duration"] = $this->Property["Duration"] + $this->Property["LastDuration"];
+				$this->Property["QueryCount"]++;
 				
 				$QueryError = $Query->errorInfo();
 				
