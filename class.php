@@ -1022,6 +1022,7 @@ class Session{
 		"ContentEditMode"		=>	false,
         "DebugMode"				=>	false,
         "IgnoreActivity"        =>  false, 
+        "Language"              =>  null, 
         
         // Read only
 		"LastActivityTime"		=>	null,
@@ -1039,10 +1040,10 @@ class Session{
     #endregion Variable
 
     #region Method
-    public function __construct($Environment = null, $Guest = null, $Lifetime = null, $Isolate = null, $User = null, $Name = null, $ContentEditMode = null, $DebugMode = null, $IgnoreActivity = null){
+    public function __construct($Environment = null, $Guest = null, $Lifetime = null, $Isolate = null, $User = null, $Name = null, $ContentEditMode = null, $DebugMode = null, $IgnoreActivity = null, $Language = null){
 		// Check if already instantiated and throw error if tried again
 		if($this::$AlreadyInstantiated)trigger_error("Instantiation is prohibited for " . __CLASS__ .  " object.");
-		$this::$AlreadyInstantiated = true;
+        $this::$AlreadyInstantiated = true;
 
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
@@ -1085,7 +1086,8 @@ class Session{
 		$this->Property["IsReset"] = true;
 
 		// Set user through method to take user change related actions
-		$this->User($this->Property["Guest"]);
+        $this->User($this->Property["Guest"]);
+        $this->Language(new Language());
 
 		return $Result;
 	}
@@ -1224,6 +1226,21 @@ class Session{
             $this->Property[__FUNCTION__] = $Value;
 
             $Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function Language($Value = null){
+        if(is_null($Value)){
+            //$Result = $_SESSION[__FUNCTION__];
+            // Above is correct, following is just to save the day, enable above once all panels are okay
+            $Result = isset($_SESSION[__FUNCTION__]) ? $_SESSION[__FUNCTION__] : new Language();
+        }
+        else{
+            $_SESSION[__FUNCTION__] = $Value;
+
+			$Result = true;
         }
 
         return $Result;
@@ -1456,16 +1473,14 @@ class Application{
 		}
 		#endregion Create session log upon each session reset
 
-		// Following session configuration needs to be set after the session starts
-		// and will always overwrite session's current value in case of TRUE evaluation
+        // Following session configuration needs to be set after the session starts
+        $this->Language($this->Property["Session"]->Language()); // Set Language from session
+
+		// Following will always overwrite session's current value in case of TRUE evaluation
 		if($Configuration["ContentEditMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["ContentEditModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["ContentEditModeClient"]))))))$this->Property["Session"]->ContentEditMode(true);
 		if($Configuration["DebugMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeClient"]))))))$this->Property["Session"]->DebugMode(true);
 
-        //
-        // Assuming default script has been move above from here
-        //
-
-		// Configure stylesheet inclusion
+        // Configure stylesheet inclusion
         if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}script/{$_POST["_Script"]}.css"))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}script/{$_POST["_Script"]}.css";
         if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}{$_SERVER["SERVER_NAME"]}/loader.css"))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}{$_SERVER["SERVER_NAME"]}/loader.css";
         if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}{$_SERVER["SERVER_NAME"]}/script/{$_POST["_Script"]}.css"))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}{$_SERVER["SERVER_NAME"]}/script/{$_POST["_Script"]}.css";
@@ -2231,6 +2246,7 @@ class Template{
         "CacheFilePath"				=>	null,
 		"TimeToExpire"				=>	0,
 		"Expired"					=>	true,
+		"LastContentLoadedFromCache"	=>	true,
     ];
     #endregion Property variable
 
@@ -2274,9 +2290,11 @@ class Template{
 				#endregion Regenerate cache
 
 				//$this->Property["Application"]->Terminal()->Flush();
-				$this->Property["Application"]->Terminal()->Mode($PreviousTerminalBufferMode); // Set output buffer mode back
+                $this->Property["Application"]->Terminal()->Mode($PreviousTerminalBufferMode); // Set output buffer mode back
+                $this->Property["LastContentLoadedFromCache"] = false;
             }
             else{
+                $this->Property["LastContentLoadedFromCache"] = true;
                 //DebugDump("Template->Content: Loaded from cache");
             }
 
@@ -2467,7 +2485,13 @@ class Template{
 		$Result = $this->TimeToExpire($Name, $Lifetime, $CacheName) == 0 ? true : false;
 
 		return $Result;
-	}
+    }
+    
+    public function LastContentLoadedFromCache(){
+		$Result = $this->Property[__FUNCTION__];
+
+        return $Result;
+    }
     #endregion Property
 
 	#region Function

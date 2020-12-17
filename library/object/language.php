@@ -11,11 +11,11 @@ namespace sPHP;
 class Language{
     #region Property variable
     private $Property = [
-        "Name"				=>	"English (US)",
+        "Name"				=>	"English (United States)",
         "Code"				=>	"EN",
         "RegionCode"		=>	"US",
-        "NativeName"		=>	"English (US)",
-        "NativelyName"		=>	"English (US)",
+        "NativeName"		=>	"English (United States)",
+        "NativelyName"		=>	"English (United States)",
         "HTMLCode"			=>	"en-US",
     ];
     #endregion Property variable
@@ -42,6 +42,9 @@ class Language{
         }
         else{
             $this->Property[__FUNCTION__] = $Value;
+
+            $this->Property["NativeName" ] = null;
+            $this->Property["NativelyName" ] = null;
 
             $Result = true;
         }
@@ -81,6 +84,8 @@ class Language{
 
     public function NativeName($Value = null){
         if(is_null($Value)){
+            if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = $this->Property["Name"];
+
             $Result = $this->Property[__FUNCTION__];
         }
         else{
@@ -94,6 +99,8 @@ class Language{
 
     public function NativelyName($Value = null){
         if(is_null($Value)){
+            if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = $this->Property["NativeName"];
+            
             $Result = $this->Property[__FUNCTION__];
         }
         else{
@@ -107,7 +114,9 @@ class Language{
 
     public function HTMLCode($Value = null){
         if(is_null($Value)){
-            $Result = is_null($this->Property[__FUNCTION__]) ? strtolower($this->Property["Code"]) . (!is_null($this->Property["RegionCode"]) ? "-" . strtoupper($this->Property["RegionCode"]) : null) : $this->Property[__FUNCTION__];
+            if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = strtolower($this->Property["Code"]) . (!is_null($this->Property["RegionCode"]) ? "-" . strtoupper($this->Property["RegionCode"]) : null);
+
+            $Result = $this->Property[__FUNCTION__];
         }
         else{
             $this->Property[__FUNCTION__] = $Value;
