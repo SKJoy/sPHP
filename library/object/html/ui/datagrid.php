@@ -29,13 +29,17 @@ class Datagrid{
 		"Selectable"				=>	true,
         "ID"						=>	null,
         "CSSSelector"				=>	null,
-		"SerialCaption"				=>	"#",
+        "SerialCaption"				=>	"#",
+        "PaginatorPageCaption"      =>  "Page", 
+        "PaginatorRecordsCaption"   =>  "Record(s)", 
+
+        // Read only
         "HTML"						=>	null,
     ];
     #endregion Property variable
 
     #region Method
-    public function __construct($Data = null, $URL = null, $RecordCount = null, $Field = null, $Title = null, $RowPerPage = null, $DataIDColumn = null, $Action = null, $BaseURL = null, $IconBaseURL = null, $Footer = null, $PreHTML = null, $BatchAction = null, $ExpandURL = null, $Serial = null, $Selectable = null, $ID = null, $CSSSelector = null, $SerialCaption = null){
+    public function __construct($Data = null, $URL = null, $RecordCount = null, $Field = null, $Title = null, $RowPerPage = null, $DataIDColumn = null, $Action = null, $BaseURL = null, $IconBaseURL = null, $Footer = null, $PreHTML = null, $BatchAction = null, $ExpandURL = null, $Serial = null, $Selectable = null, $ID = null, $CSSSelector = null, $SerialCaption = null, $PaginatorPageCaption = null, $PaginatorRecordsCaption = null){ //\sPHP\DebugDump(get_defined_vars());
 		// Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
 
@@ -334,11 +338,39 @@ class Datagrid{
         return $Result;
     }
 
+    public function PaginatorPageCaption($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{ //\sPHP\DebugDump($this->Property[__FUNCTION__]);
+            $this->Property[__FUNCTION__] = $Value;
+
+            $Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function PaginatorRecordsCaption($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{ //\sPHP\DebugDump($this->Property[__FUNCTION__]);
+            $this->Property[__FUNCTION__] = $Value;
+
+            $Result = true;
+        }
+
+        return $Result;
+    }
+
     public function HTML(){
 		if(is_null($this->Property[__FUNCTION__])){
+            //\sPHP\DebugDump($this->Property);
+            // CHECK BACK: Can't we just use array_filter() below?
 			$Field = array_values(array_filter($this->Property["Field"]));
 
-			$URL = "{$this->Property["URL"]}" . (strpos($this->Property["URL"], "?") === false ? "?" : "&") . "";
+            $URL = "{$this->Property["URL"]}" . (strpos($this->Property["URL"], "?") === false ? "?" : "&") . "";
 			$ParameterPrefix = $this->Property["ID"] ? "Datagrid_{$this->Property["ID"]}_" : null;
 
 			\sPHP\SetVariable("{$ParameterPrefix}Page", 1);
@@ -515,7 +547,7 @@ class Datagrid{
 							<tr class=\"Page\">
 								<th colspan=\"99999\">
 									<div class=\"Paginator\">{$Paginator->HTML()}</div>
-									<div class=\"Suffix\">Page {$Paginator->CurrentPage()} / {$Paginator->PageCount()}: " . ($RecordFrom = (($Paginator->CurrentPage() - 1) * $this->Property["RowPerPage"]) + 1) . " - " . ($RecordFrom + $this->Property["RowPerPage"] - 1) . " / {$this->RecordCount()} Record(s)</div>
+									<div class=\"Suffix\">{$this->Property["PaginatorPageCaption"]} {$Paginator->CurrentPage()} / {$Paginator->PageCount()}: " . ($RecordFrom = (($Paginator->CurrentPage() - 1) * $this->Property["RowPerPage"]) + 1) . " - " . ($RecordFrom + $this->Property["RowPerPage"] - 1) . " / {$this->RecordCount()} {$this->Property["PaginatorRecordsCaption"]}</div>
 								</th>
 							</tr>
 
