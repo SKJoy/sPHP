@@ -1482,6 +1482,7 @@ class Application{
 
         // Configure stylesheet inclusion
         if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}script/{$_POST["_Script"]}.css"))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}script/{$_POST["_Script"]}.css";
+        $Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}language_{$this->Property["Language"]->HTMLCode()}.css";
         if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}{$_SERVER["SERVER_NAME"]}/loader.css"))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}{$_SERVER["SERVER_NAME"]}/loader.css";
         if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}{$_SERVER["SERVER_NAME"]}/script/{$_POST["_Script"]}.css"))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}{$_SERVER["SERVER_NAME"]}/script/{$_POST["_Script"]}.css";
 		foreach($Configuration["Stylesheet"] as $URL)$this->Property["Terminal"]->Link("stylesheet", "text/css", $URL);

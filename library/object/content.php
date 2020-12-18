@@ -16,7 +16,9 @@ class Content{
         "Path"				=>	"./content/",
 		"Input"				=>	INPUT_TYPE_TEXTAREA,
         "Language"			=>	null,
-		"FileName"			=>	null,
+        "FileName"			=>	null,
+        
+        // Read only
 		"Value"				=>	null,
 		"EditURL"			=>	"./?_Script=utility/content/input",
 		"AnchorID"			=>	null,
@@ -30,7 +32,7 @@ class Content{
 
     #region Method
     public function __construct($Name = null, $DefaultValue = null, $Path = null, $Input = null, $Language = null, $FileName = null){
-		$this->Property["Language"] = new Language();
+        $this->Property["Language"] = new Language();
 		$this->Property["AnchorID"] = "ContentAnchorID_" . GUID() . "";
 
         // Set property values from arguments passed during object instantiation
@@ -128,19 +130,19 @@ class Content{
         return $Result;
     }
 
-    public function Value($Value = null){
+    public function Value($Value = null, $Debug = null){
         $File = "{$this->Property["Path"]}{$this->FileName()}.php";
         //var_dump("Content file = {$File}");
 
         if(is_null($Value)){ // GET
 			if(is_null($this->Property[__FUNCTION__])){
-				if(isset(self::$Cache["Value"][$this->Property["FileName"]])){
-                    //var_dump("Serve content for '{$this->Property["Name"]}' from cache");
+				if(isset(self::$Cache["Value"][$this->Property["FileName"]])){  // Serve from internal cache
+                    if($Debug)DebugDump("Serve content for '{$this->Property["Name"]}' from cache");
 					$this->Property[__FUNCTION__] = self::$Cache["Value"][$this->Property["FileName"]];
 				}
 				else{
-					if(file_exists($File)){ // File exists
-                        //var_dump("Serve content for '{$this->Property["Name"]}' from file");
+					if(file_exists($File)){ // Serve content from file
+                        if($Debug)DebugDump("Serve content for '{$this->Property["Name"]}' from file");
 						require $File;
 						$this->Property[__FUNCTION__] = unserialize(base64_decode($___Content));
 
@@ -154,11 +156,12 @@ class Content{
 							}
 						}
 					}
-                    else{ // File doesn't exist
-                        //var_dump("Content file '{$File}' not found. Did you provide with Path property?");
-                        //var_dump("Serve content for '{$this->Property["Name"]}' as default");
-						//$this->Value(is_null($this->Property["DefaultValue"]) ? "" : $this->Property["DefaultValue"]);
-						$this->Property[__FUNCTION__] = $this->Property["DefaultValue"];
+                    else{ // Content file doesn't exist
+                        // This can happen if the Content has never been authored, defined only. 
+                        // Saving/updating content should resolve this
+                        
+                        if($Debug)DebugDump("Content file '{$File}' does not exist, serving default value for '{$this->Property["Name"]}'");
+                        $this->Property[__FUNCTION__] = $this->Property["DefaultValue"];
 					}
 
 					self::$Cache["Value"][$this->Property["FileName"]] = $this->Property[__FUNCTION__];

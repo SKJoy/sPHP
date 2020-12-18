@@ -3,7 +3,7 @@
 
 	require __DIR__ . "/../../common/languagebyhtmlcode.php";
 	$Content = new Content($_POST["Name"], null, $Environment->ContentPath(), null, $Language[$_POST["LanguageHTMLCode"]]);
-//var_dump($_FILES, $Content->Value()); exit;
+	//var_dump($_FILES, $Content->Value()); exit;
 	Upload($Environment->ContentUploadPath());
 
 	foreach($_FILES as $Field=>$FieldValue)if($Field == "Value"){

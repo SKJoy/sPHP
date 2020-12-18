@@ -1,12 +1,8 @@
 <?php
 namespace sPHP;
 
-$Language = [
-	"en-US" => new Language("English (United States)", "EN", "US"), 
-	"bn-BD" => new Language("বাংলা (বাংলাদেশ)", "BN", "BD"), 
-];
-
-foreach($Language as $ThisLanguageIndex => $ThisLanguage)$LanguageOption[] = new Option($ThisLanguageIndex, $ThisLanguage->Name());
+require __DIR__ . "/../common/languagebyhtmlcode.php";
+foreach($Language as $ThisLanguageIndex => $ThisLanguage)$LanguageOption[] = new Option($ThisLanguageIndex, "{$ThisLanguage->Name()}" . ($ThisLanguage->NativelyName() != $ThisLanguage->Name() ? "  |  {$ThisLanguage->NativelyName()}" : null) . "");
 
 if(isset($_POST["btnSubmit"])){
 	$Application->Session()->Language($Language[$_POST["LanguageHTMLCode"]]);

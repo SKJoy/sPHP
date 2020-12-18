@@ -43,8 +43,7 @@ class Language{
         else{
             $this->Property[__FUNCTION__] = $Value;
 
-            $this->Property["NativeName" ] = null;
-            $this->Property["NativelyName" ] = null;
+            $this->NativeName($this->Property[__FUNCTION__]);
 
             $Result = true;
         }
@@ -84,12 +83,12 @@ class Language{
 
     public function NativeName($Value = null){
         if(is_null($Value)){
-            if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = $this->Property["Name"];
-
             $Result = $this->Property[__FUNCTION__];
         }
         else{
             $this->Property[__FUNCTION__] = $Value;
+
+            $this->Property["NativelyName" ] = $this->Property[__FUNCTION__];
 
             $Result = true;
         }
@@ -99,8 +98,6 @@ class Language{
 
     public function NativelyName($Value = null){
         if(is_null($Value)){
-            if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = $this->Property["NativeName"];
-            
             $Result = $this->Property[__FUNCTION__];
         }
         else{
