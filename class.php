@@ -2272,8 +2272,14 @@ class Template{
         return true;
     }
 
-	public function Content($Name, $Variable = [], $Process = null, $Lifetime = null, $DefaultContent = null, $CacheName = null){
-		if(!isset($this->Cache[$Name])){ // Cache is not loaded into memory
+	public function Content($Name, $Variable = [], $Process = null, $Lifetime = null, $DefaultContent = null, $CacheName = null, $Debug = null){
+        if($Debug)DebugDump([
+            "Script" => __FILE__ . " : " . __LINE__, 
+            "Caller" => get_class($this) . "->" . __FUNCTION__ . "()", 
+            "Argument" => get_defined_vars(), 
+        ]);
+
+        if(!isset($this->Cache[$Name])){ // Cache is not loaded into memory
 			if($this->Expired($Name, $Lifetime, $CacheName)){ // Cache is expired
 				// Create template view PHP with default content if missing
 				if(!file_exists($this->Property["ViewFilePath"]))file_put_contents($this->Property["ViewFilePath"], $DefaultContent ? $DefaultContent : "This is default content for the template '{$Name}' as set in the view script!");
@@ -2482,6 +2488,18 @@ class Template{
 	}
 
 	public function Expired($Name, $Lifetime = null, $CacheName = null){
+        /*
+        DebugDump([
+            "SOURCE" => [
+                "Script" => __FILE__, 
+                "Line" => __LINE__, 
+                "Function" => __FUNCTION__, 
+            ], 
+            "Name" => $Name, 
+            "Lifetime" => $Lifetime, 
+            "CacheName" => $CacheName, 
+        ]);
+        */
 		$Result = $this->TimeToExpire($Name, $Lifetime, $CacheName) == 0 ? true : false;
 
 		return $Result;
@@ -3143,7 +3161,7 @@ class Debug{
 	// Shouldn't we retire this function in favor of the newer Dump function?
 	public function DumpHTML(){
 		$Result = false;
-//var_dump(func_get_args());
+        //var_dump(func_get_args());
 		foreach(func_get_args() as $Key=>$Argument)$HTML[] = "<tr><td>{$Key}</td><td>" . (is_array($Argument) ? "ARRAY" : $Argument) . "</td></tr>";
 
 		$Result = "
@@ -3214,7 +3232,11 @@ class Debug{
 	}
 
 	public function Dump($Value, $Name = null, $Output = true, $CallerDepth = 0, $NestingLevel = 0){
-		if(is_array($Value)){
+		if(is_null($Value)){
+            $Value = "<div class=\"NULL\">NULL</div>";
+            $Type = "Unknown";
+		}
+		elseif(is_array($Value)){
 			$Type = "Array<div class=\"Information\">" . count($Value) . "</div>";
 			foreach($Value as $Key => $ThisValue)$Item[] = $this->Dump($ThisValue, $Key, false, $CallerDepth, $NestingLevel + 1);
 			$ToggleID = $this->Utility->GUID();
@@ -3263,13 +3285,12 @@ class Debug{
 			}
 			elseif(is_string($Value)){
 				$Type = "String<div class=\"Information\">" . strlen($Value) . "</div>";
+				$Value = "<div class=\"String\">{$Value}</div>";
 			}
 			else{
 				$Type = "" . gettype($Value) . "";
 			}
 		}
-
-		if(is_null($Value))$Value = "<div class=\"NULL\">NULL</div>";
 
 		$Result = "
 				<div class=\"Item\">
@@ -3280,7 +3301,9 @@ class Debug{
 		";
 
 		if($NestingLevel == 0){
-			$BackTrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $CallerDepth + 1)[$CallerDepth];
+            //var_dump($CallerDepth);
+            //var_dump(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $CallerDepth + 1)[$CallerDepth]);
+			$BackTrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $CallerDepth + 1)[$CallerDepth]; 
 			$Source = "<div class=\"Source\"><span class=\"Icon\">⚑</span>" . substr($BackTrace["file"], strlen($this->Property["BasePath"]) - 1) . " : {$BackTrace["line"]} (" . date("H:i:s") . ")</div>";
 			$Result = "<div class=\"DebugDump\">{$Source}{$Result}</div>";
 		}
@@ -3288,7 +3311,8 @@ class Debug{
 			$Source = null;
 		}
 
-		if($Output)print $Result;
+        if($Output)print $Result;
+        
 		return $Result;
 	}
     #endregion Method

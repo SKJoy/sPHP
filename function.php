@@ -78,10 +78,14 @@ namespace sPHP{
         return $OpenGraphMetaTag->MetaHTML();
     }
 
-	function DebugDump($Value, $Name = null, $Output = true){
+	function DebugDump($Value, $Name = null, $Output = true, $CallerDepth = 1){
 		global $Environment;
 
-		return $Environment->Utility()->Debug()->Dump($Value, $Name, $Output, 1);
+		// Control where to start the debug from, framework layer or application layer
+		//$CallerDepth = 0; // Framework layer
+		//$CallerDepth = 1; // Application layer
+
+		return $Environment->Utility()->Debug()->Dump($Value, $Name, $Output, $CallerDepth);
 	}
 
 	function Impersonate($CurrentUser, $Application, $Email, $Session){
