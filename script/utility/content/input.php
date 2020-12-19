@@ -5,11 +5,12 @@ require __DIR__ . "/../../common/languagebyhtmlcode.php";
 foreach($Language as $ThisLanguageIndex => $ThisLanguage)$LanguageOption[] = new Option($ThisLanguageIndex, "{$ThisLanguage->Name()}" . ($ThisLanguage->NativelyName() != $ThisLanguage->Name() ? "  |  {$ThisLanguage->NativelyName()}" : null) . "");
 
 $Content = new Content($_POST["Name"], null, $Environment->ContentPath(), null, $Language[$_POST["LanguageHTMLCode"]]);
+//DebugDump($Content->Value());
 
 if(is_array($Content->Value())){ // Array of content items
 	$Input = explode(",", $_POST["Input"]); //DebugDump($Input);
 	$ItemCounter = -1;
-	$Field = explode("\n", $_POST["Field"]); //DebugDump($Field);
+	$Field = explode("\n", $_POST["Field"]); //DebugDump($Field); // Exploding with NewLine is OK, check with FRAMEWORK/script/utility/content/input.php
 
 	foreach($Field as $Key){
 		$ItemCounter++;
@@ -65,9 +66,6 @@ else{
 print "" . HTML\UI\Form(
 	$Application->URL("Utility/Content/Action"), // Action URL
 	// Content
-	/*
-		" . HTML\UI\Field(HTML\UI\Input("" . ($Caption = "Language") . "HTMLCode", $Configuration["InputFullWidth"], $Content->Language()->HTMLCode(), true), "{$Caption}*", true, null, $Configuration["FieldCaptionWidth"], $Configuration["FieldContentFullWidth"]) . "
-	*/
 	"
 		" . HTML\UI\Field(HTML\UI\Input("" . ($Caption = "Name") . "", $Configuration["InputFullWidth"], $Content->Name(), true), "{$Caption}*", null, null, $Configuration["FieldCaptionWidth"], $Configuration["FieldContentFullWidth"]) . "			
 		" . HTML\UI\Field(HTML\UI\Select("" . ($Caption = "Language") . "HTMLCode", $LanguageOption, null, null, null, null, $Content->Language()->HTMLCode()), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"]) . "
@@ -75,6 +73,7 @@ print "" . HTML\UI\Form(
 		" . HTML\UI\Input("Input", null, null, null, INPUT_TYPE_HIDDEN) . "
 		" . HTML\UI\Input("Field", null, null, null, INPUT_TYPE_HIDDEN) . "
 		" . HTML\UI\Input("AnchorID", null, null, null, INPUT_TYPE_HIDDEN) . "
+		" . (isset($_POST["NewWindow"]) ? HTML\UI\Input("NewWindow", null, null, null, INPUT_TYPE_HIDDEN) : null) . "
 	",
 	"Set", // Submit button caption
 	$Application->EncryptionKey(), // Signature modifier

@@ -204,18 +204,26 @@ namespace sPHP{
 namespace sPHP\Content{
 	/*
 		Shortcut for Value (GET) property of Content object
-	*/function Get($Name = null, $DefaultValue = null, $Path = null, $Input = null, $Language = null, $FileName = null){
-		$Content = new \sPHP\Content($Name, $DefaultValue, $Path, $Input, $Language, $FileName);
+	*/function Get($Name = null, $DefaultValue = null, $Path = null, $Language = null, $FileName = null, $Debug = null){
+		$Content = new \sPHP\Content($Name, $DefaultValue, $Path, null, $Language, $FileName);
 
-		return $Content->Value();
+		return $Content->Value(null, $Debug);
 	}
 
 	/*
 		Shortcut for Value (SET) property of Content object
-	*/function _Set($Name = null, $Value = null, $Path = null, $Input = null, $Language = null, $FileName = null){
-		$Content = new \sPHP\Content($Name, null, $Path, $Input, $Language, $FileName);
+	*/function Set($Name = null, $Value = null, $Path = null, $Language = null, $FileName = null, $Debug = null){
+		$Content = new \sPHP\Content($Name, null, $Path, null, $Language, $FileName);
 
-		return $Content->Value($Value);
+		return $Content->Value($Value, $Debug);
+	}
+
+	/*
+		Shortcut for EditAnchor property of Content object
+	*/function EditAnchor($Name = null, $Path = null, $Language = null, $FileName = null, $Hide = false, $NewWindow = false){
+		$Content = new \sPHP\Content($Name, null, $Path, null, $Language, $FileName);
+
+		return $Content->EditAnchor($Hide, $NewWindow);
 	}
 }
 

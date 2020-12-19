@@ -31,8 +31,24 @@
 		}
 	}
 
-	print HTML\UI\MessageBox($Content->Value($_POST["Value"]) ? "Content updated successfully." : "Content couldn't be updated!", "Content management");
-	$Terminal->Redirect("{$_POST["_Referer"]}#{$_POST["AnchorID"]}");
+	if($Content->Value($_POST["Value"])){
+		print HTML\UI\MessageBox("Content updated successfully.", "Content management");
 
-	//require "{$Environment->ScriptPath()}{$_POST["_FormScript"]}.php";
+		if(isset($_POST["NewWindow"])){
+			print "
+				<script>
+					alert('Content updated successfully.');
+					window.close();
+				</script>
+			";
+		}
+		else{
+			$Terminal->Redirect("{$_POST["_Referer"]}#{$_POST["AnchorID"]}");
+		}
+			
+		//require "{$Environment->ScriptPath()}{$_POST["_FormScript"]}.php";
+	}
+	else{
+		print HTML\UI\MessageBox("Content couldn't be updated!", "Content management", "MessageBox_Error");
+	}
 ?>

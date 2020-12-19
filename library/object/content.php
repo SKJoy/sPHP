@@ -132,17 +132,16 @@ class Content{
 
     public function Value($Value = null, $Debug = null){
         $File = "{$this->Property["Path"]}{$this->FileName()}.php";
-        //var_dump("Content file = {$File}");
 
         if(is_null($Value)){ // GET
 			if(is_null($this->Property[__FUNCTION__])){
 				if(isset(self::$Cache["Value"][$this->Property["FileName"]])){  // Serve from internal cache
-                    if($Debug)DebugDump("Serve content for '{$this->Property["Name"]}' from cache");
+                    if($Debug)DebugDump("Served from cache", "Content({$this->Property["Name"]})->" . __FUNCTION__ . "()");
 					$this->Property[__FUNCTION__] = self::$Cache["Value"][$this->Property["FileName"]];
 				}
 				else{
 					if(file_exists($File)){ // Serve content from file
-                        if($Debug)DebugDump("Serve content for '{$this->Property["Name"]}' from file");
+                        if($Debug)DebugDump("Served from file", "Content({$this->Property["Name"]})->" . __FUNCTION__ . "()");
 						require $File;
 						$this->Property[__FUNCTION__] = unserialize(base64_decode($___Content));
 
@@ -152,35 +151,38 @@ class Content{
 								if(count($DefaultValueExtraItem))$this->Value($this->Property[__FUNCTION__]);
 							}
 							else{
-								$this->Value($this->Property["DefaultValue"]);
+                                if($Debug)DebugDump("Resetting value to default due to type mismatch", "Content({$this->Property["Name"]})->" . __FUNCTION__ . "()");
+                                $this->Value($this->Property["DefaultValue"], $Debug);
 							}
-						}
+                        }
+                        
+                        self::$Cache["Value"][$this->Property["FileName"]] = $this->Property[__FUNCTION__];
 					}
                     else{ // Content file doesn't exist
-                        // This can happen if the Content has never been authored, defined only. 
-                        // Saving/updating content should resolve this
-                        
-                        if($Debug)DebugDump("Content file '{$File}' does not exist, serving default value for '{$this->Property["Name"]}'");
-                        $this->Property[__FUNCTION__] = $this->Property["DefaultValue"];
+                        if($Debug)DebugDump("File '{$File}' not found! Serving default value", "Content({$this->Property["Name"]})->" . __FUNCTION__ . "()");
+                        $this->Value($this->Property["DefaultValue"], $Debug); // Create content file with default value
 					}
-
-					self::$Cache["Value"][$this->Property["FileName"]] = $this->Property[__FUNCTION__];
 				}
 			}
 
 			$Result = $this->Property[__FUNCTION__];
         }
         else{ // Set
-            //var_dump("Write content for '{$this->Property["Name"]}'");
             $this->Property[__FUNCTION__] = self::$Cache["Value"][$this->Property["FileName"]] = $Value;
-			$Result = file_put_contents($File, "<?php\n	\$___Content = \"" . str_replace(["\\", "\$", "\"", ], ["\\\\", "\\\$", "\\\"", ], base64_encode(serialize($this->Property[__FUNCTION__]))) . "\";\n\n	if(count(debug_backtrace()) == 0)print \"<html><body style=\\\"margin: 60px; color: Red; font-family: Sans-serif, Verdana, Tahoma, Arial; font-size: 24px; text-align: center;\\\">Please please please! I beg you, don't screw me.</body></html>\";\n?>") === false ? false : true;
+            $Result = file_put_contents($File, "<?php\n	\$___Content = \"" . str_replace(["\\", "\$", "\"", ], ["\\\\", "\\\$", "\\\"", ], base64_encode(serialize($this->Property[__FUNCTION__]))) . "\";\n\n	if(count(debug_backtrace()) == 0)print \"<html><body style=\\\"margin: 60px; color: Red; font-family: Sans-serif, Verdana, Tahoma, Arial; font-size: 24px; text-align: center;\\\">Please please please! I beg you, don't screw me.</body></html>\";\n?>") === false ? false : true;
+            if($Debug)DebugDump("File '{$File}' created", "Content({$this->Property["Name"]})->" . __FUNCTION__ . "()");
         }
 
         return $Result;
     }
 
-    public function EditURL(){
-		if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = "./?_Script=utility/content/input&Name=" . urlencode($this->Property["Name"]) . "&LanguageHTMLCode={$this->Property["Language"]->HTMLCode()}&Input=" . (is_array($this->Property["Input"]) ? implode(",", $this->Property["Input"]) : $this->Property["Input"]) . "&Field=" . (is_array($this->Property["DefaultValue"]) ? urlencode(implode("\n", array_keys($this->Property["DefaultValue"]))) : "Value") . "&AnchorID={$this->Property["AnchorID"]}";
+    public function EditURL($Debug = null){
+		if(is_null($this->Property[__FUNCTION__])){
+            // Default value is not defined, set using Value property
+            if(is_null($this->Property["DefaultValue"]))$this->Property["DefaultValue"] = $this->Value(null, $Debug);
+
+            $this->Property[__FUNCTION__] = "./?_Script=utility/content/input&Name=" . urlencode($this->Property["Name"]) . "&LanguageHTMLCode=" . urlencode($this->Property["Language"]->HTMLCode()) . "&Input=" . (is_array($this->Property["Input"]) ? implode(",", $this->Property["Input"]) : $this->Property["Input"]) . "&Field=" . (is_array($this->Property["DefaultValue"]) ? urlencode(implode("\n", array_keys($this->Property["DefaultValue"]))) : "Value") . "&AnchorID={$this->Property["AnchorID"]}";
+        }
 
         $Result = $this->Property[__FUNCTION__];
 
@@ -193,8 +195,11 @@ class Content{
         return $Result;
     }
 
-	public function EditAnchor($Hide = false, $NewWindow = false){ 
-        if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = "<a href=\"{$this->EditURL()}\" title=\"Edit {$this->Name()}\"" . ($NewWindow ? " target=\"_blank\"" : null) . " class=\"ContentEditAnchor\">✎</a>";
+	public function EditAnchor($Hide = false, $NewWindow = false, $Debug = null){ 
+        if(is_null($Hide))$Hide = false;
+        if(is_null($NewWindow))$NewWindow = false;
+
+        if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = "<a href=\"{$this->EditURL($Debug)}" . ($NewWindow ? "&NewWindow" : null) . "\" title=\"Edit {$this->Name()}\"" . ($NewWindow ? " target=\"_blank\"" : null) . " class=\"ContentEditAnchor\">✎</a>";
 
 		$Result = $Hide ? null : $this->Property[__FUNCTION__];
 
