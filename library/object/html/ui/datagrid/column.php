@@ -24,11 +24,12 @@ class Column{
         "Target"					=>	null,
         "Prefix"                    =>  null, // Content to show before/left value
         "Suffix"                    =>  null,  // Content to show after/right value
+        "Template"                  =>  null, // String template to be used replacing placeholders with record values
     ];
     #endregion Property variable
 
     #region Method
-    public function __construct($Name = null, $Caption = null, $Type = null, $Align = null, $DataType = null, $DateFormat = null, $TimeFormat = null, $Sortable = null, $IconPrefix = null, $Icon = null, $Target = null, $Prefix = null, $Suffix = null){
+    public function __construct($Name = null, $Caption = null, $Type = null, $Align = null, $DataType = null, $DateFormat = null, $TimeFormat = null, $Sortable = null, $IconPrefix = null, $Icon = null, $Target = null, $Prefix = null, $Suffix = null, $Template = null){
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
 
@@ -41,8 +42,8 @@ class Column{
     }
 
 	public function Data($Value = null){
-		// Transform Value to Type from Data type
-		if($this->Property["Type"] == \sPHP\FIELD_TYPE_DATETIME){ // To date time
+        // Transform Value to Type from Data type
+        if($this->Property["Type"] == \sPHP\FIELD_TYPE_DATETIME){ // To date time
 			$DateTimeFormat = "{$this->Property["DateFormat"]} {$this->Property["TimeFormat"]}";
 
 			if($this->Property["DataType"] == \sPHP\DATA_TYPE_PHP_DATETIME){ // From PHP time
@@ -239,6 +240,19 @@ class Column{
     }
 
     public function Suffix($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+			$Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function Template($Value = null){
         if(is_null($Value)){
             $Result = $this->Property[__FUNCTION__];
         }

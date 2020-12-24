@@ -396,8 +396,11 @@ class Datagrid{
 			if(count($this->Property["Action"]))$ColumnTitleHTML[] = "<th></th>";
 			#endregion Column title
 
-			$SerialStart = (($_POST["{$ParameterPrefix}Page"] - 1) * $this->Property["RowPerPage"]) + 1;
-            //var_dump($this->Property["Action"]);
+            $SerialStart = (($_POST["{$ParameterPrefix}Page"] - 1) * $this->Property["RowPerPage"]) + 1;
+            
+            $DataKeyFieldForTemplate = [];
+            if(count($this->Property["Data"]))foreach(array_keys($this->Property["Data"][0]) as $DataKey)$DataKeyFieldForTemplate[] = "%{$DataKey}%";
+
 			foreach($this->Property["Data"] as $DataIndex => $Data){ // Generate rows from data
 				$FieldHTML = $ActionHTML = [];
 
@@ -421,7 +424,12 @@ class Datagrid{
 					$ColumnCSSSelector = [];
 
 					#region Format display data
-					$ColumnData = $Column->Data($Data[$Column->Name()]);
+                    if($Column->Template() && count($DataKeyFieldForTemplate)){ // Transform data using Template
+                        $ColumnData = str_replace($DataKeyFieldForTemplate, $Data, $Column->Template());
+                    }
+                    else{ // Get the data as formatted by Column object
+                        $ColumnData = $Column->Data($Data[$Column->Name()]);
+                    }
 
 					if($Column->Type() == \sPHP\FIELD_TYPE_EMAIL){
 						if($ColumnData)$ColumnData = "<a href=\"mailto:{$ColumnData}\">{$ColumnData}</a>";
@@ -485,9 +493,13 @@ class Datagrid{
 					elseif($Column->Type() == \sPHP\FIELD_TYPE_NUMBER){
 						if(!$Column->Align())$Column->Align(\sPHP\ALIGN_RIGHT);
 					}
+					elseif($Column->Type() == \sPHP\FIELD_TYPE_INTEGER){
+                        if($ColumnData)$ColumnData = intval($ColumnData);
+                        if(!$Column->Align())$Column->Align(\sPHP\ALIGN_RIGHT);
+					}
 					else{
 
-					}
+                    }
 					#endregion Format display data
 
 					#region Set explicit alignment

@@ -24,8 +24,10 @@ const ALIGN_RIGHT = "RIGHT";
 
 const DATA_TYPE_PHP_DATETIME = "PHP_DATETIME";
 
+#region Field type
 const FIELD_TYPE_TEXT = "TEXT";
 const FIELD_TYPE_NUMBER = "NUMBER";
+const FIELD_TYPE_INTEGER = "INTEGER";
 const FIELD_TYPE_DATE = "DATE";
 const FIELD_TYPE_TIME = "TIME";
 const FIELD_TYPE_SHORTDATE = "SHORTDATE";
@@ -42,11 +44,14 @@ const FIELD_TYPE_BOOLEANICON = "BOOLEANICON";
 const FIELD_TYPE_URL = "URL";
 const FIELD_TYPE_URLICON = "URLICON";
 const FIELD_TYPE_COLOR = "COLOR";
+//const FIELD_TYPE_TEMPLATE = "TEMPLATE"; // Apparently thought to be used with Column template, but implemented without it
+#endregion Field type
 
 const DATABASE_TYPE_MSACCESS = "MSACCESS";
 const DATABASE_TYPE_MSSQL = "MSSQL";
 const DATABASE_TYPE_MYSQL = "MYSQL";
 
+#region Validation type
 const VALIDATION_TYPE_ALPHABETIC = "ALPHABETIC";
 const VALIDATION_TYPE_EMAIL = "EMAIL";
 const VALIDATION_TYPE_PHONE = "PHONE";
@@ -60,7 +65,9 @@ const VALIDATION_TYPE_NONPOSITIVE = "NONPOSITIVE";
 const VALIDATION_TYPE_NONNEGATIVE = "NONNEGATIVE";
 const VALIDATION_TYPE_DATE = "DATE";
 const VALIDATION_TYPE_URL = "URL";
+#endregion Validation type
 
+#region Input type
 const INPUT_TYPE_TEXT = "TEXT";
 const INPUT_TYPE_TEXTAREA = "TEXTAREA";
 const INPUT_TYPE_CHECKBOX = "CHECKBOX";
@@ -75,11 +82,13 @@ const INPUT_TYPE_URL = "URL";
 const INPUT_TYPE_COLOR = "COLOR";
 const INPUT_TYPE_FILE = "FILE";
 const INPUT_TYPE_HIDDEN = "HIDDEN";
+#endregion Input type
 
 const BUTTON_TYPE_BUTTON = "BUTTON";
 const BUTTON_TYPE_RESET = "RESET";
 const BUTTON_TYPE_SUBMIT = "SUBMIT";
 
+#region Document type
 const DOCUMENT_TYPE_CSS = "CSS";
 const DOCUMENT_TYPE_CSV = "CSV";
 const DOCUMENT_TYPE_HTML = "HTML";
@@ -93,6 +102,7 @@ const DOCUMENT_TYPE_PICTURE_GIF = "GIF";
 const DOCUMENT_TYPE_PICTURE_PNG = "PNG";
 const DOCUMENT_TYPE_TXT = "TXT";
 const DOCUMENT_TYPE_XML = "XML";
+#endregion Document type
 
 const CHARACTER_SET_UTF8 = "UTF-8";
 const CHARACTER_SET_NONE = null;
@@ -132,11 +142,13 @@ const SOCKET_PROTOCOL_TRACKER_Y202 = "Y202";
 const NETWORK_TRANSPORT_PROTOCOL_TCP = "TCP";
 const NETWORK_TRANSPORT_PROTOCOL_UDP = "UDP";
 
+#region Error code
 const ERROR_CODE_UNKNOWN = "UNKNOWN";
 const ERROR_CODE_ADMINISTRATOR_ONLY = "ADMINISTRATOR_ONLY";
 const ERROR_CODE_INVALID = "INVALID";
 const ERROR_CODE_NOT_FOUND = "NOT_FOUND";
 const ERROR_CODE_REQUIRED_MISSING = "REQUIRED_MISSING";
+#endregion Error code
 
 #region Seconds in periods
 const SECOND_MINUTE = 60;
