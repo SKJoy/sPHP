@@ -703,8 +703,8 @@ class Terminal{
     {$this->Property["HTMLHeadCode"]}
 </head>
 
-<body" . (isset($_POST["_NoHeader"]) && isset($_POST["_NoFooter"]) ? " class=\"ContentView\"" : null) . ">
-    <a id=\"PageLocation_Top\"></a>";
+<body id=\"DocumentBody\"" . (isset($_POST["_NoHeader"]) && isset($_POST["_NoFooter"]) ? " class=\"ContentView\"" : null) . ">
+    <!--<a id=\"PageLocation_Top\"></a>-->";
         }
 
         foreach(array_merge(isset($this->Buffer[OUTPUT_BUFFER_MODE_HEADER]) ? $this->Buffer[OUTPUT_BUFFER_MODE_HEADER] : [], isset($this->Buffer[OUTPUT_BUFFER_MODE_MAIN]) ? $this->Buffer[OUTPUT_BUFFER_MODE_MAIN] : []) as $Content)print $Content;
@@ -1072,7 +1072,7 @@ class Session{
 				$this->Reset(); // Reset session to set up guest properties
 			}
 			else{ // Existing valid session
-				// Reflect session values to external resources
+                // Reflect session values to external resources
 				$this->Property["Environment"]->Utility()->Debug()->Enabled($_SESSION["DebugMode"]);
 			}
         }
@@ -1372,7 +1372,7 @@ class Application{
 		$this->Property["Terminal"]->Environment()->CustomError($Configuration["CustomError"]);
 
 		// Set indirect properties from configuration items
-        $this->Property["Guest"] = new User($Configuration["GuestEmail"], null, $Configuration["GuestName"], $Configuration["CompanyPhone"], null, null, null, null, null, "GUEST", null, null, null, "GUEST");
+        $this->Property["Guest"] = new User($Configuration["GuestEmail"], null, $Configuration["GuestName"], $Configuration["CompanyPhone"], null, null, null, null, null, "GUEST", null, null, "Guest", "GUEST");
         $this->Property["Administrator"] = new User($Configuration["AdministratorEmail"], $Configuration["AdministratorPasswordHash"], $Configuration["AdministratorName"]);
         $this->Property["Company"] = new User($Configuration["CompanyEmail"], null, $Configuration["CompanyName"], $Configuration["CompanyPhone"], $Configuration["CompanyAddress"], $Configuration["CompanyURL"]);
 		$this->Property["Version"] = new Version($Configuration["VersionMajor"], $Configuration["VersionMinor"], $Configuration["VersionRevision"]);
@@ -1477,8 +1477,8 @@ class Application{
         $this->Language($this->Property["Session"]->Language()); // Set Language from session
 
 		// Following will always overwrite session's current value in case of TRUE evaluation
-		if($Configuration["ContentEditMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["ContentEditModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["ContentEditModeClient"]))))))$this->Property["Session"]->ContentEditMode(true);
-		if($Configuration["DebugMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeClient"]))))))$this->Property["Session"]->DebugMode(true);
+        if($Configuration["ContentEditMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["ContentEditModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["ContentEditModeClient"]))))))$this->Property["Session"]->ContentEditMode(true);
+        if($Configuration["DebugMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeClient"]))))))$this->Property["Session"]->DebugMode(true); 
 
         // Configure stylesheet inclusion
         if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}script/{$_POST["_Script"]}.css"))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}script/{$_POST["_Script"]}.css";
@@ -3065,7 +3065,7 @@ class Debug{
 	#region Private variable
 	private static $AlreadyInstantiated = false;
 	private $Utility = null;
-	#region Private variable
+	#endregion Private variable
 
     #region Method
     public function __construct($Enabled = null){
@@ -3324,7 +3324,7 @@ class Debug{
             $Result = $this->Property[__FUNCTION__];
         }
         else{
-            $this->Property[__FUNCTION__] = $Value;
+            $this->Property[__FUNCTION__] = $Value; //var_dump(__FILE__, __LINE__, __FUNCTION__, $Value, debug_backtrace()); exit;
 
 			$Result = true;
         }
