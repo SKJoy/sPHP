@@ -1417,8 +1417,7 @@ class Application{
 
 		// Set up database
 		if(
-				isset($Configuration["DatabaseType"])
-			&&	$Configuration["DatabaseType"]
+				$Configuration["DatabaseType"]
 			&&	$Configuration["DatabaseHost"]
 			&&	$Configuration["DatabaseUser"]
 			&&	$Configuration["DatabaseName"]
@@ -1449,7 +1448,7 @@ class Application{
         #endregion Load configuration
 
         $this->Property["Session"]->Start(); // Start the session after configuring accordingly
-
+        //var_dump(__FILE__, __LINE__, __FUNCTION__, debug_backtrace()); exit;
 		#region Create session log upon each session reset
 		if($Configuration["DatabaseLogTraffic"] && !is_null($this->Property["Database"]->Connection())){
 			$Configuration["DatabaseTable"]["ApplicationTraffic"]->Put([ // Traffic
@@ -2908,7 +2907,7 @@ class Utility{
 		else{
 			$Result = false;
 		}
-//var_dump($Result);
+        //var_dump($Result);
 		return $Result;
 	}
 	#endregion Function
