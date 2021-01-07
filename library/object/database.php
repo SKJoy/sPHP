@@ -164,7 +164,7 @@ class Database{
 		return $Result;
 	}
 
-	public function Query($SQL, $Parameter = null, $Verbose = null, $NoHistory = null){
+	public function Query($SQL, $Parameter = null, $Verbose = null, $NoHistory = null, $IgnoreError = false){
 		if(is_null($NoHistory))$NoHistory = !$this->Property["KeepQueryHistory"];
 		if(is_null($Verbose))$Verbose = $this->Property["Verbose"];
 
@@ -221,7 +221,7 @@ class Database{
 						);
 					}
 
-					trigger_error($ErrorMessage, E_USER_ERROR);
+					if(!$IgnoreError)trigger_error($ErrorMessage, E_USER_ERROR);
 				}
 
 				// Temporarily suspend error exception
@@ -238,14 +238,43 @@ class Database{
 				$this->Property["LastDuration"] = microtime(true) - $LastDurationStart;
 				$this->Property["Duration"] = $this->Property["Duration"] + $this->Property["LastDuration"];
 				$this->Property["QueryCount"]++;
-				
+
+				#region Detect query error from query status
 				$QueryError = $Query->errorInfo();
 				
 				if($QueryError[0] != "00000"){ // Throw query error exception
 					$this->Property["Recordset"] = [];
 					$Result = false;
+
+					if($this->Property["ErrorLogPath"]){
+						$DebugCallStack = debug_backtrace();
+						array_pop($DebugCallStack);
+						array_pop($DebugCallStack);
+						array_pop($DebugCallStack);
+
+						file_put_contents(
+							"{$this->Property["ErrorLogPath"]}error_database.json",
+							json_encode([
+								"Error" => [
+									"Code" => null,
+									"Message" => $QueryError[2],
+								],
+								"Time" => date("r"),
+								"Procedure" => [
+									"Namespace" => __NAMESPACE__,
+									"Object" => __CLASS__,
+									"Method" => __FUNCTION__,
+									"Argument" => [
+										"SQL" => $SQL,
+										"Parameter" => $Parameter,
+									],
+								],
+								"Callstack" => $DebugCallStack,
+							])
+						);
+					}
 					
-					trigger_error($QueryError[2], E_USER_ERROR);
+					if(!$IgnoreError)trigger_error($QueryError[2], E_USER_ERROR);
 				}
 				else{
 					if(isset($Recordset)){
@@ -256,6 +285,7 @@ class Database{
 						$Result = true;
 					}
 				}
+				#endregion Detect query error from query status
 
 				// Add query to history
 				if(!$NoHistory)$this->Property["QueryHistory"][] = ["SQL" => $SQL, "Parameter" => $Parameter, "Duration" => $this->Property["LastDuration"], "Result" => $Result];
