@@ -423,13 +423,11 @@ class Datagrid{
 				foreach($Field as $Column){
 					$ColumnCSSSelector = [];
 
-					#region Format display data
-                    if($Column->Template() && count($DataKeyFieldForTemplate)){ // Transform data using Template
-                        $ColumnData = str_replace($DataKeyFieldForTemplate, $Data, $Column->Template());
-                    }
-                    else{ // Get the data as formatted by Column object
-                        $ColumnData = $Column->Data($Data[$Column->Name()]);
-                    }
+                    #region Format display data
+                    $ColumnData = $Column->Data($Data[$Column->Name()]); // Get the data as formatted by Column object
+
+                    // Transform data using Template
+                    if($ColumnData && $Column->Template() && count($DataKeyFieldForTemplate))$ColumnData = str_replace($DataKeyFieldForTemplate, $Data, $Column->Template());
 
 					if($Column->Type() == \sPHP\FIELD_TYPE_EMAIL){
 						if($ColumnData)$ColumnData = "<a href=\"mailto:{$ColumnData}\">{$ColumnData}</a>";
