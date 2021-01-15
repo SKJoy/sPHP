@@ -233,13 +233,15 @@ class EntityManagement{
 		return true;
 	}
 
-	public function Import(){
+	public function Import($AfterParse = null, $Resource = []){
+        $Result = true;
+
 		Upload("{$this->Property["TempPath"]}");
-
 		$DataFile = "{$this->Property["TempPath"]}{$_POST["{$this->Property["Table"]->EntityName()}DataFile"]}";
-		$this->Property["Table"]->Import($DataFile, $this->Property["ImportField"]);
+        $this->Property["Table"]->Import($DataFile, $this->Property["ImportField"], null, null, null, $AfterParse, $Resource);
+        unlink($DataFile);
 
-		unlink($DataFile);
+        return $Result;
 	}
 
 	public function Export(){

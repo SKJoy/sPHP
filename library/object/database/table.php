@@ -242,57 +242,64 @@ class Table{
 		return $Result;
 	}
 
-    public function Import($File = null, $Structure = null, $Header = null, $DataType = null, $Data = null){
-		$Result = false;
+    public function Import($File = null, $Structure = null, $Header = null, $DataType = null, $Data = null, $AfterParse = null, $Resource = []){
+		$Result = false; 
+		$Structure = array_filter($Structure);
 
 		if(is_null($Header))$Header = true;
 		if(is_null($DataType))$DataType = \sPHP\IMPORT_TYPE_CSV;
 
         $Data = $File ? file_get_contents($File) : $Data;
+		$DatabaseTableColumnName = array_keys($this->Structure()["Column"]);
 
 		if($DataType == \sPHP\IMPORT_TYPE_CSV || $DataType == \sPHP\IMPORT_TYPE_TSV){
 			$Separator = $DataType == \sPHP\IMPORT_TYPE_CSV ? "," : "	";
-			foreach(explode("\n", $Data) as $Record)$Recordset[] = explode($Separator, $Record);
+			foreach(explode("\n", $Data) as $Record)$Recordset[] = explode($Separator, trim($Record)); // Avoid trailing nonprintable character!
 
-			if($Header){
-				$Field = $Recordset[0];
-				array_shift($Recordset);
+			if($Header){ // Header row exists
+				$Field = $Recordset[0]; //var_dump($Field); // Get column name array from header row
+				array_shift($Recordset); // Remove header row
 			}else{
 				$Field = array_keys($Recordset[0]);
 			}
+
+			if($AfterParse)$AfterParse($Recordset, $Field, $Resource); // Call the AfterParse callback function
 		}
 
 		foreach($Structure as $ThisStructure){
-			$ColumnNameSQL[] = $ThisStructure->Column();
-			$ColumnIsString[$ThisStructure->Column()] = in_array($ThisStructure->Column(), array_merge($this->Structure()["String"], $this->Structure()["DateTime"])) ? true : false;
+			if(in_array($ThisStructure->Column(), $DatabaseTableColumnName))$ColumnNameSQL[] = $ThisStructure->Column();
+			$ColumnIsString[$ThisStructure->Column()] = in_array($ThisStructure->Column(), array_merge($this->Property["Structure"]["String"], $this->Structure()["DateTime"], $this->Structure()["Date"], $this->Structure()["Time"])) ? true : false;
 		}
 
-		foreach($Recordset as $Record){
-			if(count($Record) >= count($Structure)){
-				foreach($Field as $Key=>$Value)$Record[trim($Value)] = $Record[trim($Key)];
+		foreach($Recordset as $Record){ //var_dump($Record);
+			if(count($Record) >= count($Field)){ // Do we really need to restrict by the number of Structure columns? so made it TRUE
+				foreach($Field as $Key => $Value)$Record[trim($Value)] = $Record[$Key];
 				$ColumnData = [];
 
 				foreach($Structure as $ThisStructure){
-					$ThisColumnData = isset($Record[$ThisStructure->Field()]) ? trim($Record[$ThisStructure->Field()]) : $ThisStructure->Value();
-					if(strlen($ThisColumnData) && substr($ThisColumnData, 0, 1) == "\"" && substr($ThisColumnData, strlen($ThisColumnData) - 1, 1) == "\"")$ThisColumnData = substr($ThisColumnData, 1, strlen($ThisColumnData) - 2);
+					if(in_array($ThisStructure->Column(), $DatabaseTableColumnName)){
+						$ThisColumnData = isset($Record[$ThisStructure->Field()]) ? trim($Record[$ThisStructure->Field()]) : $ThisStructure->Value();
+						if(strlen($ThisColumnData) && substr($ThisColumnData, 0, 1) == "\"" && substr($ThisColumnData, strlen($ThisColumnData) - 1, 1) == "\"")$ThisColumnData = substr($ThisColumnData, 1, strlen($ThisColumnData) - 2);
 
-					if(!is_null($ThisStructure->RelationTable())){
-						$ThisStructure->Value($ThisColumnData);
-						$ThisColumnData = "({$ThisStructure->RelationSQL()})";
-					}
-					else{
-						$ThisColumnData = str_replace(["\\", "'"], ["\\\\", "''"], $ThisColumnData);
-					}
+						if(!is_null($ThisStructure->RelationTable())){
+							$ThisStructure->Value($ThisColumnData);
+							$ThisColumnData = "({$ThisStructure->RelationSQL()})";
+						}
+						else{
+							$ThisColumnData = str_replace(["\\", "'"], ["\\\\", "''"], $ThisColumnData);
+						}
 
-					if($ColumnIsString[$ThisStructure->Column()])$ThisColumnData = "'{$ThisColumnData}'";
-					$ColumnData[] = $ThisColumnData;
-				}
+						if($ColumnIsString[$ThisStructure->Column()])$ThisColumnData = "'{$ThisColumnData}'";
+						$ColumnData[] = $ThisColumnData;
+					}
+				} //var_dump($ColumnData);
 
 				$FieldSQL[] = "(" . implode(", ", $ColumnData) . ")";
 			}
-		}
-		//var_dump($FieldSQL);
-		$this->Property["Database"]->Query("INSERT IGNORE INTO {$this->Property["Prefix"]}{$this->Property["Name"]} (" . implode(", ", $ColumnNameSQL) . ") VALUES " . implode(", ", $FieldSQL) . "", null, false);
+		} //var_dump($FieldSQL);
+		
+		$this->Property["Database"]->Query($SQL = "INSERT IGNORE INTO {$this->Property["Prefix"]}{$this->Property["Name"]} (" . implode(", ", $ColumnNameSQL) . ") VALUES \n" . implode(", \n", $FieldSQL) . "", null, false);
+		//print "<div class=\"Code\">{$SQL}</div>";
 
         return $Result;
     }
