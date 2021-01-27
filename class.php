@@ -1373,7 +1373,7 @@ class Application{
 
 		// Set indirect properties from configuration items
         $this->Property["Guest"] = new User($Configuration["GuestEmail"], null, $Configuration["GuestName"], $Configuration["CompanyPhone"], null, null, null, null, null, "GUEST", null, null, "Guest", "GUEST");
-        $this->Property["Administrator"] = new User($Configuration["AdministratorEmail"], $Configuration["AdministratorPasswordHash"], $Configuration["AdministratorName"]);
+        $this->Property["Administrator"] = new User($Configuration["AdministratorEmail"], $Configuration["AdministratorPasswordHash"], $Configuration["AdministratorName"], $Configuration["CompanyPhone"], null, null, null, null, null, "ADMINISTRATOR", null, null, "Administrator", "ADMINISTRATOR");
         $this->Property["Company"] = new User($Configuration["CompanyEmail"], null, $Configuration["CompanyName"], $Configuration["CompanyPhone"], $Configuration["CompanyAddress"], $Configuration["CompanyURL"]);
 		$this->Property["Version"] = new Version($Configuration["VersionMajor"], $Configuration["VersionMinor"], $Configuration["VersionRevision"]);
 
@@ -1423,7 +1423,7 @@ class Application{
 			&&	$Configuration["DatabaseName"]
 		){
 			$this->Property["Database"] = new Database($Configuration["DatabaseType"], $Configuration["DatabaseHost"], $Configuration["DatabaseUser"], $Configuration["DatabasePassword"], $Configuration["DatabaseName"], $Configuration["DatabaseODBCDriver"], $Configuration["DatabaseTablePrefix"], $Configuration["DatabaseTimezone"], $Configuration["CharacterSet"], $Configuration["DatabaseStrictMode"]);
-			$this->Property["Database"]->ErrorLogPath("{$this->Property["Terminal"]->Environment()->LogPath()}error/database/");
+			$this->Property["Database"]->ErrorLogPath("{$this->Property["Terminal"]->Environment()->LogPath()}error/");
 			$this->Property["Database"]->Connect();
 
 			#region Add generic tables
