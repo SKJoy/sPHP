@@ -194,11 +194,8 @@ class Table{
 			if(is_null($this->Property["Before{$ModeName}"]) || $this->Property["Before{$ModeName}"]($ApplicableSQL, $Data, $Field)){
 				//var_dump($ApplicableSQL);
 				$Result = $this->Property["Database"]->Query($ApplicableSQL, null, $Verbose);
-				if($Result !== false)$Result = true; // Let the Result contain the status of the operation
 				if(!is_null($this->Property["After{$ModeName}"]))$Result = $this->Property["After{$ModeName}"]($Result, $ApplicableSQL, $Data, $Field);
-			}else{
-				$Result = false;
-			}
+			}else{$Result = false;}
 
             $DatabaseQueryHistoryCount = count($this->Property["Database"]->QueryHistory());
 			if($DatabaseQueryHistoryCount)$this->Property["QueryHistory"][] = $this->Property["Database"]->QueryHistory()[$DatabaseQueryHistoryCount - 1];

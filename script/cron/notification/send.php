@@ -19,7 +19,7 @@ $cURL = curl_init(); // Initialize cURL for repeatative use by single connection
 curl_setopt($cURL, CURLOPT_RETURNTRANSFER, TRUE); // Return the response as a string from curl_exec(), don't output it
 
 foreach($Table["{$Entity}"]->Get("
-		" . ($Configuration["SendNotification"] ? "TRUE" : "FALSE") . "
+	" . ($Configuration["SendNotification"] ? "TRUE" : "FALSE") . " # Configuration: SendNotification
 	AND	N.{$Entity}SentTime IS NULL
 	AND	N.TimeInserted > DATE_ADD(NOW(), INTERVAL -1 DAY)
 	AND	NT.{$Entity}TypeIdentifier IN ('" . NOTIFICATION_TYPE_MOBILE_SMS . "', '" . NOTIFICATION_TYPE_EMAIL . "')
