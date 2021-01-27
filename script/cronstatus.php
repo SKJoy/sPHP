@@ -56,18 +56,18 @@ foreach([
 				<tbody>
 					<tr>
 						<td class=\"HighlightPositive_{$CronIsRunning}\">{$CronIsRunning}</td>
-						<td>" . date("Y-m-d H:i:s", strtotime($Status->Time->Begin)) . "</td>
-						<td>" . date("Y-m-d H:i:s", strtotime($Status->Time->End)) . "</td>
+						<td>" . date("{$Configuration["ShortDateFormat"]} {$Configuration["TimeFormat"]}", strtotime($Status->Time->Begin)) . "</td>
+						<td>" . date("{$Configuration["ShortDateFormat"]} {$Configuration["TimeFormat"]}", strtotime($Status->Time->End)) . "</td>
 						<td class=\"HighlightImportant\">{$Utility->SecondToTime($Status->Time->Duration)}</td>
 						<td class=\"HighlightWarning\">" . round($Status->Load->Memory / 1024 / 1024, 2) . " MB</td>
 						<td class=\"HighlightWarning\">" . number_format($Status->Load->System, 2) . "%</td>
 						<td>{$Status->Exit->Reason}</td>
-						<td>" . ($Status->Exit->Time ? date("Y-m-d H:i:s", strtotime($Status->Exit->Time)) : null) . "</td>
+						<td>" . ($Status->Exit->Time ? date("{$Configuration["ShortDateFormat"]} {$Configuration["TimeFormat"]}", strtotime($Status->Exit->Time)) : null) . "</td>
 						<td>{$Utility->SecondToTime($Status->Configuration->Interval)}</td>
 						<td>{$Utility->SecondToTime($Status->Configuration->MaximumExecutionTime)}</td>
 						<td class=\"HighlightImportant2\">{$Status->Iteration->Count}</td>
-						<td>" . date("Y-m-d H:i:s", strtotime($Status->Iteration->Time->Begin)) . "</td>
-						<td>" . date("Y-m-d H:i:s", strtotime($Status->Iteration->Time->End)) . "</td>
+						<td>" . date("{$Configuration["ShortDateFormat"]} {$Configuration["TimeFormat"]}", strtotime($Status->Iteration->Time->Begin)) . "</td>
+						<td>" . date("{$Configuration["ShortDateFormat"]} {$Configuration["TimeFormat"]}", strtotime($Status->Iteration->Time->End)) . "</td>
 						<td class=\"HighlightImportant\">{$Utility->SecondToTime($Status->Iteration->Time->Duration)}</td>
 						<td class=\"HighlightImportant\">{$Utility->SecondToTime(time() - filemtime($StatusJSONFile))}</td>
 					</tr>
@@ -93,12 +93,14 @@ foreach([
 						Limit: {$Utility->SecondToTime($Job->Configuration->MaximumExecutionTime)}
 					</td>
 					<td>
-						Begin: <span class=\"HighlightImportant\">" . date("Y-m-d H:i:s", strtotime($Job->Time->Begin)) . "</span><br>
-						End: " . date("Y-m-d H:i:s", strtotime($Job->Time->End)) . "<br>
-						Duration: {$Utility->SecondToTime($Job->Time->Duration)}
+						Begin: <span class=\"HighlightImportant\">" . (isset($Job->Time->Begin) ? date("{$Configuration["ShortDateFormat"]} {$Configuration["TimeFormat"]}", strtotime($Job->Time->Begin)) : null) . "</span><br>
+						End: " . (isset($Job->Time->End) ? date("{$Configuration["ShortDateFormat"]} {$Configuration["TimeFormat"]}", strtotime($Job->Time->End)) : null) . "<br>
+						Duration: " . (isset($Job->Time->Duration) ? $Utility->SecondToTime($Job->Time->Duration) : null) . "
 					</td>
-					<td>" . implode("<br>", array_filter([$Job->Comment, $Job->Result->Error->Message ? "Error: <span class=\"HighlightError\">{$Job->Result->Error->Message}</span>" : null, ])) . "</td>
-					<td>" . implode("<br>", $Job->Result->Status) . "</td>
+					" . (isset($Job->Result) ? "
+						<td>" . implode("<br>", array_filter([$Job->Comment, $Job->Result->Error->Message ? "Error: <span class=\"HighlightError\">{$Job->Result->Error->Message}</span>" : null, ])) . "</td>
+						<td>" . implode("<br>", $Job->Result->Status) . "</td>
+					" : null) . "
 				</tr>
 			";
 		}
