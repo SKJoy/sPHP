@@ -111,7 +111,7 @@ class Field{
     public function RelationSQL(){
         if(is_null($this->Property[__FUNCTION__])){
 			$Value = $this->Property["Value"];
-			if(in_array($this->Property["RelationColumn"], $this->Property["RelationTable"]->Structure()["String"]))$Value = "'{$Value}'";
+			if(in_array($this->Property["RelationColumn"], $this->Property["RelationTable"]->Structure()["String"]))$Value = "'" . str_replace("'", "''", $Value) . "'";
             $this->Property[__FUNCTION__] = "SELECT {$this->Property["RelationTable"]->Alias()}.{$this->Property["RelationTable"]->Structure()["Primary"][0]} FROM {$this->Property["RelationTable"]->Prefix()}{$this->Property["RelationTable"]->Name()} AS {$this->Property["RelationTable"]->Alias()} WHERE {$this->Property["RelationTable"]->Alias()}.{$this->Property["RelationColumn"]} = {$Value} LIMIT 0, 1";
         }
 
