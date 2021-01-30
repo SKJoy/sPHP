@@ -3281,7 +3281,9 @@ class Debug{
 				}
 				else{
 					$Type = "Numeric";
-				}
+                }
+                
+				$Value = "<div class=\"Number\">{$Value}</div>";
 			}
 			elseif(is_string($Value)){
 				$Type = "String<div class=\"Information\">" . strlen($Value) . "</div>";
