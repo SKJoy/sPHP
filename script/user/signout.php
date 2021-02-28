@@ -1,6 +1,6 @@
 <?php
 namespace sPHP;
 
-$Session->Reset();
-$Terminal->Redirect($Application->URL());
+$SSN->Reset();
+$TRM->Redirect($APP->URL());
 ?>

@@ -4,7 +4,7 @@ namespace sPHP;
 $Entity = "User";
 $LowercaseEntity = strtolower($Entity);
 
-$Form = new HTML\UI\Form(null, null, null, $Application->EncryptionKey(), null, null, null, null,
+$Form = new HTML\UI\Form(null, null, null, $APP->EncryptionKey(), null, null, null, null,
 	SetVariable("_ID"),
 	null, null, null,
 	[
@@ -15,15 +15,15 @@ $Form = new HTML\UI\Form(null, null, null, $Application->EncryptionKey(), null, 
 	]
 );
 
-if($Form->Verify($Application->EncryptionKey())){
+if($Form->Verify($APP->EncryptionKey())){
 	if($_POST["{$Entity}Password"] == $_POST["{$Entity}PasswordAgain"]){
-		if(!count($Table["{$Entity}"]->Get("{$Entity}Email = '" . $Database->Escape($_POST["{$Entity}Email"]) . "' AND {$Entity}ID <> {$Session->User()->ID()}"))){
-			if(!count($Table["{$Entity}"]->Get("{$Entity}PhoneMobile = '" . $Database->Escape($_POST["{$Entity}PhoneMobile"]) . "' AND {$Entity}ID <> {$Session->User()->ID()}"))){
-				Upload($EntityUploadPath = "{$Environment->UploadPath()}{$LowercaseEntity}/");
+		if(!count($TBL["{$Entity}"]->Get("{$Entity}Email = '" . $DTB->Escape($_POST["{$Entity}Email"]) . "' AND {$Entity}ID <> {$SSN->User()->ID()}"))){
+			if(!count($TBL["{$Entity}"]->Get("{$Entity}PhoneMobile = '" . $DTB->Escape($_POST["{$Entity}PhoneMobile"]) . "' AND {$Entity}ID <> {$SSN->User()->ID()}"))){
+				Upload($EntityUploadPath = "{$ENV->UploadPath()}{$LowercaseEntity}/");
 				$FilePOSTKey = array_keys($_FILES); // Key list of file POST variables
 
 				// Load existing record
-				$Record = $Table["{$Entity}"]->Get("{$Table["{$Entity}"]->Structure()["Primary"][0]} = {$Session->User()->ID()}")[0];
+				$Record = $TBL["{$Entity}"]->Get("{$TBL["{$Entity}"]->Structure()["Primary"][0]} = {$SSN->User()->ID()}")[0];
 
 				// Delete existing files for uploaded new file or when asked to delete
 				foreach($FilePOSTKey as $Column){
@@ -53,12 +53,12 @@ if($Form->Verify($Application->EncryptionKey())){
 				if($_POST["{$Entity}Password"])$_POST["{$Entity}PasswordHash"] = md5($_POST["{$Entity}Password"]);
 				#endregion Custom data
 
-				$Table["{$Entity}"]->Put($_POST, "{$Entity}ID = {$Session->User()->ID()}");
+				$TBL["{$Entity}"]->Put($_POST, "{$Entity}ID = {$SSN->User()->ID()}");
 
 				print HTML\UI\MessageBox("Profile information updated.", "System");
 
-				$Session->User()->Picture($_POST["{$Entity}Picture"]);
-				$Session->User()->PictureThumbnail($_POST["{$Entity}PictureThumbnail"]);
+				$SSN->User()->Picture($_POST["{$Entity}Picture"]);
+				$SSN->User()->PictureThumbnail($_POST["{$Entity}PictureThumbnail"]);
 			}
 			else{
 				$Form->ErrorMessage("Mobile phone number is already associated with another user!");

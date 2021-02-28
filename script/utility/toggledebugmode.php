@@ -1,6 +1,6 @@
 <?php
 	namespace sPHP;
 
-	$Session->DebugMode(!$Session->DebugMode());
-	$Terminal->Redirect(null, "Debug mode has been " . ($Session->DebugMode() ? "enabled" : "disabled") . ".");
+	$SSN->DebugMode(!$SSN->DebugMode());
+	$TRM->Redirect(null, "Debug mode has been " . ($SSN->DebugMode() ? "enabled" : "disabled") . ".");
 ?>

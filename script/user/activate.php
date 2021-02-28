@@ -3,10 +3,10 @@ namespace sPHP;
 
 $Entity = "User";
 
-if(count($xUser = $Table[$Entity]->Get("{$Entity}IsActive = 0 AND {$Entity}SignUpIsActivated = 0 AND {$Entity}SignUpActivationKey = '" . $Database->Escape($_POST["{$Entity}SignUpActivationKey"]). "'"))){
+if(count($xUser = $TBL[$Entity]->Get("{$Entity}IsActive = 0 AND {$Entity}SignUpIsActivated = 0 AND {$Entity}SignUpActivationKey = '" . $DTB->Escape($_POST["{$Entity}SignUpActivationKey"]). "'"))){
 	$Password = RandomString();
 
-	$Table[$Entity]->Put([
+	$TBL[$Entity]->Put([
 		"{$Entity}PasswordHash" => md5($Password),
 		"{$Entity}SignUpActivationKey" => null,
 		"{$Entity}SignUpIsActivated" => true,
@@ -15,34 +15,34 @@ if(count($xUser = $Table[$Entity]->Get("{$Entity}IsActive = 0 AND {$Entity}SignU
 
 	Comm\Mail(new Comm\MailContact($xUser[0]["{$Entity}Email"], "{$xUser[0]["{$Entity}NameFirst"]} {$xUser[0]["{$Entity}NameLast"]}"), "Account activation", "
 		<style>
-			{$Configuration["EmailCSS"]}
+			{$CFG["EmailCSS"]}
 		</style>
 
-		{$Configuration["EmailHeader"]}
+		{$CFG["EmailHeader"]}
 
 		Dear <b>{$xUser[0]["{$Entity}Name"]}</b>,<br>
 		<br>
-		Welcome to <b>{$Application->Name()}</b>! Your user account has successfully been activated.<br>
+		Welcome to <b>{$APP->Name()}</b>! Your user account has successfully been activated.<br>
 		<br>
 		Email: <b>{$xUser[0]["{$Entity}Email"]}</b><br>
 		Username: <b>{$xUser[0]["{$Entity}SignInName"]}</b><br>
 		Password: <b>{$Password}</b> (case sensitive)<br>
 		<br>
-		Please <a href=\"{$Application->URL("User/SignIn")}\" style=\"color: Navy; text-decoration: none;\">click here</a> to sign into your account.<br>
+		Please <a href=\"{$APP->URL("User/SignIn")}\" style=\"color: Navy; text-decoration: none;\">click here</a> to sign into your account.<br>
 		<br>
 		Warm regards,<br>
 		<br>
-		<a href=\"{$Application->URL()}\" style=\"color: Navy; font-weight: bold; text-decoration: none;\">{$Application->Name()}</a>
+		<a href=\"{$APP->URL()}\" style=\"color: Navy; font-weight: bold; text-decoration: none;\">{$APP->Name()}</a>
 
-		{$Configuration["EmailFooter"]}
-	", new Comm\MailContact($Configuration["EmailFromAddress"], $Configuration["Name"]), $Configuration["SMTPBodyStyle"], $Environment->MailLogPath(), null, null, null, null, null, null, $Configuration["SMTPHost"], $Configuration["SMTPPort"], $Configuration["SMTPUser"], $Configuration["SMTPPassword"]);
+		{$CFG["EmailFooter"]}
+	", new Comm\MailContact($CFG["EmailFromAddress"], $CFG["Name"]), $CFG["SMTPBodyStyle"], $ENV->MailLogPath(), null, null, null, null, null, null, $CFG["SMTPHost"], $CFG["SMTPPort"], $CFG["SMTPUser"], $CFG["SMTPPassword"]);
 
 	print HTML\UI\MessageBox("
 		Your user account has successfully been activated.<br>
 		<br>
 		An email with your sign in credentials been sent to the email address you used during sign up.<br>
 		<br>
-		Please <a href=\"" . $Application->URL("User/SignIn") . "\">click here</a> to sign into your account.
+		Please <a href=\"" . $APP->URL("User/SignIn") . "\">click here</a> to sign into your account.
 	", "System");
 }
 else{

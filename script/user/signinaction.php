@@ -4,7 +4,7 @@ namespace sPHP;
 $EntityName = "User";
 $LowercaseEntityName = strtolower($EntityName);
 
-$Form = new HTML\UI\Form(null, null, null, $Application->EncryptionKey(), null, null, null, null,
+$Form = new HTML\UI\Form(null, null, null, $APP->EncryptionKey(), null, null, null, null,
 	SetVariable("_ID"),
 	null, null, null,
 	[
@@ -15,32 +15,32 @@ $Form = new HTML\UI\Form(null, null, null, $Application->EncryptionKey(), null, 
 
 $Result = false;
 
-if($Form->Verify($Application->EncryptionKey())){
+if($Form->Verify($APP->EncryptionKey())){
 	$Result = false;
 	//if(strpos($_POST["{$EntityName}Email"], "@") === false)$_POST["{$EntityName}Email"] = "{$_POST["{$EntityName}Email"]}@System.Dom";
 	$UserPasswordHash = md5($_POST["{$EntityName}Password"]);
 
-	if(is_null($Database->Connection())){
-		if($_POST["{$EntityName}Email"] == $Application->Administrator()->Email() && $UserPasswordHash == $Application->Administrator()->PasswordHash()){
+	if(is_null($DTB->Connection())){
+		if($_POST["{$EntityName}Email"] == $APP->Administrator()->Email() && $UserPasswordHash == $APP->Administrator()->PasswordHash()){
 			$Result = true;
-			$Session->User($Application->Administrator());
+			$SSN->User($APP->Administrator());
 		}
 		else{
 			$Form->ErrorMessage("Sorry, email or password didn't match!");
 		}
 	}
 	else{
-		if(count($UserRecord = $Table["{$EntityName}"]->Get("
+		if(count($UserRecord = $TBL["{$EntityName}"]->Get("
 				(
-						{$Table["{$EntityName}"]->Alias()}.{$EntityName}Email = '" . $Database->Escape($_POST["{$EntityName}Email"]) . "'
-					OR	{$Table["{$EntityName}"]->Alias()}.{$EntityName}SignInName = '" . $Database->Escape($_POST["{$EntityName}Email"]) . "'
+						{$TBL["{$EntityName}"]->Alias()}.{$EntityName}Email = '" . $DTB->Escape($_POST["{$EntityName}Email"]) . "'
+					OR	{$TBL["{$EntityName}"]->Alias()}.{$EntityName}SignInName = '" . $DTB->Escape($_POST["{$EntityName}Email"]) . "'
 				)
-			AND	{$Table["{$EntityName}"]->Alias()}.{$EntityName}PasswordHash = '{$UserPasswordHash}'
-			AND	{$Table["{$EntityName}"]->Alias()}.{$EntityName}IsActive = 1
+			AND	{$TBL["{$EntityName}"]->Alias()}.{$EntityName}PasswordHash = '{$UserPasswordHash}'
+			AND	{$TBL["{$EntityName}"]->Alias()}.{$EntityName}IsActive = 1
 		", null, null, null, null, null, null))){
 			$Result = true;
 
-			$Session->User(new User(
+			$SSN->User(new User(
 				$UserRecord[0]["{$EntityName}Email"],
 				$UserRecord[0]["{$EntityName}PasswordHash"],
 				$UserRecord[0]["{$EntityName}Name"],
@@ -67,9 +67,9 @@ else{
 }
 
 if($Result){
-	if($Configuration["UserSignInNotification"])$Application->NotifyUserDevice("{$Session->User()->Name()} signed in on " . date("F d, Y H:i:s") . "", null, "User sign in", "ADMINISTRATOR");
-	//$Terminal->Redirect($_POST["_Referer"]);
-	$Terminal->Redirect($Application->URL());
+	if($Configuration["UserSignInNotification"])$APP->NotifyUserDevice("{$SSN->User()->Name()} signed in on " . date("F d, Y H:i:s") . "", null, "User sign in", "ADMINISTRATOR");
+	//$TRM->Redirect($_POST["_Referer"]);
+	$TRM->Redirect($APP->URL());
 }
 else{
 	require __DIR__ . "/signin.php";

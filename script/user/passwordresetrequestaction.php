@@ -1,26 +1,26 @@
 <?php
 namespace sPHP;
 $Entity = "User";
-$Record = $Table[$Entity]->Get("U.{$Entity}Email = '{$Database->Escape(SetVariable("{$Entity}Email"))}' AND U.{$Entity}IsActive = 1");
+$Record = $TBL[$Entity]->Get("U.{$Entity}Email = '{$DTB->Escape(SetVariable("{$Entity}Email"))}' AND U.{$Entity}IsActive = 1");
 
 if(count($Record)){ // User record found
 	$Record = $Record[0];
 	$PasswordResetKey = "" . GUID() . "" . GUID() . "";
 
-	$Table[$Entity]->Put([
+	$TBL[$Entity]->Put([
 		"{$Entity}PasswordResetKey" => $PasswordResetKey,
 		"{$Entity}PasswordResetAttemptTime" => date("Y-m-d H:i:s"),
 		"{$Entity}PasswordResetAttemptCount" => $Record["{$Entity}PasswordResetAttemptCount"] + 1,
 	], "{$Entity}ID = {$Record["{$Entity}ID"]}");
 
-	$PasswordResetURL = $Application->URL("{$Entity}/PasswordReset", "{$Entity}Email={$Record["{$Entity}Email"]}&{$Entity}PasswordResetKey={$PasswordResetKey}");
+	$PasswordResetURL = $APP->URL("{$Entity}/PasswordReset", "{$Entity}Email={$Record["{$Entity}Email"]}&{$Entity}PasswordResetKey={$PasswordResetKey}");
 
 	Comm\Mail(new Comm\MailContact($Record["{$Entity}Email"], $Record["{$Entity}SignInName"]), "Account password reset request", "
 		<style>
-			{$Configuration["EmailCSS"]}
+			{$CFG["EmailCSS"]}
 		</style>
 
-		{$Configuration["EmailHeader"]}
+		{$CFG["EmailHeader"]}
 
 		Dear <b>{$Record["{$Entity}Name"]}</b>,<br>
 		<br>
@@ -34,10 +34,10 @@ if(count($Record)){ // User record found
 		<br>
 		Warm regards,<br>
 		<br>
-		<a href=\"{$Application->URL()}\" style=\"display: inline-block; color: Navy; font-weight: bold; text-decoration: none;\">{$Application->Name()}</a>
+		<a href=\"{$APP->URL()}\" style=\"display: inline-block; color: Navy; font-weight: bold; text-decoration: none;\">{$APP->Name()}</a>
 
-		{$Configuration["EmailFooter"]}
-	", new Comm\MailContact($Configuration["EmailFromAddress"], $Application->Name()), $Configuration["SMTPBodyStyle"], $Environment->MailLogPath(), null, null, null, null, null, null, $Configuration["SMTPHost"], $Configuration["SMTPPort"], $Configuration["SMTPUser"], $Configuration["SMTPPassword"]);
+		{$CFG["EmailFooter"]}
+	", new Comm\MailContact($CFG["EmailFromAddress"], $APP->Name()), $CFG["SMTPBodyStyle"], $ENV->MailLogPath(), null, null, null, null, null, null, $CFG["SMTPHost"], $CFG["SMTPPort"], $CFG["SMTPUser"], $CFG["SMTPPassword"]);
 }
 else{ // User record not found
 
@@ -47,5 +47,5 @@ print HTML\UI\MessageBox("
 	We just sent you an email with the password recovery instruction.<br>
 	<br>
 	Please check your email and follow.
-", $Application->Name());
+", $APP->Name());
 ?>

@@ -1,6 +1,6 @@
 <?php
 	namespace sPHP;
 
-	$Session->ContentEditMode(!$Session->ContentEditMode());
-	$Terminal->Redirect(null, "Content edit mode has been " . ($Session->ContentEditMode() ? "enabled" : "disabled") . ".");
+	$SSN->ContentEditMode(!$SSN->ContentEditMode());
+	$TRM->Redirect(null, "Content edit mode has been " . ($SSN->ContentEditMode() ? "enabled" : "disabled") . ".");
 ?>

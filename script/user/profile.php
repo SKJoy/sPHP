@@ -4,49 +4,49 @@ namespace sPHP;
 $EntityName = "User";
 $LowercaseEntityName = strtolower($EntityName);
 
-foreach($Table["{$EntityName}"]->Get("{$EntityName}ID = {$Session->User()->ID()}")[0] as $Field=>$Value)SetVariable($Field, $Value);
+foreach($TBL["{$EntityName}"]->Get("{$EntityName}ID = {$SSN->User()->ID()}")[0] as $Field => $Value)SetVariable($Field, $Value);
 
 print "
 	<div class=\"AlignCenter\">
 		" . HTML\UI\Form(
-			$Application->URL("{$EntityName}/ProfileUpdate"), // Submission URL
+			$APP->URL("{$EntityName}/ProfileUpdate"), // Submission URL
 			"
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}" . ($Caption = "Email") . "", $Configuration["InputWidth"], null, true, INPUT_TYPE_EMAIL), "{$Caption}", null, null, $Configuration["FieldCaptionWidth"]) . "
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}" . ($Caption = "Password") . "", $Configuration["InputInlineWidth"], null, null, INPUT_TYPE_PASSWORD, null, null, ["OnChange"=>"CheckPassword();"], "{$EntityName}PasswordInput"), "{$Caption}", true, null, $Configuration["FieldCaptionInlineWidth"]) . "
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Password" . ($Caption = "Again") . "", $Configuration["InputInlineWidth"], null, null, INPUT_TYPE_PASSWORD, null, null, ["OnKeyUp"=>"CheckPassword();"], "{$EntityName}PasswordAgainInput"), "{$Caption}", null, true, $Configuration["FieldCaptionInlineWidth"], null, null, null, "", null, null, null, null, null, null, "{$EntityName}Password{$Caption}") . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}" . ($Caption = "Email") . "", $CFG["InputWidth"], null, true, INPUT_TYPE_EMAIL), "{$Caption}", null, null, $CFG["FieldCaptionWidth"]) . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}" . ($Caption = "Password") . "", $CFG["InputInlineWidth"], null, null, INPUT_TYPE_PASSWORD, null, null, ["OnChange"=>"CheckPassword();"], "{$EntityName}PasswordInput"), "{$Caption}", true, null, $CFG["FieldCaptionInlineWidth"]) . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Password" . ($Caption = "Again") . "", $CFG["InputInlineWidth"], null, null, INPUT_TYPE_PASSWORD, null, null, ["OnKeyUp"=>"CheckPassword();"], "{$EntityName}PasswordAgainInput"), "{$Caption}", null, true, $CFG["FieldCaptionInlineWidth"], null, null, null, "", null, null, null, null, null, null, "{$EntityName}Password{$Caption}") . "
 
 				<div class=\"SectionTitle\">General</div>
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Name" . ($Caption = "First") . "", $Configuration["InputWidth"], null, true, null), "Name: {$Caption}", true, null, $Configuration["FieldCaptionWidth"]) . "
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Name" . ($Caption = "Middle") . "", $Configuration["InputInlineWidth"], null, null, null), "{$Caption}", null, true, $Configuration["FieldCaptionInlineWidth"], null, null, null, "Optional") . "
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Name" . ($Caption = "Last") . "", $Configuration["InputWidth"], null, true, null), "Name: {$Caption}", true, null, $Configuration["FieldCaptionWidth"]) . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Name" . ($Caption = "First") . "", $CFG["InputWidth"], null, true, null), "Name: {$Caption}", true, null, $CFG["FieldCaptionWidth"]) . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Name" . ($Caption = "Middle") . "", $CFG["InputInlineWidth"], null, null, null), "{$Caption}", null, true, $CFG["FieldCaptionInlineWidth"], null, null, null, "Optional") . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Name" . ($Caption = "Last") . "", $CFG["InputWidth"], null, true, null), "Name: {$Caption}", true, null, $CFG["FieldCaptionWidth"]) . "
 
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}" . ($Caption = "Picture") . "", $Configuration["InputFullWidth"], "{$Environment->UploadURL()}{$LowercaseEntityName}/" . (isset($_POST["{$EntityName}{$Caption}"]) ? $_POST["{$EntityName}{$Caption}"] : null) . "", null, INPUT_TYPE_FILE), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"], null, null, null, "Optional") . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}" . ($Caption = "Picture") . "", $CFG["InputFullWidth"], "{$ENV->UploadURL()}{$LowercaseEntityName}/" . (isset($_POST["{$EntityName}{$Caption}"]) ? $_POST["{$EntityName}{$Caption}"] : null) . "", null, INPUT_TYPE_FILE), "{$Caption}", true, null, $CFG["FieldCaptionWidth"], null, null, null, "Optional") . "
 
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}" . ($Caption = "Birth") . "Date", $Configuration["InputDateWidth"], null, true, INPUT_TYPE_DATE), "Date: {$Caption}", true, null, $Configuration["FieldCaptionWidth"], null) . "
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}" . ($Caption = "Death") . "Date", $Configuration["InputDateWidth"], null, null, INPUT_TYPE_DATE), "{$Caption}", null, true, null, null, null, null, "Optional") . "
-				" . HTML\UI\Field(HTML\UI\Select("" . ($Caption = "Gender") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get("{$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1", "{$OptionEntity}LookupCaption ASC"), null, "{$OptionEntity}LookupCaption"), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"], null) . "
-				" . HTML\UI\Field(HTML\UI\Select("" . ($Caption = "Language") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get("{$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1", "{$OptionEntity}LookupCaption ASC"), null, "{$OptionEntity}LookupCaption"), "{$Caption}", null, true, null) . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}" . ($Caption = "Birth") . "Date", $CFG["InputDateWidth"], null, true, INPUT_TYPE_DATE), "Date: {$Caption}", true, null, $CFG["FieldCaptionWidth"], null) . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}" . ($Caption = "Death") . "Date", $CFG["InputDateWidth"], null, null, INPUT_TYPE_DATE), "{$Caption}", null, true, null, null, null, null, "Optional") . "
+				" . HTML\UI\Field(HTML\UI\Select("" . ($Caption = "Gender") . "ID", $TBL[$OptionEntity = "{$Caption}"]->Get("{$TBL["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1", "{$OptionEntity}LookupCaption ASC"), null, "{$OptionEntity}LookupCaption"), "{$Caption}", true, null, $CFG["FieldCaptionWidth"], null) . "
+				" . HTML\UI\Field(HTML\UI\Select("" . ($Caption = "Language") . "ID", $TBL[$OptionEntity = "{$Caption}"]->Get("{$TBL["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1", "{$OptionEntity}LookupCaption ASC"), null, "{$OptionEntity}LookupCaption"), "{$Caption}", null, true, null) . "
 
 				<div class=\"SectionTitle\">Contact</div>
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Phone" . ($Caption = "Mobile") . "", $Configuration["InputWidth"], null, true, null), "Phone: {$Caption}", true, null, $Configuration["FieldCaptionWidth"]) . "
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Phone" . ($Caption = "Home") . "", $Configuration["InputInlineWidth"], null, null, null), "{$Caption}", null, true, $Configuration["FieldCaptionInlineWidth"], null, null, null, "Optional") . "
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Phone" . ($Caption = "Work") . "", $Configuration["InputWidth"], null, null, null), "Phone: {$Caption}", true, null, $Configuration["FieldCaptionWidth"], null, null, null, "Optional") . "
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Phone" . ($Caption = "Other") . "", $Configuration["InputInlineWidth"], null, null, null), "{$Caption}", null, true, $Configuration["FieldCaptionInlineWidth"], null, null, null, "Optional") . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Phone" . ($Caption = "Mobile") . "", $CFG["InputWidth"], null, true, null), "Phone: {$Caption}", true, null, $CFG["FieldCaptionWidth"]) . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Phone" . ($Caption = "Home") . "", $CFG["InputInlineWidth"], null, null, null), "{$Caption}", null, true, $CFG["FieldCaptionInlineWidth"], null, null, null, "Optional") . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Phone" . ($Caption = "Work") . "", $CFG["InputWidth"], null, null, null), "Phone: {$Caption}", true, null, $CFG["FieldCaptionWidth"], null, null, null, "Optional") . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Phone" . ($Caption = "Other") . "", $CFG["InputInlineWidth"], null, null, null), "{$Caption}", null, true, $CFG["FieldCaptionInlineWidth"], null, null, null, "Optional") . "
 
 				<div class=\"SectionTitle\">Address</div>
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Address" . ($Caption = "Street") . "", $Configuration["InputFullWidth"], null, null, null), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"], null, null, null, "Optional") . "
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Address" . ($Caption = "City") . "", $Configuration["InputWidth"], null, null, null), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"], null, null, null, "Optional") . "
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Address" . ($Caption = "State") . "", $Configuration["InputInlineWidth"], null, null, null), "{$Caption}", null, true, $Configuration["FieldCaptionInlineWidth"], null, null, null, "Optional") . "
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Address" . ($Caption = "ZIP") . "", $Configuration["InputWidth"], null, null, null), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"], null, null, null, "Optional") . "
-				" . HTML\UI\Field(HTML\UI\Select("{$EntityName}Address" . ($Caption = "Country") . "ID", $Table[$OptionEntity = "{$Caption}"]->Get("{$Table["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1", "{$OptionEntity}LookupCaption ASC"), null, "{$OptionEntity}LookupCaption"), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"]) . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Address" . ($Caption = "Street") . "", $CFG["InputFullWidth"], null, null, null), "{$Caption}", true, null, $CFG["FieldCaptionWidth"], null, null, null, "Optional") . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Address" . ($Caption = "City") . "", $CFG["InputWidth"], null, null, null), "{$Caption}", true, null, $CFG["FieldCaptionWidth"], null, null, null, "Optional") . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Address" . ($Caption = "State") . "", $CFG["InputInlineWidth"], null, null, null), "{$Caption}", null, true, $CFG["FieldCaptionInlineWidth"], null, null, null, "Optional") . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}Address" . ($Caption = "ZIP") . "", $CFG["InputWidth"], null, null, null), "{$Caption}", true, null, $CFG["FieldCaptionWidth"], null, null, null, "Optional") . "
+				" . HTML\UI\Field(HTML\UI\Select("{$EntityName}Address" . ($Caption = "Country") . "ID", $TBL[$OptionEntity = "{$Caption}"]->Get("{$TBL["{$OptionEntity}"]->Alias()}.{$OptionEntity}IsActive = 1", "{$OptionEntity}LookupCaption ASC"), null, "{$OptionEntity}LookupCaption"), "{$Caption}", true, null, $CFG["FieldCaptionWidth"]) . "
 
 				<div class=\"SectionTitle\">Other</div>
-				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}" . ($Caption = "URL") . "", $Configuration["InputFullWidth"], null, null, null), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"], null, null, null, "Optional") . "
-				" . HTML\UI\Field(HTML\UI\Textarea("{$EntityName}" . ($Caption = "Quote") . "", $Configuration["InputFullWidth"], $Configuration["TextareaHeight"], null, null, null), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"], null, null, null, "Optional") . "
+				" . HTML\UI\Field(HTML\UI\Input("{$EntityName}" . ($Caption = "URL") . "", $CFG["InputFullWidth"], null, null, null), "{$Caption}", true, null, $CFG["FieldCaptionWidth"], null, null, null, "Optional") . "
+				" . HTML\UI\Field(HTML\UI\Textarea("{$EntityName}" . ($Caption = "Quote") . "", $CFG["InputFullWidth"], $CFG["TextareaHeight"], null, null, null), "{$Caption}", true, null, $CFG["FieldCaptionWidth"], null, null, null, "Optional") . "
 			",
 			"Update", // Submit button caption
-			$Application->EncryptionKey(), // Signature modifier
-			"<img src=\"{$Environment->IconURL()}user.png\" alt=\"User\" class=\"Icon\">{$EntityName} profile", // Title
+			$APP->EncryptionKey(), // Signature modifier
+			"<img src=\"{$ENV->IconURL()}user.png\" alt=\"User\" class=\"Icon\">{$EntityName} profile", // Title
 			"Use the form below to update your {$LowercaseEntityName} profile.", // Header
 			"Password is case sensitive.", // Footer
 			"All except optional are required.", // Status

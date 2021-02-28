@@ -2,7 +2,7 @@
 namespace sPHP;
 $Entity = "User";
 
-$Form = new HTML\UI\Form(null, null, null, $Application->EncryptionKey(), null, null, null, null,
+$Form = new HTML\UI\Form(null, null, null, $APP->EncryptionKey(), null, null, null, null,
 	$_POST["_ID"],
 	null, null, null,
 	[
@@ -13,13 +13,13 @@ $Form = new HTML\UI\Form(null, null, null, $Application->EncryptionKey(), null, 
 
 $Result = false;
 
-if($Form->Verify($Application->EncryptionKey())){
-	$Table["{$Entity}"]->Remove("{$Entity}IsActive = 0 AND {$Entity}SignUpIsActivated = 0 AND {$Entity}SignUpActivationKey > '' AND DATEDIFF(NOW(), {$Entity}SignUpTime) > 1", null, null);
+if($Form->Verify($APP->EncryptionKey())){
+	$TBL["{$Entity}"]->Remove("{$Entity}IsActive = 0 AND {$Entity}SignUpIsActivated = 0 AND {$Entity}SignUpActivationKey > '' AND DATEDIFF(NOW(), {$Entity}SignUpTime) > 1", null, null);
 
 	// As Sign in name is optional to provider with, set it to Email if found empty
 	if(!$_POST["{$Entity}SignInName"])$_POST["{$Entity}SignInName"] = $_POST["{$Entity}Email"];
 
-	if(!count($Table["{$Entity}"]->Get("U.{$Entity}Email = '" . $Database->Escape($_POST["{$Entity}Email"]) . "' OR U.{$Entity}SignInName = '" . $Database->Escape($_POST["{$Entity}SignInName"]) . "'", null, null, null, null, null, null))){
+	if(!count($TBL["{$Entity}"]->Get("U.{$Entity}Email = '" . $DTB->Escape($_POST["{$Entity}Email"]) . "' OR U.{$Entity}SignInName = '" . $DTB->Escape($_POST["{$Entity}SignInName"]) . "'", null, null, null, null, null, null))){
 		#region Custom data
 		// Set First and Last names from Sign in name
 		$Name = explode(" ", str_replace("  ", " ", $_POST["{$Entity}SignInName"]));
@@ -32,26 +32,26 @@ if($Form->Verify($Application->EncryptionKey())){
 		$_POST["{$Entity}IsActive"] = false;
 		#endregion Custom data
 
-		$Table["{$Entity}"]->Put($_POST);
+		$TBL["{$Entity}"]->Put($_POST);
 
-		$Table["{$Entity}{$Entity}Group"]->Put([
-			"{$Entity}ID" => $Table["{$Entity}"]->Get("{$Entity}Email = '" . $Database->Escape($_POST["{$Entity}Email"]) . "'")[0]["{$Entity}ID"],
-			"{$Entity}GroupID" => $Table[$OptionEntity = "{$Entity}Group"]->Get("{$OptionEntity}Identifier = 'MEMBER'")[0]["{$OptionEntity}ID"],
+		$TBL["{$Entity}{$Entity}Group"]->Put([
+			"{$Entity}ID" => $TBL["{$Entity}"]->Get("{$Entity}Email = '" . $DTB->Escape($_POST["{$Entity}Email"]) . "'")[0]["{$Entity}ID"],
+			"{$Entity}GroupID" => $TBL[$OptionEntity = "{$Entity}Group"]->Get("{$OptionEntity}Identifier = 'MEMBER'")[0]["{$OptionEntity}ID"],
 			"{$Entity}{$Entity}GroupIsActive" => 1,
 		]);
 
-		$SignUpActivationURL = $Application->URL("User/Activate", "{$Entity}SignUpActivationKey={$_POST["{$Entity}SignUpActivationKey"]}");
+		$SignUpActivationURL = $APP->URL("User/Activate", "{$Entity}SignUpActivationKey={$_POST["{$Entity}SignUpActivationKey"]}");
 
 		Comm\Mail(new Comm\MailContact($_POST["{$Entity}Email"], $_POST["{$Entity}SignInName"]), "User sign up", "
 			<style>
-				{$Configuration["EmailCSS"]}
+				{$CFG["EmailCSS"]}
 			</style>
 
-			{$Configuration["EmailHeader"]}
+			{$CFG["EmailHeader"]}
 
 			Dear <b>{$_POST["{$Entity}SignInName"]}</b>,<br>
 			<br>
-			Welcome to <strong>{$Application->Name()}</strong>! Please click the link below to activate your user account.<br>
+			Welcome to <strong>{$APP->Name()}</strong>! Please click the link below to activate your user account.<br>
 			<br>
 			<a href=\"{$SignUpActivationURL}\" style=\"display: inline-block; box-shadow: 0 0 5px 0 Black; border: 1px White solid; background-color: Black; padding: 15px; color: White; text-decoration: none;\">{$SignUpActivationURL}</a><br>
 			<br>
@@ -59,10 +59,10 @@ if($Form->Verify($Application->EncryptionKey())){
 			<br>
 			Warm regards,<br>
 			<br>
-			<a href=\"{$Application->URL()}\" style=\"display: inline-block; color: Navy; font-weight: bold; text-decoration: none;\">{$Application->Name()}</a>
+			<a href=\"{$APP->URL()}\" style=\"display: inline-block; color: Navy; font-weight: bold; text-decoration: none;\">{$APP->Name()}</a>
 
-			{$Configuration["EmailFooter"]}
-		", new Comm\MailContact($Configuration["EmailFromAddress"], $Application->Name()), $Configuration["SMTPBodyStyle"], $Environment->MailLogPath(), null, null, null, null, null, null, $Configuration["SMTPHost"], $Configuration["SMTPPort"], $Configuration["SMTPUser"], $Configuration["SMTPPassword"]);
+			{$CFG["EmailFooter"]}
+		", new Comm\MailContact($CFG["EmailFromAddress"], $APP->Name()), $CFG["SMTPBodyStyle"], $ENV->MailLogPath(), null, null, null, null, null, null, $CFG["SMTPHost"], $CFG["SMTPPort"], $CFG["SMTPUser"], $CFG["SMTPPassword"]);
 
 		print HTML\UI\MessageBox("
 			Your user account has successfully been created.<br>
@@ -70,7 +70,7 @@ if($Form->Verify($Application->EncryptionKey())){
 			Please check your email for an account activation link.<br>
 			<br>
 			The activation link is valid within 24 hours only.
-		", $Application->Name());
+		", $APP->Name());
 
 		$Result = true;
 	}

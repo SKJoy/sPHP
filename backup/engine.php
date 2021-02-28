@@ -15,8 +15,8 @@ require __DIR__ . "/checkenvironment.php"; // Check required environment
 #region Internal resource libary
 require __DIR__ . "/constant.php"; // Global constants
 require __DIR__ . "/constant_mimetypeextension.php"; // MIME type to extension map constants
+require __DIR__ . "/globalize.php"; // Define global resources
 require __DIR__ . "/function.php"; // Framework dependent namespace independent global user function library
-require __DIR__ . "/globalize.php"; // Make sPHP resources available within all scopes
 require __DIR__ . "/private_function.php"; // Core private function library
 require __DIR__ . "/class.php"; // Core class library
 #endregion Internal resource libary
@@ -28,8 +28,21 @@ require __DIR__ . "/library/3rdparty/BrowserDetection.php"; // https://github.co
 
 require __DIR__ . "/loadclass.php"; // Load classes dynamically on demand as needed
 
-$Application = new Application( // Create application
-    $Terminal = new Terminal($Environment = new Environment(new Utility(new Debug()))), // Create Terminal
-    $Session = new Session($Environment) // Create session
+$sPHP["Application"] = \sPHP::$Application = new Application( // Create application
+    new Terminal($Environment = new Environment(new Utility(new Debug()))), // Create Terminal
+    new Session($Environment) // Create session
 );
+
+#region Make sPHP resources globally accessible 
+// Through globalized variable & static class property
+$sPHP["Terminal"] = \sPHP::$Terminal = $sPHP["Application"]->Terminal();
+$sPHP["Environment"] = \sPHP::$Environment = $sPHP["Terminal"]->Environment();
+$sPHP["Utility"] = \sPHP::$Utility = $sPHP["Environment"]->Utility();
+$sPHP["Debug"] = \sPHP::$Debug = $sPHP["Environment"]->Utility()->Debug();
+$sPHP["Session"] = \sPHP::$Session = $sPHP["Application"]->Session();
+//$sPHP["User"] = \sPHP::$User = $sPHP["Session"]->User();
+$sPHP["Database"] = \sPHP::$Database = $sPHP["Application"]->Database();
+
+$_SERVER["sPHP"] = $sPHP; // Through PHP SERVER variable
+#endregion Make sPHP resources globally accessible 
 ?>

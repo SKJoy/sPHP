@@ -173,7 +173,7 @@ class EntityManagement{
 
 				// Insert option data through intermediate table
 				foreach(ListToArray($this->Property["IntermediateEntity"]) as $OptionEntity){
-					if(in_array("{$this->Property["Table"]->Prefix()}{$this->Property["LowercaseEntityName"]}" . strtolower($OptionEntity) . "", $this->Property["Table"]->Database()->Table())){
+					if(in_array("{$this->Property["Table"]->Prefix()}{$this->Property["LowercaseEntityName"]}" . strtolower($OptionEntity) . "", $this->Property["Table"]->Database()->Table())){ //DebugDump($OptionEntity);
 						$IntermediateTable = new Database\Table(
 							"{$this->Property["Table"]->EntityName()}{$OptionEntity}",
 							"_IE",
@@ -182,12 +182,12 @@ class EntityManagement{
 							$this->Property["Table"]->SQLSELECTPath(),
 							$this->Property["Table"]->Database(),
 							$this->Property["Table"]->Prefix()
-						);
+						); //DebugDump($IntermediateTable);
 
 						$IntermediateTable->Remove("{$this->Property["Table"]->Structure()["Primary"][0]} = {$AffectedRecord[$this->Property["Table"]->Structure()["Primary"][0]]}");
 
-						foreach($_POST as $Key=>$OptionID){
-							if(substr($Key, 0, strlen("{$OptionEntity}ID_")) == "{$OptionEntity}ID_"){
+						foreach($_POST as $Key => $OptionID){ //DebugDump([$Key, $OptionID]);
+							if(substr($Key, 0, strlen("{$OptionEntity}ID_")) == "{$OptionEntity}ID_"){ //DebugDump([$Key, $OptionID]);
 								$IntermediateOptionData[] = [
 									"{$this->Property["Table"]->Structure()["Primary"][0]}"=>$AffectedRecord[$this->Property["Table"]->Structure()["Primary"][0]],
 									"{$OptionEntity}ID"=>$OptionID,

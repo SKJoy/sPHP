@@ -1,7 +1,7 @@
 <?php
 namespace sPHP;
 
-$ErrorLogFile = "{$Environment->LogPath()}error/database.json";
+$ErrorLogFile = "{$ENV->LogPath()}error/database.json";
 $ErrorLogFileExists = file_exists($ErrorLogFile);
 $ErrorLog = $ErrorLogFileExists ? json_decode(file_get_contents($ErrorLogFile)) : "No error";
 ?>

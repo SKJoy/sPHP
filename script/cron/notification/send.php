@@ -57,7 +57,18 @@ foreach($Table["{$Entity}"]->Get("
 			$Notification["{$Entity}Subject"],
 			"\n\n<style>{$Configuration["EmailCSS"]}</style>\n\n{$Configuration["EmailHeader"]}{$Notification["{$Entity}Message"]}{$Configuration["EmailFooter"]}",
 			$Notification["{$Entity}From"] ? new Comm\MailContact($Notification["{$Entity}From"], null) : new Comm\MailContact($Configuration["NoReplyEmail"], $Configuration["CompanyName"]),
-			$Configuration["SMTPBodyStyle"]
+			$Configuration["SMTPBodyStyle"], 
+			null, // LogPath
+			null, // Cc
+			null, // Bcc
+			null, // Attachment
+			null, //new Comm\MailContact("NoReply@BondStein.Com", "Bondstein"), // Reply to
+			null, // HTML
+			null, // Header
+			$Configuration["SMTPHost"], 
+			$Configuration["SMTPPort"], 
+			$Configuration["SMTPUser"], 
+			$Configuration["SMTPPassword"] 
 		);
 
 		if($NotificationSendOutResult)$NotificationEmailCount++;

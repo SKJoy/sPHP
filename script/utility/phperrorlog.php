@@ -1,10 +1,10 @@
 <?php
 namespace sPHP;
-$ErrorLogFile = "{$Environment->Path()}error.php.log";
+$ErrorLogFile = "{$ENV->Path()}error.php.log";
 $ErrorLogFileExists = file_exists($ErrorLogFile);
 
 if($ErrorLogFileExists){
-	$ErrorLogFileModificationTimeCaption = date("{$Configuration["ShortDateFormat"]} {$Configuration["TimeFormat"]}", filemtime($ErrorLogFile));
+	$ErrorLogFileModificationTimeCaption = date("{$CFG["ShortDateFormat"]} {$CFG["TimeFormat"]}", filemtime($ErrorLogFile));
 
 	if(isset($_POST["btnClear"])){
 		unlink($ErrorLogFile);
@@ -24,8 +24,8 @@ $ErrorLogContentElementID = "ErrorLogContent_" . rand() . "";
 		PHP error log<?=$ErrorLogFileModificationTimeCaption == "Never" ? null : " : {$ErrorLogFileModificationTimeCaption}"?>
 
 		<nav class="Action">
-			<a href="<?=$Application->URL($_POST["_Script"], "")?>" class="Item" onclick="return true;"><img src="<?=$Environment->IconURL()?>refresh.png" alt="Clear" class="Icon">Reload</a>
-			<a href="<?=$Application->URL($_POST["_Script"], "btnClear")?>" class="Item" onclick="return confirm('Are you sure to clear the PHP error log?');"><img src="<?=$Environment->IconURL()?>clear.png" alt="Clear" class="Icon">Clear</a>
+			<a href="<?=$APP->URL($_POST["_Script"], "")?>" class="Item" onclick="return true;"><img src="<?=$ENV->IconURL()?>refresh.png" alt="Clear" class="Icon">Reload</a>
+			<a href="<?=$APP->URL($_POST["_Script"], "btnClear")?>" class="Item" onclick="return confirm('Are you sure to clear the PHP error log?');"><img src="<?=$ENV->IconURL()?>clear.png" alt="Clear" class="Icon">Clear</a>
 		</nav>
 	</div>
 

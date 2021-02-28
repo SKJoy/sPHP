@@ -21,37 +21,32 @@ function ___LoadConfiguration($Application){
     return $Configuration;
 }
 
-function ___ExecuteApplicationScript($APP, $TPL, $CFG){
+function ___ExecuteApplicationScript(
+	//$Application, $Template, $Configuration
+	$APP, $TPL, $CFG
+){
 	// Make useful objects accessible through shortcut local variables
-	#region Update globalized resources
-	global $sPHP;
-
-	\sPHP::$Application = \sPHP::$APP = $sPHP["Application"] = $sPHP["APP"] = $APP;
-	\sPHP::$Configuration = \sPHP::$CFG = $sPHP["Configuration"] = $sPHP["CFG"] = $CFG;
-	$ENV = \sPHP::$Environment = \sPHP::$ENV = $sPHP["Environment"] = $sPHP["ENV"] = $APP->Terminal()->Environment();
-	$TRM = \sPHP::$Terminal = \sPHP::$TRM = $sPHP["Terminal"] = $sPHP["TRM"] = $APP->Terminal();
-	$SSN = \sPHP::$Session = \sPHP::$SSN = $sPHP["Session"] = $sPHP["SSN"] = $APP->Session();
-	$USR = \sPHP::$User = \sPHP::$USR = $sPHP["User"] = $sPHP["USR"] = $SSN->User();
-	$UTL = \sPHP::$Utility = \sPHP::$UTL = $sPHP["Utility"] = $sPHP["UTL"] = $ENV->Utility();
-	$DBG = \sPHP::$Debug = \sPHP::$DBG = $sPHP["Debug"] = $sPHP["DBG"] = $UTL->Debug();
-	\sPHP::$Template = \sPHP::$TPL = $sPHP["Template"] = $sPHP["TPL"] = $TPL;
-	$DTB = \sPHP::$Database = \sPHP::$DTB = $sPHP["Database"] = $sPHP["DTB"] = $APP->Database();
-	$TBL = \sPHP::$Table = \sPHP::$TBL = $sPHP["Table"] = $sPHP["TBL"] = $CFG["DatabaseTable"];
-
-	if(!isset($CFG["LegacySupport_sPHP_LongLocalVariable"]) || $CFG["LegacySupport_sPHP_LongLocalVariable"]){ // Legacy support
-		$Application = $APP;
-		$Configuration = $CFG;
-		$Environment = $ENV;
-		$Terminal = $TRM;
-		$Session = $SSN;
-		$User = $USR;
-		$Utility = $UTL;
-		$Debug = $DBG;
-		$Template = $TPL;
-		$Database = $DTB;
-		$Table = $TBL;
-	}
-	#endregion Update globalized resources
+	/*
+	$APP = $Application;
+	$TPL = $Template;
+	$CFG = $Configuration;
+	$DTB = $Database = $Application->Database();
+	$ENV = $Environment = $Application->Terminal()->Environment();
+	$SSN = $Session = $Application->Session();
+	$UTL = $Utility = $Environment->Utility();
+	$DBG = $Debug = $Utility->Debug();
+	$TRM = $Terminal = $Application->Terminal();
+	$TBL = $Table = $Configuration["DatabaseTable"];
+	$USR = $User = $Session->User();
+	*/
+	$DTB = $APP->Database();
+	$ENV = $APP->Terminal()->Environment();
+	$SSN = $APP->Session();
+	$UTL = $ENV->Utility();
+	$DBG = $UTL->Debug();
+	$TRM = $APP->Terminal();
+	$TBL = $CFG["DatabaseTable"];
+	$USR = $SSN->User();
 
 	// Execute script
 	require "{$ENV->Path()}system/pre.php";
@@ -94,12 +89,12 @@ function ___ExecuteApplicationScript($APP, $TPL, $CFG){
 
 	$DBG->StopCheckpoint($DebugCheckpointID);
 	
-	//$APP->Terminal()->Flush(); // Required to set the contents in order of header and main
-	$APP->Terminal()->Suspended(false); // Automatically calls the Flush method of Terminal
+	//$TRM->Flush(); // Required to set the contents in order of header and main
+	$TRM->Suspended(false); // Automatically calls the Flush method of Terminal
 
-	if($APP->Terminal()->DocumentType() == DOCUMENT_TYPE_HTML && !isset($_POST["_MainContentOnly"])){ // Execute header & footer if not instructed to suppress
+	if($TRM->DocumentType() == DOCUMENT_TYPE_HTML && !isset($_POST["_MainContentOnly"])){ // Execute header & footer if not instructed to suppress
 		if(!isset($_POST["_NoHeader"])){ // Header
-			$APP->Terminal()->Mode(OUTPUT_BUFFER_MODE_HEADER); // Change buffer to header mode
+			$TRM->Mode(OUTPUT_BUFFER_MODE_HEADER); // Change buffer to header mode
 			$DebugCheckpointID = $DBG->StartCheckpoint("template/header.php");
 
 			// This is put here to exclusively use for Terminals that are real browsing devices
@@ -108,11 +103,11 @@ function ___ExecuteApplicationScript($APP, $TPL, $CFG){
 
 			require "{$ENV->Path()}template/header.php"; // Execute header script
 			$DBG->StopCheckpoint($DebugCheckpointID);
-			$APP->Terminal()->Flush(); // Required to set the contents in order of header and main
+			$TRM->Flush(); // Required to set the contents in order of header and main
 		}
 
 		if(!isset($_POST["_NoFooter"])){ // Footer
-			$APP->Terminal()->Mode(OUTPUT_BUFFER_MODE_MAIN); // Change back buffer to main mode
+			$TRM->Mode(OUTPUT_BUFFER_MODE_MAIN); // Change back buffer to main mode
 			$DebugCheckpointID = $DBG->StartCheckpoint("template/footer.php");
 			require "{$ENV->Path()}template/footer.php"; // Execute footer script
 
@@ -127,39 +122,22 @@ function ___ExecuteApplicationScript($APP, $TPL, $CFG){
 	return true;
 }
 
-function ___ExecuteTemplateView($Script, $VAR, $APP, $CFG){
+function ___ExecuteTemplateView($Script, $Variable, $Application, $Configuration){
 	// Make useful objects accessible through shortcut local variables
-	#region Update globalized resources
-	global $sPHP;
-	
-	\sPHP::$Variable = \sPHP::$VAR = $sPHP["Variable"] = $sPHP["VAR"] = $VAR;
-	$ENV = \sPHP::$Environment;
-	$TRM = \sPHP::$Terminal;
-	$SSN = \sPHP::$Session;
-	$USR = \sPHP::$User;
-	$UTL = \sPHP::$Utility;
-	$DBG = \sPHP::$Debug;
-	$DTB = \sPHP::$Database;
-	$TBL = \sPHP::$Table;
+	$VAR = $Variable;
+	$APP = $Application;
+	$DTB = $Database = $Application->Database();
+	$Environment = $ENV = $Application->Terminal()->Environment();
+	$Session = $SSN = $Application->Session();
+	$Utility = $UTL = $Environment->Utility();
+	$Debug = $DBG = $Utility->Debug();
+	$Terminal = $TRM = $Application->Terminal();
+	$CFG = $Configuration;
+	$USR = $User = $Session->User();
 
-	if(!isset($CFG["LegacySupport_sPHP_LongLocalVariable"]) || $CFG["LegacySupport_sPHP_LongLocalVariable"]){ // Legacy support
-		$Variable = $VAR;
-		$Application = $APP;
-		$Configuration = $CFG;
-		$Environment = $ENV;
-		$Terminal = $TRM;
-		$Session = $SSN;
-		$User = $USR;
-		$Utility = $UTL;
-		$Debug = $DBG;
-		$Database = $DTB;
-		$Table = $TBL;
-	}
-	#endregion Update globalized resources
-
-	$DebugCheckpointID = $DBG->StartCheckpoint("template/view/{$Script}");
+	$DebugCheckpointID = $Debug->StartCheckpoint("template/view/{$Script}");
 	require $Script; // Execute script
-	$DBG->StopCheckpoint($DebugCheckpointID);
+	$Debug->StopCheckpoint($DebugCheckpointID);
 
 	return true;
 }
