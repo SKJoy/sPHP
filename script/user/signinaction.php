@@ -67,7 +67,7 @@ else{
 }
 
 if($Result){
-	if($Configuration["UserSignInNotification"])$APP->NotifyUserDevice("{$SSN->User()->Name()} signed in on " . date("F d, Y H:i:s") . "", null, "User sign in", "ADMINISTRATOR");
+	if($CFG["UserSignInNotification"])$APP->NotifyUserDevice("{$SSN->User()->Name()} signed in on " . date("F d, Y H:i:s") . "", null, "User sign in", "ADMINISTRATOR");
 	//$TRM->Redirect($_POST["_Referer"]);
 	$TRM->Redirect($APP->URL());
 }
