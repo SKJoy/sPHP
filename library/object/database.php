@@ -220,8 +220,9 @@ class Database{
 						$ContinueLoop = $Query->nextRowset();
 					}
 					catch(\Throwable $Exception){ //DebugDump($Exception->errorInfo);
+						$ContinueLoop = false; // Somehow the system sets the end value to FALSE and is able exit the DO WHILE loop! But this is phishy!
+						
 						// We do not need the following
-						//$ContinueLoop = false; // Somehow the system sets the end value to FALSE and is able exit the DO WHILE loop!
 						//$Result = false; // Keep with Array with results so far
 
 						$this->LogError("{$Exception->errorInfo[0]} ({$Exception->errorInfo[1]}): {$Exception->errorInfo[2]}", $SQL, $Parameter, !$IgnoreError, $Verbose);
