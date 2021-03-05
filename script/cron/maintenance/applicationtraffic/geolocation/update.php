@@ -18,7 +18,7 @@ foreach($Table[$Entity]->Get("ATr.{$Entity}Latitude IS NULL", "ATr.{$Entity}Time
 		$Metro = $GeoData->location->metroCode ? "'{$Database->Escape($GeoData->location->metroCode)}'" : "NULL";
 		$City = isset($GeoData->city->names["en"]) && $GeoData->city->names["en"] ? "'{$Database->Escape($GeoData->city->names["en"])}'" : "NULL";
 		$PostCode = $GeoData->postal->code ? "'{$Database->Escape($GeoData->postal->code)}'" : "NULL";
-		$Country = $GeoData->country->names["en"] ? "'{$Database->Escape($GeoData->country->names["en"])}'" : "NULL";
+		$Country = isset($GeoData->country->names["en"]) && $GeoData->country->names["en"] ? "'{$Database->Escape($GeoData->country->names["en"])}'" : "NULL";
 
 		$UPDATESQL = "UPDATE sphp_applicationtraffic SET {$Entity}Latitude = {$GeoData->location->latitude}, {$Entity}Longitude = {$GeoData->location->longitude}, {$Entity}Metro = {$Metro}, {$Entity}City = {$City}, {$Entity}PostCode = {$PostCode}, {$Entity}Country = {$Country}";
 	}
