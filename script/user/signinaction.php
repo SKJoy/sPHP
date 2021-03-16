@@ -20,7 +20,7 @@ if($Form->Verify($APP->EncryptionKey())){
 	//if(strpos($_POST["{$EntityName}Email"], "@") === false)$_POST["{$EntityName}Email"] = "{$_POST["{$EntityName}Email"]}@System.Dom";
 	$UserPasswordHash = md5($_POST["{$EntityName}Password"]);
 
-	if(is_null($DTB->Connection())){
+	if(is_null($DTB->Connection())){ // Statis system without a database back end
 		if($_POST["{$EntityName}Email"] == $APP->Administrator()->Email() && $UserPasswordHash == $APP->Administrator()->PasswordHash()){
 			$Result = true;
 			$SSN->User($APP->Administrator());
@@ -29,7 +29,7 @@ if($Form->Verify($APP->EncryptionKey())){
 			$Form->ErrorMessage("Sorry, email or password didn't match!");
 		}
 	}
-	else{
+	else{ // Dynamic system with a database back end
 		if(count($UserRecord = $TBL["{$EntityName}"]->Get("
 				(
 						{$TBL["{$EntityName}"]->Alias()}.{$EntityName}Email = '" . $DTB->Escape($_POST["{$EntityName}Email"]) . "'
@@ -37,6 +37,16 @@ if($Form->Verify($APP->EncryptionKey())){
 				)
 			AND	{$TBL["{$EntityName}"]->Alias()}.{$EntityName}PasswordHash = '{$UserPasswordHash}'
 			AND	{$TBL["{$EntityName}"]->Alias()}.{$EntityName}IsActive = 1
+			AND	" . ($CFG["AdministratorAccessOnly"] ? "(
+					SELECT			UG.UserGroupIdentifier
+					FROM			sphp_userusergroup AS UUG
+						LEFT JOIN	sphp_usergroup AS UG ON UG.UserGroupID = UUG.UserGroupID
+						LEFT JOIN	sphp_user AS U2 ON U2.UserID = UUG.UserID
+					WHERE			(U2.UserEmail = '" . $DTB->Escape($_POST["{$EntityName}Email"]) . "' OR U2.UserSignInName = '" . $DTB->Escape($_POST["{$EntityName}Email"]) . "')
+						AND			U2.UserPasswordHash = '{$UserPasswordHash}'
+					ORDER BY		UG.UserGroupWeight DESC
+					LIMIT			1
+				) = 'ADMINISTRATOR'" : "TRUE") . " # AdministratorAccessOnly
 		", null, null, null, null, null, null))){
 			$Result = true;
 
@@ -58,6 +68,7 @@ if($Form->Verify($APP->EncryptionKey())){
 			));
 		}
 		else{
+			if($CFG["AdministratorAccessOnly"] && $CFG["RestrictedAccessMessage"])print HTML\UI\MessageBox($CFG["RestrictedAccessMessage"], "Security", "MessageBoxError");
 			$Form->ErrorMessage("Sorry, email or password didn't match!");
 		}
 	}
