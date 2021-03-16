@@ -495,7 +495,7 @@ class Database{
 		array_shift($DebugCallStack);
 		array_pop($DebugCallStack);
 		array_pop($DebugCallStack);
-		array_pop($DebugCallStack);
+		array_pop($DebugCallStack); //var_dump($DebugCallStack);
 
 		file_put_contents(
 			"{$this->Property["ErrorLogPath"]}database.json",
@@ -518,7 +518,8 @@ class Database{
 			])
 		);
 
-		if($TriggerError)trigger_error("Database: {$Message}", E_USER_ERROR);
+		$CallStackOrigin = $DebugCallStack[0];
+		if($TriggerError)trigger_error("Database: {$Message}. Origin: {$CallStackOrigin["file"]}:{$CallStackOrigin["line"]}", E_USER_ERROR);
 		if($Verbose)$this->ShowMessage($Message, $SQL, $Parameter);
 
 		return true;
