@@ -85,9 +85,10 @@ class Database{
 
 				if($this->Property["Transactional"])$this->Property["Connection"]->beginTransaction(); // Encapsulate execution within transaction
 				
-				if(is_array($Tables = $this->Query("SHOW TABLES")[0])){
-					foreach($Tables as $Table)$this->Property["Table"][] = $Table[array_keys($Table)[0]];
-				}
+				#region Get table information
+				$Tables = $this->Query("SHOW TABLES", null, null, null, true);
+				foreach(is_array($Tables) ? $Tables[0] : [] as $Table)$this->Property["Table"][] = $Table[array_keys($Table)[0]];
+				#endregion Get table information
 
 				$Result = $this->Property["Connection"];
 			}
