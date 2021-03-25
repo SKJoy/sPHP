@@ -29,12 +29,14 @@ namespace sPHP;
 
 <script>
 	function Start(UpdateInterval){ //console.log(UpdateInterval);
+		UpdateInterval = UpdateInterval < 1 ? 1000 : UpdateInterval * 1000;
+
 		var elmMessage = document.getElementById('Message');
 		var elmError = document.getElementById('Error');
 		var elmProcessList = document.getElementById('DatabaseProcessList');
 		var APIURL = '<?=$APP->URL("API/V1/Utility/Database/Process/List")?>&User=' + document.getElementById('inpUser').value + '&Password=' + document.getElementById('inpPassword').value + '&Sleeping=' + (document.getElementById('inpSleeping').checked ? 'TRUE' : 'FALSE') + '';
 
-		return sJS.HTTP.GetAtInterval(UpdateInterval * 1000, APIURL, function(Response){
+		return sJS.HTTP.GetAtInterval(UpdateInterval, APIURL, function(Response){
 			if(Response.Error.Code != 0){
 				elmError.innerHTML = '' + Response.Error.Code + ': ' + Response.Error.Description;
 			}
@@ -50,14 +52,14 @@ namespace sPHP;
 					Response.Response.Process.forEach(function(Process, ProcessIndex){ //console.log(Process.Time);
 						var ProcessProgressPercentile = parseInt(Process.Progress);
 						var elmProcess = document.createElement("LI");
-						elmProcess.innerHTML = '<progress value="' + ProcessProgressPercentile + '" max="100" class="ProgressBar">' + ProcessProgressPercentile + '%</progress><span class="Serial">' + (ProcessIndex + 1) + '</span><span class="ID">' + Process.Id + '</span><span class="User">' + Process.User + '</span><span class="Duration">' + Process.Time + '</span></span><span class="Command">' + Process.Command + '</span></span><span class="Progress">' + parseFloat(Process.Progress).toFixed(2) + '</span><span class="State">' + Process.State + '</span><div readonly class="SQL">' + (Process.Info ? Process.Info : '') + '</div>';
+						elmProcess.innerHTML = '<progress value="' + ProcessProgressPercentile + '" max="100" class="ProgressBar">' + ProcessProgressPercentile + '%</progress><span class="Serial">' + (ProcessIndex + 1) + '</span><span class="ID">' + Process.Id + '</span><span class="User">' + Process.User + '</span><span class="Duration">' + Process.Time + '</span></span><span class="Command">' + Process.Command + '</span></span><span class="Progress">' + parseFloat(Process.Progress).toFixed(2) + '</span><span class="State">' + (Process.State ? Process.State : '') + '</span><div readonly class="SQL">' + (Process.Info ? Process.Info : '') + '</div>';
 						elmProcessList.appendChild(elmProcess);
 					});
 				}
 			}
 		}, function(Code, Description){ //console.log(Code, Description);
 			elmError.innerHTML = '' + Code + ': ' + Description + '';
-		}, UpdateInterval * 500, true); //console.log(PeriodicHTTPRequestTimer);
+		}, UpdateInterval - 500, true); //console.log(PeriodicHTTPRequestTimer);
 	}
 
 	function Stop(TimerObject){
