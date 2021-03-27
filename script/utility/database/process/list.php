@@ -34,11 +34,11 @@ namespace sPHP;
 		var elmMessage = document.getElementById('Message');
 		var elmError = document.getElementById('Error');
 		var elmProcessList = document.getElementById('DatabaseProcessList');
-		var APIURL = '<?=$APP->URL("API/V1/Utility/Database/Process/List")?>&User=' + document.getElementById('inpUser').value + '&Password=' + document.getElementById('inpPassword').value + '&Sleeping=' + (document.getElementById('inpSleeping').checked ? 'TRUE' : 'FALSE') + '';
+		var APIURL = '<?=$APP->URL("API/System/V1/Gateway", "_Module=Utility/Database/Process/List")?>&User=' + document.getElementById('inpUser').value + '&Password=' + document.getElementById('inpPassword').value + '&Sleeping=' + (document.getElementById('inpSleeping').checked ? 'TRUE' : 'FALSE') + '';
 
 		return sJS.HTTP.GetAtInterval(UpdateInterval, APIURL, function(Response){
-			if(Response.Error.Code != 0){
-				elmError.innerHTML = '' + Response.Error.Code + ': ' + Response.Error.Description;
+			if(Response.Error.length){
+				elmError.innerHTML = '' + Response.Error[0].Code + ': ' + Response.Error[0].Description;
 			}
 			else{
 				elmProcessList.innerHTML = '';
