@@ -52,7 +52,24 @@ namespace sPHP;
 					Response.Response.Process.forEach(function(Process, ProcessIndex){ //console.log(Process.Time);
 						var ProcessProgressPercentile = parseInt(Process.Progress);
 						var elmProcess = document.createElement("LI");
-						elmProcess.innerHTML = '<progress value="' + ProcessProgressPercentile + '" max="100" class="ProgressBar">' + ProcessProgressPercentile + '%</progress><span class="Serial">' + (ProcessIndex + 1) + '</span><span class="ID">' + Process.Id + '</span><span class="User">' + Process.User + '</span><span class="Duration">' + Process.Time + '</span></span><span class="Command">' + Process.Command + '</span></span><span class="Progress">' + parseFloat(Process.Progress).toFixed(2) + '</span><span class="State">' + (Process.State ? Process.State : '') + '</span><div readonly class="SQL">' + (Process.Info ? Process.Info : '') + '</div>';
+						var ProcesssAttribute = [];
+
+						Process.State = Process.State ? Process.State : '';
+						Process.State = Process.State.trim();
+						if(Process.State == 'init')Process.State = 'Initialize';
+
+						elmProcess.innerHTML = [
+							'<progress value="', ProcessProgressPercentile, '" max="100" class="ProgressBar">', ProcessProgressPercentile, '%</progress>', 
+							'<span class="Serial">', (ProcessIndex + 1), '</span>', 
+							'<span class="ID">', Process.Id, '</span>', 
+							'<span class="User">', Process.User, '</span>', 
+							'<span class="Duration">', Process.Time, '</span>', 
+							'<span class="Command">', Process.Command, '</span>', 
+							'<span class="Progress">', parseFloat(Process.Progress).toFixed(2), '</span>', 
+							'<span class="State">', Process.State, '</span>', 
+							'<div readonly class="SQL">', (Process.Info ? Process.Info : ''), '</div>', 
+						].join('');
+
 						elmProcessList.appendChild(elmProcess);
 					});
 				}
