@@ -123,7 +123,7 @@ class Table{
 		return $Result;
 	}
 
-	public function Put($Data, $WHERE = null, $Field = null, $Verbose = false, $sPHPColumn = true){
+	public function Put($Data, $WHERE = null, $Field = null, $Verbose = false, $sPHPColumn = true, $IgnoreINSERTError = false){
 		if(!is_array($Data[key($Data)]))$Data = [$Data]; // Convert single record to multi record format
 		if($WHERE)$Data = [$Data[key($Data)]]; // Take only one row for UPDATE mode
 		$Field = array_intersect($Field ? \sPHP\ListToArray($Field) : array_keys($Data[0]), array_keys($this->Structure()["Column"]));
@@ -185,7 +185,7 @@ class Table{
 			}
 		}
 
-		$INSERTSQL = "INSERT INTO {$this->Property["Prefix"]}{$this->Property["Name"]} (" . implode(", ", $Field) . ") VALUES " . implode(", ", $INSERTRowSQL) . "";
+		$INSERTSQL = "INSERT" . ($IgnoreINSERTError ? " IGNORE" : null) . " INTO {$this->Property["Prefix"]}{$this->Property["Name"]} (" . implode(", ", $Field) . ") VALUES " . implode(", ", $INSERTRowSQL) . "";
 		$UPDATESQL = "UPDATE {$this->Property["Prefix"]}{$this->Property["Name"]} SET {$UPDATERowSQL} WHERE {$WHERE}";
 		$ModeName = $WHERE ? "Update" : "Insert";
 		$ApplicableSQL = $WHERE ? $UPDATESQL : $INSERTSQL;
