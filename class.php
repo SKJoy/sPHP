@@ -2543,7 +2543,7 @@ class Utility{
 
 	#region Private variable
 	private $MaxMindGeoIP2Reader = false;
-	#region Private variable
+	#endregion Private variable
 
     #region Method
     public function __construct($Debug = null){
@@ -2561,30 +2561,30 @@ class Utility{
         return true;
     }
 
-	public function Upload($Path, $Field = null, $SetPOST = null, $MustRename = null, $AllowedExtension = null, $ForbiddenExtension = null){
+	public function Upload($Path, $Field = null, $SetPOST = null, $MustRename = null, $AllowedExtension = null, $ForbiddenExtension = null, $ByteLimit = null){
+        #region Set default argument values
 		if(is_null($SetPOST))$SetPOST = true;
 		if(is_null($MustRename))$MustRename = true;
 		if(is_null($ForbiddenExtension))$ForbiddenExtension = "asp, aspx, bat, bin, cfm, cfc, com, exe, jsp, pl, py, sh, shtml";
+        if(is_null($ByteLimit))$ByteLimit = false;
+        #endregion Set default argument values
         //var_dump($_FILES);
 		$POSTFileField = array_keys($_FILES);
 		if(count($POSTFileField) && !is_dir($Path))mkdir($Path, 0777, true); // Create the target folder it doesn't exist
         //var_dump($POSTFileField);
-		foreach(isset($Field) ? array_intersect(explode(",", str_replace(" ", null, $Field)), $POSTFileField) : $POSTFileField as $Field){
-            //var_dump($Field);
-			if(is_array($_FILES[$Field]["name"])){
-                //var_dump($_FILES[$Field]["name"]);
-				foreach($_FILES[$Field]["name"] as $Key=>$Value){
-					$Result[$Field][$Key] = $this->MoveUploadedItem($Path, $Value, $_FILES[$Field]["tmp_name"][$Key], $MustRename, $AllowedExtension, $ForbiddenExtension);
+		foreach(isset($Field) ? array_intersect(explode(",", str_replace(" ", null, $Field)), $POSTFileField) : $POSTFileField as $Field){ //var_dump($Field);
+			if(is_array($_FILES[$Field]["name"])){ //var_dump($_FILES[$Field]["name"]);
+				foreach($_FILES[$Field]["name"] as $Key => $Value){ //DebugDump($_FILES[$Field]["size"][$Key]);
+					$Result[$Field][$Key] = (!$ByteLimit || $_FILES[$Field]["size"][$Key] <= $ByteLimit) ? $this->MoveUploadedItem($Path, $Value, $_FILES[$Field]["tmp_name"][$Key], $MustRename, $AllowedExtension, $ForbiddenExtension) : false;
 					if($SetPOST)$_POST[$Field][$Key] = $Result[$Field][$Key];
 				}
 			}
-			else{
-                //var_dump($Path, $_FILES[$Field]["name"], $_FILES[$Field]["tmp_name"]);
-				$Result[$Field] = $this->MoveUploadedItem($Path, $_FILES[$Field]["name"], $_FILES[$Field]["tmp_name"], $MustRename, $AllowedExtension, $ForbiddenExtension);
+			else{ //DebugDump($_FILES[$Field]["size"]); //var_dump($Path, $_FILES[$Field]["name"], $_FILES[$Field]["tmp_name"]);
+				$Result[$Field] = (!$ByteLimit || $_FILES[$Field]["size"] <= $ByteLimit) ? $this->MoveUploadedItem($Path, $_FILES[$Field]["name"], $_FILES[$Field]["tmp_name"], $MustRename, $AllowedExtension, $ForbiddenExtension) : false;
 				if($SetPOST)$_POST[$Field] = $Result[$Field];
 			}
-		}
-        //var_dump($Result);
+		} //var_dump($Result);
+
 		return isset($Result) ? $Result : false;
 	}
 
