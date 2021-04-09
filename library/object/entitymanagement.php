@@ -811,13 +811,13 @@ class EntityManagement{
     public function ListHTML(){
         if(is_null($this->Property[__FUNCTION__])){
 			// Generate URL arguments for search field(s)
-			foreach($_POST as $Key=>$Value){
+			foreach($_POST as $Key => $Value){
 				if(
 						substr($Key, 0, strlen($this->Property["SearchInputPrefix"])) == $this->Property["SearchInputPrefix"]
 					&&	strlen($Value)
 				)$SearchArgument[] = "{$Key}=" . urlencode($Value) . "";
-			}
-            //var_dump($_POST, $this->Property["OrderBy"], SetVariable("OrderBy", $this->Property["OrderBy"]));
+			} //var_dump($_POST, $this->Property["OrderBy"], SetVariable("OrderBy", $this->Property["OrderBy"]));
+
             $this->Property["VisibleRecordset"] = $this->Property["Table"]->Get(implode(" AND ", array_filter($this->Property["SearchSQL"])), "" . SetVariable("OrderBy", $this->Property["OrderBy"]) . " " . SetVariable("Order", $this->Property["Order"]) . "", ((SetVariable("Page", 1) - 1) * ($this->Property["RecordsPerPage"])) + 1, $this->Property["RecordsPerPage"], null, null, $this->Property["Verbose"]);
 
 			$this->Property[__FUNCTION__] = "

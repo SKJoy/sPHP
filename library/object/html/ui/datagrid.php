@@ -523,7 +523,7 @@ class Datagrid{
 
 					if($Action->URL()){
 						$OriginalActionURL = $Action->URL();
-						$Action->URL("{$Action->URL()}" . (strpos($Action->URL(), "?") === false ? "?" : "&") . "" . (is_null($Action->ParameterKey()) ? "{$this->Property["DataIDColumn"]}" : "{$Action->ParameterKey()}") . "={$Data[$this->Property["DataIDColumn"]]}" . ($Action->SelfTarget() ? "&{$ParameterPrefix}Page={$_POST["{$ParameterPrefix}Page"]}&{$ParameterPrefix}OrderBy={$_POST["{$ParameterPrefix}OrderBy"]}&{$ParameterPrefix}Order={$_POST["{$ParameterPrefix}Order"]}" : null) . "");
+						$Action->URL("{$Action->URL()}" . (strpos($Action->URL(), "?") === false ? "?" : "&") . "" . (is_null($Action->ParameterKey()) ? "{$this->Property["DataIDColumn"]}" : "{$Action->ParameterKey()}") . "={$Data[$this->Property["DataIDColumn"]]}" . ($Action->SelfTarget() ? "&{$ParameterPrefix}Page={$_POST["{$ParameterPrefix}Page"]}&{$ParameterPrefix}OrderBy=" . urlencode($_POST["{$ParameterPrefix}OrderBy"]) . "&{$ParameterPrefix}Order={$_POST["{$ParameterPrefix}Order"]}" : null) . "");
 						$ActionHTML[] = "{$Action->HTML()}";
 						$Action->URL($OriginalActionURL);
 					}
