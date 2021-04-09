@@ -10,8 +10,8 @@
 namespace sPHP;
 
 class Environment{
-    #region Property
     private $Property = [
+        #region Writable
         "Utility"				=>	null,
 		"SMTPHost"				=>	null,
 		"SMTPPort"				=>	null,
@@ -19,6 +19,10 @@ class Environment{
 		"SMTPPassword"			=>	null,
 		"TimeZone"				=>	null,
 		"TimeLimit"				=>	30, // Maximum execution time in seconds
+		"CustomError"			=>	false,
+		"MemoryLimit"			=>	256, // Set memory limit in MB
+        #endregion Writable
+        #region Read only
         "Path"					=>	"./",
         "ImagePath"				=>	"./image/",
         "ContentPath"			=>	"./content/",
@@ -47,10 +51,9 @@ class Environment{
         "Name"					=>	"sPHP",
         "Version"				=>	null,
 		"Client"				=>	null,
-		"CustomError"			=>	false,
-		"MemoryLimit"			=>	256, // Set memory limit in MB
+        "OSProcess"             =>  null, 
+        #endregion Read only
     ];
-    #endregion Property
 
     #region Variable
 	private static $AlreadyInstantiated = false;
@@ -64,15 +67,17 @@ class Environment{
 
         ini_set("memory_limit", "{$this->Property["MemoryLimit"]}M"); // Set PHP memory limit before everything
 
+        $this->Property["OSProcess"] = $Utility->OSProcess(); // Get own process information
         $this->Property["Name"] = "sPHP";
         $this->Property["Version"] = new Version(10);
 
-		// sPHP development environment
+		#region Development environment
 		$DevelopmentVersionMode = file_exists($DevelopmentVersionFile = __DIR__ . "/../sphp_version.txt"); // Check if development version to use
 		$VersionFile = __DIR__ . "/sphp_version.txt";
 		if($DevelopmentVersionMode)copy($DevelopmentVersionFile, $VersionFile); // Switch version file to development
 		$this->Property["Version"]->File($VersionFile, $DevelopmentVersionMode); // Load version, increse counter only if development version
 		if($DevelopmentVersionMode)copy($VersionFile, $DevelopmentVersionFile); // Put version file back as development version file
+        #endregion Development environment
 
 		#region Detect client terminal/browser
 		/*
@@ -104,7 +109,7 @@ class Environment{
 		if(!isset($_SERVER[$VariableName = "HTTP_USER_AGENT"]))$_SERVER["{$VariableName}"] = null;
 		if(!isset($_SERVER[$VariableName = "HTTPS"]))$_SERVER["{$VariableName}"] = null;
 
-		// When run by command line
+		#region Command line execution
 		if(!isset($_SERVER[$VariableName = "REMOTE_ADDR"]))$_SERVER["{$VariableName}"] = "127.0.0.1";
 		if(!isset($_SERVER[$VariableName = "SERVER_ADDR"]))$_SERVER["{$VariableName}"] = "127.0.0.1";
 		if(!isset($_SERVER[$VariableName = "SERVER_NAME"]))$_SERVER["{$VariableName}"] = "LocalHost";
@@ -112,6 +117,7 @@ class Environment{
 		if(!isset($_SERVER[$VariableName = "REQUEST_METHOD"]))$_SERVER["{$VariableName}"] = null;
 		if(!isset($_SERVER[$VariableName = "HTTP_HOST"]))$_SERVER["{$VariableName}"] = "LocalHost";
 		if(!isset($_SERVER[$VariableName = "QUERY_STRING"]))$_SERVER["{$VariableName}"] = null;
+        #endregion Command line execution
 		#endregion Fix missing server variables
 
         #region Operating system specific server variable fix
@@ -138,6 +144,7 @@ class Environment{
         // Create POST variable for each GET variable id not already exists
 		foreach($_GET as $Key=>$Value)if(!isset($_POST[$Key]))$_POST[$Key] = $Value;
 
+        #region Set path properties
         $this->Property["Path"] = pathinfo($_SERVER["SCRIPT_FILENAME"])["dirname"] . "/";
         $this->Property["ImagePath"] = "{$this->Property["Path"]}image/";
         $this->Property["ContentPath"] = "{$this->Property["Path"]}content/";
@@ -152,30 +159,30 @@ class Environment{
 		$this->Property["SystemScriptPath"] = "{$this->Property["SystemPath"]}script/";
         $this->Property["LogPath"] = "{$this->Property["Path"]}log/";
         $this->Property["MailLogPath"] = "{$this->Property["LogPath"]}mail/";
+        #endregion Set path properties
 
         $this->Property["Protocol"] = substr($_SERVER["SERVER_PROTOCOL"], 0, strpos($_SERVER["SERVER_PROTOCOL"], "/"));
-
         $this->Property["URLPath"] = substr($_SERVER["PHP_SELF"], 1, strlen($_SERVER["PHP_SELF"]) - strlen(basename($_SERVER["PHP_SELF"])) - 1);
 
-        //$this->Property["URL"] = "" . strtolower($this->Property["Protocol"]) . "://{$_SERVER["SERVER_NAME"]}/{$this->Property["URLPath"]}";
+        #region Set up URLs
         $this->Property["URL"] = "http" . (strtoupper($_SERVER["HTTPS"]) == "ON" ? "s" : null) . "://{$_SERVER["SERVER_NAME"]}/{$this->Property["URLPath"]}";
-
         $this->Property["HTTPURL"] = "http://{$_SERVER["SERVER_NAME"]}/{$this->Property["URLPath"]}";
         $this->Property["HTTPSURL"] = "https://{$_SERVER["SERVER_NAME"]}/{$this->Property["URLPath"]}";
-
         $this->Property["ScriptURL"] = "{$this->Property["URL"]}script/";
         $this->Property["ImageURL"] = "{$this->Property["URL"]}image/";
         $this->Property["IconURL"] = "{$this->Property["ImageURL"]}icon/";
         $this->Property["UploadURL"] = "{$this->Property["URL"]}upload/";
         $this->Property["ContentUploadURL"] = "{$this->Property["URL"]}content/upload/";
         $this->Property["StyleURL"] = "{$this->Property["URL"]}style/";
+        #endregion Set up URLs
 
 		#region Error configuration
 		//ini_set("log_errors_max_length", 2 * 1024 * 1024);
 
 		$ErrorLogFile = "{$this->Property["Path"]}error.php.log"; // Custom error log file at application root
 		ini_set("error_log", $ErrorLogFile); // Set custom error log file
-		// Don't let the error log file grow bigger than 3 MB
+
+		// Don't let the error log file grow bigger than N MB
 		if(file_exists($ErrorLogFile) && filesize($ErrorLogFile) > 3 * 1024 * 1024)@unlink($ErrorLogFile);
 
 		error_reporting(E_ALL); // Show all errors
@@ -387,6 +394,47 @@ class Environment{
         return $Result;
     }
 
+    public function CustomError($Value){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+			if($this->Property[__FUNCTION__]){
+				set_error_handler(function($Number, $Message, $File, $Line){
+					___ErrorPage($Message, $File, $Line, $Number);
+				}, E_ALL); // E_ALL
+
+				set_exception_handler(function(\Throwable $Exception){
+					___ErrorPage($Exception->getMessage(), $Exception->getFile(), $Exception->getLine());
+				});
+			}
+			else{
+				restore_error_handler();
+			}
+
+            $Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function MemoryLimit($Value){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+			ini_set("memory_limit", "{$this->Property[__FUNCTION__]}M"); // Set memory limit
+
+            $Result = true;
+        }
+
+        return $Result;
+    }
+
     public function Path(){
         $Result = $this->Property[__FUNCTION__];
 
@@ -555,43 +603,8 @@ class Environment{
         return $Result;
     }
 
-    public function CustomError($Value){
-        if(is_null($Value)){
-            $Result = $this->Property[__FUNCTION__];
-        }
-        else{
-            $this->Property[__FUNCTION__] = $Value;
-
-			if($this->Property[__FUNCTION__]){
-				set_error_handler(function($Number, $Message, $File, $Line){
-					___ErrorPage($Message, $File, $Line, $Number);
-				}, E_ALL); // E_ALL
-
-				set_exception_handler(function(\Throwable $Exception){
-					___ErrorPage($Exception->getMessage(), $Exception->getFile(), $Exception->getLine());
-				});
-			}
-			else{
-				restore_error_handler();
-			}
-
-            $Result = true;
-        }
-
-        return $Result;
-    }
-
-    public function MemoryLimit($Value){
-        if(is_null($Value)){
-            $Result = $this->Property[__FUNCTION__];
-        }
-        else{
-            $this->Property[__FUNCTION__] = $Value;
-
-			ini_set("memory_limit", "{$this->Property[__FUNCTION__]}M"); // Set memory limit
-
-            $Result = true;
-        }
+    public function OSProcess(){
+        $Result = $this->Property[__FUNCTION__];
 
         return $Result;
     }
@@ -2860,6 +2873,72 @@ class Utility{
         fclose($FileHandle); // Relase memory occupied
 
         return $Result;
+    }
+
+    /*
+        Get process information from OS
+    
+        Argument
+            ProcessID INT OPTIONAL	Process ID to get information for. Defaults to own process ID if not provided with.
+    */
+    function OSProcess($ProcessID = null){
+        $Process = [ // Initialize process information array
+            "ID" => null, 
+            "File" => null, 
+            "Path" => null, 
+            "Filename" => null, 
+            "Extension" => null, 
+        ];
+        
+        $Process["ID"] = is_null($ProcessID) ? getmypid() : intval($ProcessID); // Validate and default to own process ID
+    
+        #region Get process information from OS
+        if(PHP_OS_FAMILY === "Windows"){ // Command for Windows
+            $ExecStatus = exec("tasklist /fi \"pid eq {$Process["ID"]}\"", $ExecInformation, $ExecReturn);
+        }
+        elseif(PHP_OS_FAMILY === "Linux"){ // Command for Linux
+            $ExecStatus = exec("ps -f -p {$Process["ID"]}", $ExecInformation, $ExecReturn);
+        }
+        else{ // Unknown OS
+            $ExecStatus = false;
+        }
+        #endregion Get process information from OS
+    
+        if($ExecStatus !== false){ // OS command successful, populate process information
+            $ExecInformation = $ExecInformation[count($ExecInformation) - 1];
+            $ExecInformation = array_filter(explode(" ", $ExecInformation));
+            $ExecInformation = array_values($ExecInformation); //var_dump($ExecInformation);
+            $Process["File"] = $ExecInformation[["Linux" => 6, "Windows" => 0, ][PHP_OS_FAMILY]];
+    
+            #region Generate additional process information
+            $ProcessPathInfo = pathinfo($Process["File"]); //var_dump($ProcessPathInfo);
+            $Process["Path"] = "{$ProcessPathInfo["dirname"]}" . (PHP_OS_FAMILY === "Windows" ? "\\" : "/") . "";
+            $Process["Filename"] = $ProcessPathInfo["filename"];
+            $Process["Extension"] = isset($ProcessPathInfo["extension"]) ? $ProcessPathInfo["extension"] : "";
+            #endregion Generate additional process information
+        }
+    
+        return $Process;
+    }
+
+    /*
+        Kill an Operating system process
+    
+        Argument
+            ProcessID INT REQUIRED	Process ID to kill.
+    */
+    function OSProcessKill($ProcessID){
+        if(PHP_OS_FAMILY === "Linux"){
+            $ExecStatus = exec("kill {$ProcessID}", $ExecInformation, $ExecReturn);
+        }
+        elseif(PHP_OS_FAMILY === "Windows"){
+            $ExecStatus = exec("taskkill /F /PID {$ProcessID}", $ExecInformation, $ExecReturn);
+        }
+        else{
+            $ExecStatus = false;
+        }
+    
+        return $ExecStatus !== false ? true : false;
     }
     #endregion Method
 
