@@ -810,8 +810,7 @@ class EntityManagement{
 
     public function ListHTML(){
         if(is_null($this->Property[__FUNCTION__])){
-			// Generate URL arguments for search field(s)
-			foreach($_POST as $Key => $Value){
+			foreach($_POST as $Key => $Value){ // Generate URL arguments for search field(s)
 				if(
 						substr($Key, 0, strlen($this->Property["SearchInputPrefix"])) == $this->Property["SearchInputPrefix"]
 					&&	strlen($Value)

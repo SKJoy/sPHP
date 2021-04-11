@@ -9,7 +9,6 @@
 namespace sPHP\HTML\UI\Datagrid;
 
 class Column{
-    #region Property variable
     private $Property = [
         "Name"						=>	null,
         "Caption"					=>	null,
@@ -25,11 +24,11 @@ class Column{
         "Prefix"                    =>  null, // Content to show before/left value
         "Suffix"                    =>  null,  // Content to show after/right value
         "Template"                  =>  null, // String template to be used replacing placeholders with record values
+        "TemplateHideEmpty"         =>  true, // Ignore empty value and hide template
     ];
-    #endregion Property variable
 
     #region Method
-    public function __construct($Name = null, $Caption = null, $Type = null, $Align = null, $DataType = null, $DateFormat = null, $TimeFormat = null, $Sortable = null, $IconPrefix = null, $Icon = null, $Target = null, $Prefix = null, $Suffix = null, $Template = null){
+    public function __construct($Name = null, $Caption = null, $Type = null, $Align = null, $DataType = null, $DateFormat = null, $TimeFormat = null, $Sortable = null, $IconPrefix = null, $Icon = null, $Target = null, $Prefix = null, $Suffix = null, $Template = null, $TemplateHideEmpty = null){
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
 
@@ -253,6 +252,19 @@ class Column{
     }
 
     public function Template($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+			$Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function TemplateHideEmpty($Value = null){
         if(is_null($Value)){
             $Result = $this->Property[__FUNCTION__];
         }
