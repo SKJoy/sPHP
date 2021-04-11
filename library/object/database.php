@@ -10,7 +10,6 @@
 namespace sPHP;
 
 class Database{
-    #region Property variable
     private $Property = [
         "Type"						=>	DATABASE_TYPE_MYSQL,
         "Host"						=>	"127.0.0.1",
@@ -36,7 +35,6 @@ class Database{
 		"QueryHistory"				=>	[],
 		"Table"						=>	[],
     ];
-    #endregion Property variable
 
 	#region Variable
 	//private $Connection = null;

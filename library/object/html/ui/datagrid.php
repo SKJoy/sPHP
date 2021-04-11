@@ -427,7 +427,7 @@ class Datagrid{
                     $ColumnData = $Column->Data($Data[$Column->Name()]); // Get the data as formatted by Column object
 
                     // Transform data using Template
-                    if(strlen($ColumnData) && $Column->Template() && count($DataKeyFieldForTemplate))$ColumnData = str_replace($DataKeyFieldForTemplate, $Data, $Column->Template());
+                    if($Column->Template() && count($DataKeyFieldForTemplate) && (strlen($ColumnData) || !$Column->TemplateHideEmpty()))$ColumnData = str_replace($DataKeyFieldForTemplate, $Data, $Column->Template());
 
 					if($Column->Type() == \sPHP\FIELD_TYPE_EMAIL){
 						if($ColumnData)$ColumnData = "<a href=\"mailto:{$ColumnData}\">{$ColumnData}</a>";
