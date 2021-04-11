@@ -244,6 +244,12 @@ namespace sPHP\HTML{
 }
 
 namespace sPHP\HTML\UI{
+	function Progressbar($Maximum = null, $Value = null, $URL = null, $Target = null, $CSSSelector = null, $Tooltip = null, $Width = null, $Prefix = null, $Suffix = null, $EventHandlerJavaScript = null, $ID = null){
+		$Object = new Progressbar($Maximum, $Value, $URL, $Target, $CSSSelector, $Tooltip, $Width, $Prefix, $Suffix, $EventHandlerJavaScript, $ID);
+
+		return $Object->HTML();
+    }
+
 	function ChartJS($Recordset = null, $Dataset = null, $Label = null, $XAxes = null, $YAxes = null, $ID = null, $Type = null, $Title = null, $TitleFontColor = null, $TitleFontSize = null, $TitleFontStyle = null, $LegendFontColor = null, $LegendFontSize = null, $LegendFontStyle = null, $AspectRatio = null, $MaintainAspectRatio = null, $Responsive = null){
 		$Object = new ChartJS($Recordset, $Dataset, $Label, $XAxes, $YAxes, $ID, $Type, $Title, $TitleFontColor, $TitleFontSize, $TitleFontStyle, $LegendFontColor, $LegendFontSize, $LegendFontStyle, $AspectRatio, $MaintainAspectRatio, $Responsive);
 
