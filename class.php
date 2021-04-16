@@ -615,7 +615,6 @@ class Environment{
 }
 
 class Terminal{
-    #region Property
     private $Property = [
         "Environment"		=>	null,
         "Title"				=>	"My application",
@@ -631,7 +630,6 @@ class Terminal{
         "ThemeColor"        =>  "Grey",
         "Manifest"          =>  "manifest.json",
     ];
-    #endregion Property
 
     #region Variable
 	private static $AlreadyInstantiated = false;
@@ -666,8 +664,7 @@ class Terminal{
     public function __destruct(){
         ob_end_clean(); // Empty and close output buffer to compress the output
 
-        // Compress output only if not in debug mode
-        if(!$this->Property["Environment"]->Utility()->Debug()->Enabled()){
+        if(!$this->Property["Environment"]->Utility()->Debug()->Enabled()){ // Compress output only if not in debug mode
             ini_set("zlib.output_handler", ""); // Must be set to empty to allow the compression work
             ini_set("zlib.output_compression", 131072); // Default is 4096 (4 KB)
             ini_set("zlib.output_compression_level", 9); // 0 to 9
@@ -1306,7 +1303,6 @@ class Session{
 }
 
 class Application{
-    #region Property
     private $Property = [
         "Terminal"				=>	null,
         "Session"				=>	null,
@@ -1340,7 +1336,6 @@ class Application{
         "OpenGraph"             =>  null,
         "UserDeviceNotification"    =>  false, 
     ];
-    #endregion Property
 
     #region Variable
 	private static $AlreadyInstantiated = false;
@@ -1493,14 +1488,14 @@ class Application{
         if($Configuration["DebugMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeClient"]))))))$this->Property["Session"]->DebugMode(true); 
 
         // Configure stylesheet inclusion
-        if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}script/{$_POST["_Script"]}.css"))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}script/{$_POST["_Script"]}.css";
+        if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}" . ($CSSFile = "script/{$_POST["_Script"]}.css") . ""))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}{$CSSFile}?TimeUpdated=" . filemtime("{$this->Property["Terminal"]->Environment()->StylePath()}{$CSSFile}") . "";
         $Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}language/{$this->Property["Language"]->HTMLCode()}.css";
         if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}{$_SERVER["SERVER_NAME"]}/loader.css"))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}{$_SERVER["SERVER_NAME"]}/loader.css";
         if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}{$_SERVER["SERVER_NAME"]}/script/{$_POST["_Script"]}.css"))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}{$_SERVER["SERVER_NAME"]}/script/{$_POST["_Script"]}.css";
 		foreach($Configuration["Stylesheet"] as $URL)$this->Property["Terminal"]->Link("stylesheet", "text/css", $URL);
 
         // Moved here from above to allow including the script specific JavaScript
-        if(file_exists("{$this->Property["Terminal"]->Environment()->Path()}javascript/script/{$_POST["_Script"]}.js"))$Configuration["JavaScript"][] = "{$this->Property["Terminal"]->Environment()->URL()}javascript/script/{$_POST["_Script"]}.js";
+        if(file_exists("{$this->Property["Terminal"]->Environment()->Path()}" . ($JavaScriptFile = "javascript/script/{$_POST["_Script"]}.js") . ""))$Configuration["JavaScript"][] = "{$this->Property["Terminal"]->Environment()->URL()}{$JavaScriptFile}?TimeUpdated=" . filemtime("{$this->Property["Terminal"]->Environment()->Path()}{$JavaScriptFile}") . "";
         foreach($Configuration["JavaScript"] as $URL)$this->Property["Terminal"]->JavaScript($URL);
 
 		// Execute the requested script
