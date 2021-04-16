@@ -16,11 +16,9 @@ $Form = new HTML\UI\Form(null, null, null, $APP->EncryptionKey(), null, null, nu
 $Result = false;
 
 if($Form->Verify($APP->EncryptionKey())){
-	$Result = false;
-	//if(strpos($_POST["{$EntityName}Email"], "@") === false)$_POST["{$EntityName}Email"] = "{$_POST["{$EntityName}Email"]}@System.Dom";
 	$UserPasswordHash = md5($_POST["{$EntityName}Password"]);
 
-	if(is_null($DTB->Connection())){ // Statis system without a database back end
+	if(is_null($DTB->Connection())){ // Static system without a database back end
 		if($_POST["{$EntityName}Email"] == $APP->Administrator()->Email() && $UserPasswordHash == $APP->Administrator()->PasswordHash()){
 			$Result = true;
 			$SSN->User($APP->Administrator());
@@ -30,7 +28,7 @@ if($Form->Verify($APP->EncryptionKey())){
 		}
 	}
 	else{ // Dynamic system with a database back end
-		if(count($UserRecord = $TBL["{$EntityName}"]->Get("
+		if(count($UserRecord = $TBL["{$EntityName}"]->Get($SQL_WHERE = "
 				(
 						{$TBL["{$EntityName}"]->Alias()}.{$EntityName}Email = '" . $DTB->Escape($_POST["{$EntityName}Email"]) . "'
 					OR	{$TBL["{$EntityName}"]->Alias()}.{$EntityName}SignInName = '" . $DTB->Escape($_POST["{$EntityName}Email"]) . "'
@@ -46,8 +44,8 @@ if($Form->Verify($APP->EncryptionKey())){
 						AND			U2.UserPasswordHash = '{$UserPasswordHash}'
 					ORDER BY		UG.UserGroupWeight DESC
 					LIMIT			1
-				) = 'ADMINISTRATOR'" : "TRUE") . " # AdministratorAccessOnly
-		", null, null, null, null, null, null))){
+				) = 'ADMINISTRATOR'" : "TRUE") . " # AdministratorAccessOnly = " . ($CFG["AdministratorAccessOnly"] ? "TRUE" : "FALSE") . "
+		", null, null, null, null, null, null))){ //DebugDump($SQL_WHERE);
 			$Result = true;
 
 			$SSN->User(new User(
@@ -81,6 +79,7 @@ if($Result){
 	if($CFG["UserSignInNotification"])$APP->NotifyUserDevice("{$SSN->User()->Name()} signed in on " . date("F d, Y H:i:s") . "", null, "User sign in", "ADMINISTRATOR");
 	//$TRM->Redirect($_POST["_Referer"]);
 	$TRM->Redirect($APP->URL());
+	//print "<a href=\"{$APP->URL()}\">Click here<a/> to continue.";
 }
 else{
 	require __DIR__ . "/signin.php";
