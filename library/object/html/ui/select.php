@@ -9,7 +9,6 @@
 namespace sPHP\HTML\UI;
 
 class Select{
-    #region Property variable
     private $Property = [
         "Name"						=>	null,
         "Option"					=>	[],
@@ -23,7 +22,6 @@ class Select{
         "ID"						=>	null,
         "HTML"						=>	null,
     ];
-    #endregion Property variable
 
     #region Method
     public function __construct($Name = null, $Option = null, $PrependOption = null, $CaptionField = null, $AppendOption = null, $ValueField = null, $DefaultValue = null, $CSSSelector = null, $EventHandlerJavaScript = null, $ID = null){
@@ -207,7 +205,7 @@ class Select{
 
 			$OptionSet = array_merge(is_array($this->Property["PrependOption"]) ? $this->Property["PrependOption"] : [$this->Property["PrependOption"]], $this->Property["Option"], is_array($this->Property["AppendOption"]) ? $this->Property["AppendOption"] : [$this->Property["AppendOption"]]);
 			if(!count($OptionSet))$OptionHTML[] = "<option>No option!</option>";
-			$CurrentValue = \sPHP\SetVariable($this->Property["Name"], $this->Property["DefaultValue"]);
+			$CurrentValue = \sPHP\SetVariable($this->Property["Name"], $this->Property["DefaultValue"]); //\sPHP\DebugDump(["Name" => $this->Property["Name"], "DefaultValue" => $this->Property["DefaultValue"], "CurrentValue" => $CurrentValue, ]);
             //var_dump($OptionSet); //exit;
 
             #region DEBUG
