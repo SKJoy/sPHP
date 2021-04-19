@@ -18,10 +18,7 @@ $Recordset = $Database->Query("
 
 	SELECT @TimeToKeepFrom AS TimeToKeepFrom;
 
-	# Panel: Maintenance: Clean: Application
-	#DELETE FROM pnl_terminaldataminutely WHERE TerminalDataMinutelyTimeFirst < @TimeToKeepFrom LIMIT 9999;
-
-	# Panel: Maintenance: Clean: System
+	# System: Maintenance: Clean
 	DELETE FROM sphp_notification WHERE TimeInserted < @TimeToKeepFrom LIMIT 9999;
 	DELETE FROM sphp_userdevice WHERE TimeInserted < @TimeToKeepFrom LIMIT 9999;
 	DELETE FROM sphp_useruserdevice WHERE UserUserDeviceTimeActiveLast < @TimeToKeepFrom LIMIT 9999;
@@ -31,12 +28,10 @@ $Recordset = $Database->Query("
 	DELETE FROM		sphp_applicationtraffic
 	WHERE			ApplicationTrafficTime < @TimeToKeepFrom
 		OR			ApplicationTrafficScript LIKE 'cron/%'
-		OR			ApplicationTrafficScript LIKE 'api/%'
-		OR			ApplicationTrafficScript IN ('user/signout', 'user/signin', 'user/signinaction', 'home')
+		#OR			ApplicationTrafficScript LIKE 'api/%'
+		#OR			ApplicationTrafficScript IN ('user/signout', 'user/signin', 'user/signinaction', 'home')
 		OR			ApplicationTrafficIP IN (
 						'127.0.0.1', # Local
-						'202.191.121.174', # DHK.Binary.Men
-						'203.83.174.106', # Singularity
 						''
 					)
 	LIMIT 9999;

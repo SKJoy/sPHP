@@ -66,8 +66,13 @@ if($Form->Verify($APP->EncryptionKey())){
 			));
 		}
 		else{
-			if($CFG["AdministratorAccessOnly"] && $CFG["RestrictedAccessMessage"])print HTML\UI\MessageBox($CFG["RestrictedAccessMessage"], "Security", "MessageBoxError");
-			$Form->ErrorMessage("Sorry, email or password didn't match!");
+			if($CFG["AdministratorAccessOnly"] && $CFG["RestrictedAccessMessage"]){
+				print HTML\UI\MessageBox($CFG["RestrictedAccessMessage"], "Security", "MessageBoxError");
+				$Form->ErrorMessage($CFG["RestrictedAccessMessage"]);
+			}
+			else{
+				$Form->ErrorMessage("Sorry, email or password didn't match!");
+			}
 		}
 	}
 }
