@@ -794,12 +794,12 @@ class Terminal{
 		return true;
     }
     
-    public function LetDownload($Content, $DocumentType = null, $FileName = null){
+    public function LetDownload($Content, $DocumentType = null, $FileName = null, $Header = true){
         if(is_array($Content)){ // Create content from Array
             if(!$DocumentType)$DocumentType = DOCUMENT_TYPE_CSV; // Default MIME/content type
 
             if($DocumentType == DOCUMENT_TYPE_CSV){
-                $Content = $this->Property["Environment"]->Utility()->ArrayToCSV($Content);
+                $Content = $this->Property["Environment"]->Utility()->ArrayToCSV($Content, $Header);
             }
             elseif($DocumentType == DOCUMENT_TYPE_JSON){
                 $Content = json_encode($Content);
@@ -2542,12 +2542,10 @@ class Template{
 }
 
 class Utility{
-	#region Property variable
-    private $Property = [
+	private $Property = [
         "Debug"				=>	null,
         "Graphic"			=>	null,
     ];
-    #endregion Property variable
 
 	#region Private variable
 	private $MaxMindGeoIP2Reader = false;

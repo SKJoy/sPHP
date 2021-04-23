@@ -9,7 +9,6 @@
 namespace sPHP\HTML\UI;
 
 class Radio{
-    #region Property variable
     private $Property = [
         "Value"						=>	null,
         "Caption"					=>	null,
@@ -19,7 +18,6 @@ class Radio{
         "ID"						=>	null,
         "HTML"						=>	null,
     ];
-    #endregion Property variable
 
     #region Method
     public function __construct($Value = null, $Caption = null, $Name = null, $CSSSelector = null, $EventHandlerJavaScript = null, $ID = null){

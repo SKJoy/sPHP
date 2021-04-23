@@ -10,7 +10,6 @@
 namespace sPHP;
 
 class Option{
-    #region Property variable
     private $Property = [
         "Value"						=>	null,
         "Caption"					=>	null,
@@ -18,7 +17,6 @@ class Option{
         "ID"						=>	"Field",
         "HTML"						=>	null,
     ];
-    #endregion Property variable
 
     #region Method
     public function __construct($Value = null, $Caption = null, $CSSSelector = null, $ID = null){

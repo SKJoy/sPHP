@@ -9,7 +9,6 @@
 namespace sPHP\HTML\UI;
 
 class RadioGroup{
-    #region Property variable
     private $Property = [
         "Name"						=>	null,
         "Option"					=>	[],
@@ -17,7 +16,6 @@ class RadioGroup{
         "CSSSelector"				=>	null,
         "HTML"						=>	null,
     ];
-    #endregion Property variable
 
     #region Method
     public function __construct($Name = null, $Option = null, $DefaultValue = null, $CSSSelector = null){
