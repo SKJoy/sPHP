@@ -127,7 +127,8 @@ class Radio{
 
     public function HTML(){
 		if(!$this->Property[__FUNCTION__]){
-			if(is_array($this->Property["EventHandlerJavaScript"]))foreach(array_filter($this->Property["EventHandlerJavaScript"]) as $Handler)if(is_array($Handler) && isset($Handler[1]))$EventHandler[] = "{$Handler[0]}=\"{$Handler[1]}\"";
+            if(!is_array($this->Property["EventHandlerJavaScript"]))$this->Property["EventHandlerJavaScript"] = ["OnClick" => $this->Property["EventHandlerJavaScript"], ];
+            foreach(array_filter($this->Property["EventHandlerJavaScript"]) as $Event => $Handler)$EventHandler[] = "{$Event}=\"{$Handler}\"";
 
 			$HTML[] = "<input type=\"radio\" id=\"{$this->Property["ID"]}\" name=\"{$this->Property["Name"]}\" value=\"{$this->Property["Value"]}\"" . (isset($_POST[$this->Property["Name"]]) && $_POST[$this->Property["Name"]] == $this->Property["Value"] ? " checked" : null) . "" . (isset($EventHandler) ? " " . implode(" ", $EventHandler) . " " : null) . ">";
 			$HTML[] = "<label for=\"{$this->Property["ID"]}\"><span class=\"Caption\">{$this->Property["Caption"]}</label></label>";
