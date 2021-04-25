@@ -9,7 +9,6 @@
 namespace sPHP;
 
 class EntityManagement{
-    #region Property
     private $Property = [
         "Table"						=>	null,
 		"Environment"				=>	null,
@@ -65,8 +64,8 @@ class EntityManagement{
 		"LowercaseEntityName"		=>	null,
         "EntityID"					=>	null,
         "VisibleRecordset"          =>  [], // Recordset that are loaded in the datagrid, limited with FROM & TO
+        "SearchURLArgument"         =>  null, // Generate URL argument for search values
     ];
-    #endregion Property
 
     #region Variable
     //private $Buffer = [];
@@ -458,6 +457,7 @@ class EntityManagement{
         }
         else{
             $this->Property[__FUNCTION__] = $Value;
+            $this->Property["SearchURLArgument"] = null;
 
             $Result = true;
         }
@@ -810,9 +810,10 @@ class EntityManagement{
 
     public function ListHTML(){
         if(is_null($this->Property[__FUNCTION__])){
-			foreach($_POST as $Key => $Value){ // Generate URL arguments for search field(s)
+            foreach($_POST as $Key => $Value){ // Generate URL arguments for search field(s)
 				if(
-						substr($Key, 0, strlen($this->Property["SearchInputPrefix"])) == $this->Property["SearchInputPrefix"]
+						!is_array($Value)
+                    &&  substr($Key, 0, strlen($this->Property["SearchInputPrefix"])) == $this->Property["SearchInputPrefix"]
 					&&	strlen($Value)
 				)$SearchArgument[] = "{$Key}=" . urlencode($Value) . "";
 			} //var_dump($_POST, $this->Property["OrderBy"], SetVariable("OrderBy", $this->Property["OrderBy"]));
@@ -832,7 +833,7 @@ class EntityManagement{
 					$this->Property["Action"],
 					$this->Property["BaseURL"], // Base URL
 					$this->Property["IconURL"], // Base URL for icons
-					"Total of {$this->Property["Table"]->Count()} record(s) took " . round($this->Property["Table"]->LastDuration() * 1000) . " ms",
+					"Total of {$this->Property["Table"]->Count()} record(s) took " . round($this->Property["Table"]->LastDuration() * 1000, 0) . " ms",
 					"
 						" . (is_array($this->Property["SearchUIHTML"]) ? implode(null, $this->Property["SearchUIHTML"]) : $this->Property["SearchUIHTML"]) . "<div class=\"ColumnWrapper\"></div>
 						<div class=\"ButtonRow\">" . (is_array($this->Property["BatchActionHTML"]) ? implode(" ", $this->Property["BatchActionHTML"]) : $this->Property["BatchActionHTML"]) . "</div>
@@ -959,6 +960,48 @@ class EntityManagement{
 
     public function VisibleRecordset(){
         $Result = $this->Property[__FUNCTION__];
+
+        return $Result;
+    }
+
+    public function SearchURLArgument($Field = [], $KeepSearchInputPrefix = null, $SearchInputPrefix = null){
+        /*
+            $Field = Array of URL argument(s) to generate URL for; Default is main columns from associated Database table
+            $KeepSearchInputPrefix = Keep search input prefix with argument name
+            $SearchInputPrefix = Prefix to use with argument name; Helps where SearchInputPrefix property is not set yet
+        */
+
+        if(is_null($this->Property[__FUNCTION__])){
+            #region Set argumewnt default value
+            if(is_null($Field))$Field = [];
+            if(is_null($SearchInputPrefix))$SearchInputPrefix = is_null($this->Property["SearchInputPrefix"]) ? \sPHP::$Configuration["SearchInputPrefix"] : $this->Property["SearchInputPrefix"];
+            if(is_null($KeepSearchInputPrefix))$KeepSearchInputPrefix = false;
+            #endregion Set argumewnt default value
+
+            #region Validate argument
+            if(!is_array($Field))$Field = explode(",", str_replace(" ", null, $Field));
+            if(!count($Field))$Field = array_diff(array_keys($this->Property["Table"]->Structure()["Column"]), explode(",", str_replace(" ", null, "UserIDInserted, UserIDUpdated, UserIDLocked, TimeInserted, TimeUpdated, TimeLocked")));
+
+            if($KeepSearchInputPrefix)$KeepSearchInputPrefix = $SearchInputPrefix;
+            #endregion Validate argument
+    
+            #region Generate URL
+            $URL = [];
+
+            foreach(array_filter($Field) as $Argument){
+				$SearchArgument = "{$SearchInputPrefix}{$Argument}"; //DebugDump($SearchArgument);
+
+				if(isset($_POST[$SearchArgument]) && strlen($_POST[$SearchArgument])){
+					$URL[] = "{$KeepSearchInputPrefix}{$Argument}=" . urlencode($_POST[$SearchArgument]) . "";
+				}
+			}
+
+            $Result = $this->Property[__FUNCTION__] = implode("&", $URL);
+            #endregion Generate URL
+        }
+        else{
+            $Result = $this->Property[__FUNCTION__];
+        }
 
         return $Result;
     }
