@@ -1444,6 +1444,9 @@ class Application{
 			$Configuration["DatabaseTable"]["" . ($Entity = "Application") . "Traffic"] = new Database\Table("{$Entity} traffic", "ATr");
 			$Configuration["DatabaseTable"]["" . ($Entity = "Measure") . "Type"] = new Database\Table("{$Entity} type");
 			$Configuration["DatabaseTable"]["" . ($Entity = "Measure") . ""] = new Database\Table("{$Entity}");
+			$Configuration["DatabaseTable"]["" . ($Entity = "Dictionary") . "Data"] = new Database\Table("{$Entity} data");
+			$Configuration["DatabaseTable"]["" . ($Entity = "Dictionary") . ""] = new Database\Table("{$Entity}");
+			$Configuration["DatabaseTable"]["" . ($Entity = "Dictionary") . "Type"] = new Database\Table("{$Entity} type");
 			#endregion Add generic tables
 
 			foreach($Configuration["DatabaseTable"] as $Table){ // Set dynamic & common table properties
