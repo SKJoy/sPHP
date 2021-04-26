@@ -180,7 +180,7 @@ if(isset($_POST["btnInput"])){
 }
 
 if(isset($_POST["btnPublish"])){
-	$Recordset = $TBL["{$Entity}Data"]->Get("DD.{$Entity}ID IN (" . implode(", ", isset($_POST["{$Entity}ID"]) ? $_POST["{$Entity}ID"] : [0]) . ")");
+	$Recordset = $TBL["{$Entity}Data"]->Get("DD.{$Entity}ID IN (" . implode(", ", isset($_POST["{$Entity}ID"]) ? $_POST["{$Entity}ID"] : [0]) . ") AND DD.{$Entity}DataIsActive = 1");
 	$Data = [];
 	$Path = "{$ENV->TempPath()}dictionary/";
 
