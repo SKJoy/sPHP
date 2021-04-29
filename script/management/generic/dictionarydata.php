@@ -59,7 +59,7 @@ $EM->IntermediateEntity("x{$Entity}Service, xEvent");
 $EM->DefaultFromSearchColumn("{$Entity}Name, DictionaryID, LanguageID");
 
 $EM->ListColumn([
-	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Name") . "", "{$Caption}", null, null, null, null, null, null, null, null, null, null, null, "<img src=\"{$ENV->IconURL()}copy.png\" alt=\"Copy\" class=\"Icon\" onclick=\"alert('Does not work yet!'); /*sJS.Clipboard.Copy(document.getElementById('%{$Entity}Name%[%{$Entity}ID%]').innerHTML);*/\"> <span id=\"%{$Entity}Name%[%{$Entity}ID%]\">%{$Entity}Name%</span>"),
+	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Name") . "", "{$Caption}", null, null, null, null, null, null, null, null, null, null, null, "<!--<img src=\"{$ENV->IconURL()}copy.png\" alt=\"Copy\" class=\"Icon\" onclick=\"sJS.Clipboard.Copy(document.getElementById('%{$Entity}Name%[%{$Entity}ID%]').innerHTML);\"> --><span id=\"%{$Entity}Name%[%{$Entity}ID%]\">%{$Entity}Name%</span>"),
 	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Value") . "Preview", "{$Caption}", null, null, null, null, null, null, null, null, null, null, null, "<img src=\"{$ENV->IconURL()}dictionarydata-type-%{$Entity}Type%.png\" alt=\"%{$Entity}Type%\" title=\"%{$Entity}Type%\" class=\"Icon\"> %{$Entity}ValuePreview%"),
 	new HTML\UI\Datagrid\Column("" . ($Caption = "Language") . "Name", "{$Caption}"),
 	new HTML\UI\Datagrid\Column("" . ($Caption = "Dictionary") . "Name", "{$Caption}"),
@@ -195,7 +195,8 @@ $EM->SearchSQL($SQL = [
 
 	// Numeric columns
 	SetVariable("{$CFG["SearchInputPrefix"]}" . ($Column = "{$Entity}ID") . "", SetVariable($Column)) ? "{$TBL[$Entity]->Alias()}.{$Column} = " . intval($_POST["{$CFG["SearchInputPrefix"]}{$Column}"]) . "" : null,
-	SetVariable("{$CFG["SearchInputPrefix"]}" . ($Column = "DictionaryID") . "", SetVariable($Column)) ? "{$TBL[$Entity]->Alias()}.{$Column} = " . intval($_POST["{$CFG["SearchInputPrefix"]}{$Column}"]) . "" : null,
+	SetVariable("{$CFG["SearchInputPrefix"]}" . ($Column = "DictionaryTypeID") . "", SetVariable($Column)) ? "D.{$Column} = " . intval($_POST["{$CFG["SearchInputPrefix"]}{$Column}"]) . "" : null,
+	SetVariable("{$CFG["SearchInputPrefix"]}" . ($Column = "DictionaryID") . "", SetVariable($Column)) && $_POST["{$CFG["SearchInputPrefix"]}DictionaryTypeID"] ? "{$TBL[$Entity]->Alias()}.{$Column} = " . intval($_POST["{$CFG["SearchInputPrefix"]}{$Column}"]) . "" : null,
 	SetVariable("{$CFG["SearchInputPrefix"]}" . ($Column = "LanguageID") . "", SetVariable($Column)) ? "{$TBL[$Entity]->Alias()}.{$Column} = " . intval($_POST["{$CFG["SearchInputPrefix"]}{$Column}"]) . "" : null,
 	strlen(SetVariable("{$CFG["SearchInputPrefix"]}" . ($Column = "{$Entity}IsActive") . "", SetVariable($Column))) ? "{$TBL["{$Entity}"]->Alias()}.{$Column} = " . intval($_POST["{$CFG["SearchInputPrefix"]}{$Column}"]) . "" : null,
 
@@ -210,7 +211,7 @@ $EM->SearchUIHTML([
 	//HTML\UI\Field(HTML\UI\Input("{$CFG["SearchInputPrefix"]}{$Entity}" . ($Caption = "ID") . "", 100), "{$Caption}", null, null),
 	HTML\UI\Field(HTML\UI\Input("{$CFG["SearchInputPrefix"]}{$Entity}" . ($Caption = "Name") . "", 150), "{$Caption}", null, null),
 	HTML\UI\Field(HTML\UI\Input("{$CFG["SearchInputPrefix"]}{$Entity}Value" . ($Caption = "Text") . "", 150), "{$Caption}", null, true),
-	HTML\UI\Field(HTML\UI\Select("{$CFG["SearchInputPrefix"]}" . ($Caption = "Dictionary") . "ID", $TBL[$OptionEntity = "{$Caption}"]->Get("{$TBL[$OptionEntity]->Alias()}.{$OptionEntity}IsActive = 1", "" . ($CaptionColumn = "{$OptionEntity}LookupCaption") . " ASC"), new Option(), "{$CaptionColumn}"), "{$Caption}", null, true),
+	HTML\UI\Field(HTML\UI\Select("{$CFG["SearchInputPrefix"]}Dictionary" . ($Caption = "Type") . "ID", $TBL[$OptionEntity = "Dictionary{$Caption}"]->Get("{$TBL[$OptionEntity]->Alias()}.{$OptionEntity}IsActive = 1", "" . ($CaptionColumn = "{$OptionEntity}LookupCaption") . " ASC"), new Option(), "{$CaptionColumn}", null, null, null, null, null, "{$CFG["SearchInputPrefix"]}DictionaryTypeID") . HTML\UI\Select("{$CFG["SearchInputPrefix"]}" . ($Caption = "Dictionary") . "ID", $TBL[$OptionEntity = "{$Caption}"]->Get("{$TBL[$OptionEntity]->Alias()}.{$OptionEntity}IsActive = 1 AND {$TBL[$OptionEntity]->Alias()}.DictionaryTypeID = " . intval($_POST["{$CFG["SearchInputPrefix"]}DictionaryTypeID"]) . "", "" . ($CaptionColumn = "{$OptionEntity}LookupCaption") . " ASC"), new Option(), "{$CaptionColumn}", null, null, null, null, null, "{$CFG["SearchInputPrefix"]}DictionaryID"), "{$Caption}", null, true),
 	HTML\UI\Field(HTML\UI\Select("{$CFG["SearchInputPrefix"]}" . ($Caption = "Language") . "ID", $TBL[$OptionEntity = "{$Caption}"]->Get("{$TBL[$OptionEntity]->Alias()}.{$OptionEntity}IsActive = 1", "" . ($CaptionColumn = "{$OptionEntity}LookupCaption") . " ASC"), new Option(), "{$CaptionColumn}"), "{$Caption}", null, true),
 	HTML\UI\Field(HTML\UI\Select("{$CFG["SearchInputPrefix"]}{$Entity}Is" . ($Caption = "Active") . "", [new Option(), new Option(0, "No"), new Option(1, "Yes")]), "{$Caption}", null, true),
 ]);
@@ -227,3 +228,14 @@ if(isset($_POST["btnExport"]))$TRM->LetDownload( // Let download the records as 
 	"{$TBL["{$Entity}"]->FormalName()} " . date("Y-m-d H-i-s") . " " . rand(0, 9999) . ".csv" // File name
 );
 ?>
+
+<script>
+	sJS.DHTML.Select.Child.Attach( // Create DitctionaryType > Dictionary dependant selection
+		'<?="{$CFG["SearchInputPrefix"]}DictionaryTypeID"?>', // ParentObject
+		'<?=$APP->URL("API/V1/AJAXEntity", "Entity=Dictionary&Column=DictionaryTypeID")?>&__Keyword=', // APIURL
+		'<?="{$CFG["SearchInputPrefix"]}DictionaryID"?>', // ChildObject
+		'DictionaryName', // CaptionKey
+		'<?=$_POST["{$CFG["SearchInputPrefix"]}DictionaryID"]?>', // DefaultChildValue
+		'DictionaryID' //ValueKey
+	); 
+</script>
