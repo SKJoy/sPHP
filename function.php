@@ -322,7 +322,7 @@ namespace sPHP\HTML\UI{
 		return $Object->HTML();
 	}
 
-	function Form($Action = null, $Content = null, $SubmitCaption = null, $SignatureModifier = null, $Title = null, $Header = null, $Footer = null, $Status = null, $ID = null, $Reset = null, $ButtonContent = null, $EventHandlerJavaScript = null, $InputValidation = null, $CSSSelector = null){
+	function Form(?string $Action = null, $Content = null, $SubmitCaption = null, $SignatureModifier = null, $Title = null, $Header = null, $Footer = null, $Status = null, $ID = null, $Reset = null, $ButtonContent = null, $EventHandlerJavaScript = null, $InputValidation = null, $CSSSelector = null){
 		$Object = new Form($Action, $Content, $SubmitCaption, $SignatureModifier, $Title, $Header, $Footer, $Status, $ID, $Reset, $ButtonContent, $EventHandlerJavaScript, $InputValidation, $CSSSelector);
 
 		return $Object->HTML();

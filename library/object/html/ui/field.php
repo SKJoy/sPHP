@@ -10,7 +10,6 @@
 namespace sPHP\HTML\UI;
 
 class Field{
-    #region Property variable
     private $Property = [
         "Content"					=>	null,
         "Caption"					=>	null,
@@ -30,7 +29,6 @@ class Field{
         "ID"						=>	"Field",
         "HTML"						=>	null,
     ];
-    #endregion Property variable
 
     #region Method
     public function __construct($Content = null, $Caption = null, $NewLine = null, $Separate = null, $CaptionWidth = null, $ContentWidth = null, $CSSSelector = null, $Header = null, $Footer = null, $Prefix = null, $Suffix = null, $ContentName = null, $ContentPath = null, $ContentAnchor = null, $ContentLanguage = null, $ID = null){
@@ -307,7 +305,7 @@ class Field{
 					])) . "\">" . ($this->Property["ContentName"] ? $Content->Value()["Caption"] : $this->Property["Caption"]) . "</div>" : null) . "
 					<div class=\"Content\" style=\"" . implode(" ", array_filter([
 						$this->Property["ContentWidth"] ? "width: {$this->Property["ContentWidth"]}" . (strpos($this->Property["ContentWidth"], "%") === false ? "px" : null) . ";" : null,
-					])) . "\">{$this->Property["Content"]}</div>
+					])) . "\">" . (is_array($this->Property["Content"]) ? implode(null, $this->Property["Content"]) : $this->Property["Content"]) . "</div>
 					" . ($this->Property["Suffix"] ? "<div class=\"Suffix\">{$this->Property["Suffix"]}</div>" : null) . "
 				</div>
 

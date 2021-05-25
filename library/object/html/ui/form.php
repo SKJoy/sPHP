@@ -10,7 +10,6 @@
 namespace sPHP\HTML\UI;
 
 class Form{
-    #region Property
     private $Property = [
         "Action"					=>	null,
         "Content"					=>	null,
@@ -31,7 +30,6 @@ class Form{
         "EndHTML"					=>	null,
         "HTML"						=>	null,
     ];
-    #endregion Property
 
     #region Variable
     //private $Buffer = [];
@@ -66,8 +64,8 @@ class Form{
 	}
 
 	public function ValidateInput(){
-		$Result = true;
-//var_dump($this->Property["InputValidation"]);
+		$Result = true; //var_dump($this->Property["InputValidation"]);
+
 		foreach(array_filter($this->Property["InputValidation"]) as $Validation){
 			if(!$Validation->Validate()){
 				$Result = false;
@@ -360,7 +358,7 @@ class Form{
 	}
 
     public function HTML(){
-		if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = $this->BeginHTML() . $this->Property["Content"] . $this->EndHTML();
+		if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = $this->BeginHTML() . (is_array($this->Property["Content"]) ? implode(null, $this->Property["Content"]) : $this->Property["Content"]) . $this->EndHTML();
 
         $Result = $this->Property[__FUNCTION__];
 
