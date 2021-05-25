@@ -2232,6 +2232,7 @@ class Application{
     #region Function
     private function SetTerminalTitle(){
         $this->Property["Terminal"]->Title(implode($this->Property["TitleSeperator"], array_filter([$this->Property["TitlePrefix"], $this->Property["Title"], $this->Property["TitleSuffix"], ])));
+        
         $this->Property["OpenGraph"]->Title($this->Property["Terminal"]->Title());
         $this->Property["OpenGraph"]->ImageTitle($this->Property["OpenGraph"]->Title());
 
@@ -2935,6 +2936,63 @@ class Utility{
         }
     
         return $ExecStatus !== false ? true : false;
+    }
+
+    /*
+        Encode special characters in string
+
+        Argument (NULL for default)			Type		Required	Optional	Description
+            Value							STRING		REQUIRED				String to encode
+            EncodeSymbol					BOOLEAN		OPTIONAL	FALSE		Encode symbols
+            EncodePath						BOOLEAN		OPTIONAL	FALSE		Encode path character
+            HEX								BOOLEAN		OPTIONAL	TRUE		Encode with double byte HEX character code
+
+        Return
+            STRING		Value replacing special characters with double byte HEX code (when HEX = TRUE)
+            BOOELAN		FALSE on failure
+    */ function EncodeSpecialCharacter(string $Value, ?bool $EncodeSymbol = false, ?bool $EncodePath = false, ?bool $HEX = true, ?string $_CachePath = null){ 
+        #region Set default value
+        if(is_null($EncodeSymbol))$EncodeSymbol = false;
+        if(is_null($EncodePath))$EncodePath = false;
+        if(is_null($HEX))$HEX = true;
+        if(is_null($_CachePath))$_CachePath = null;
+        #endregion Set default value
+
+        static $_Cache = []; // Memory cache
+
+        if($_CachePath){ // Use disk cache
+            @mkdir($_CachePath = implode("/", [$_CachePath, "FUNCTION", __FUNCTION__, $_CacheName = implode("/", [ // Ensure cache path exists
+                "EncodeSymbol_" . ($EncodeSymbol ? "TRUE" : "FALSE"), 
+                "EncodePath_" . ($EncodePath ? "TRUE" : "FALSE"), 
+                "HEX_" . ($HEX ? "TRUE" : "FALSE"), 
+            ]), ]), 0777, true);
+            
+            if(file_exists($_CacheFile = "{$_CachePath}/" . md5($Value) . ".cache"))$_Cache[$_CacheName] = json_decode(file_get_contents($_CacheFile)); // Load disk cache
+        }
+
+        if(isset($_Cache[$_CacheName])){ // Load from memory cache
+            $Result = $_Cache[$_CacheName]; //var_dump("Loaded from cache");
+        }
+        else{ // No cache found
+            #region Function body
+            $Result = false; // Default return value; Process & set in Function body section
+            
+            $Invalid = ":*? \t\r\n" . ($EncodeSymbol ? "~`!@#\$%^&()-_+={[}];\"'|<,>." : null) . ($EncodePath ? "\\/" : null);
+        
+            if($HEX){ // Encode with double byte HEX character code
+                $Encoded = str_split(strtoupper(bin2hex($Invalid)), 2);
+                $Invalid = str_split($Invalid, 1);
+                //var_dump($Encoded, $Invalid);
+        
+                $Result = str_replace($Invalid, $Encoded, $Value); // Return
+            }
+            #endregion Function body
+        
+            $_Cache[$_CacheName] = $Result; // Create memory cache
+            if($_CachePath)file_put_contents($_CacheFile, json_encode($Result)); // Create disk cache
+        }
+        
+        return $Result; // Return
     }
     #endregion Method
 
