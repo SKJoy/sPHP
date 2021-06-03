@@ -3,7 +3,7 @@
     Name:           cURL
     Purpose:        cURL object
     Author:         Broken Arrow (SKJoy2001@GMail.Com);
-    Date modified:  Sat, 23 May 2021 08:58:25 GMT+06:00
+    Date modified:  Fri, 4 Jun 2021 02:28:00 GMT+06:00
 */
 
 namespace sPHP\Comm;
@@ -20,7 +20,8 @@ class cURL{
         "SSLVerifyHost"		=>	false, // SSL verification for host
 		"UserAgent"			=>	"sPHP Comm cURL/1.0", // User agent string
 		"Status"			=>	null, // Last operation status
-		"Response"			=>	null, // Last response
+		"Header"			=>	null, // Last HTTP header received
+		"Response"			=>	null, // Last response received
 		"Referer"			=>	null, // Referer URL
         "FollowRedirection"	=>	true, // Automatically forllow HTTP redirection
     ];
@@ -67,8 +68,7 @@ class cURL{
 		#region Set cookie file
         if($CookieFile === false)$CookieFile = null;
         if($CookieFile === true)$CookieFile = parse_url($URI)["host"]; // URI host as cookie file name when intend to use cookie without a file name
-		if($CookieFile)$CookieFile = "{$CookiePath}{$CookieFile}.cck";
-        
+		if($CookieFile)$CookieFile = "{$CookiePath}{$CookieFile}.cck";        
         if($CookieFile && !is_dir($CookiePath))mkdir($CookiePath, 0777, true); // Ensure the cookie path exists when using cookie
 		#endregion Set cookie file
 
@@ -84,19 +84,45 @@ class cURL{
 		curl_setopt($this->cURL, CURLOPT_USERAGENT, $UserAgent);
 		curl_setopt($this->cURL, CURLOPT_REFERER, $Referer);
 		curl_setopt($this->cURL, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($this->cURL, CURLOPT_HEADER, true);
 		#endregion Set cURL options
 
-		$Result["Response"] = curl_exec($this->cURL); // Try to get response
+		$Response = curl_exec($this->cURL); // Try to get response
 		
-		if($Result["Response"] === false){ // Call failed
+		if($Response === false){ // Call failed
+			$this->Property["Status"] = $this->Property["Header"] = $this->Property["Response"] = null; // Reset last status and response
 			$Result = false; // Return explicite FALSE
-			$this->Property["Response"] = $this->Property["Status"] = null; // Reset last status and response
 		}
 		else{ // Call succeeded
-			$Result["Status"] = curl_getinfo($this->cURL, CURLINFO_HTTP_CODE);
+            #region Parse HTTP header
+            $HTTPHeaderLength = curl_getinfo($this->cURL, CURLINFO_HEADER_SIZE);
 
+            foreach(array_filter(explode("\n", substr($Response, 0, $HTTPHeaderLength))) as $Item){
+                $Item = explode(":", $Item);
+                $Result["Header"][$Item[0]] = isset($Item[1]) ? trim($Item[1]) : null;
+            }
+            #endregion Parse HTTP header
+            
+            $Result["Response"] = substr($Response, $HTTPHeaderLength);
+
+            #region Decode JSON if applicable
+            if(
+                    isset($Result["Header"]["Content-Type"]) 
+                &&  (
+                            $Result["Header"]["Content-Type"] == "application/json"
+                        ||  strpos($Result["Header"]["Content-Type"], "application/json;") !== false
+                    )
+            ){
+                $ResponseJSON = json_decode($Result["Response"]);
+                if($ResponseJSON)$Result["Response"] = $ResponseJSON;
+            }
+            #endregion Decode JSON if applicable
+
+            #region Set property from Result
+			$this->Property["Status"] = $Result["Status"] = curl_getinfo($this->cURL, CURLINFO_HTTP_CODE);
+            $this->Property["Header"] = $Result["Header"];
 			$this->Property["Response"] = $Result["Response"];
-			$this->Property["Status"] = $Result["Status"];
+            #endregion Set property from Result
 		}
 
 		return $Result;
@@ -248,6 +274,12 @@ class cURL{
     }
 
     public function Status(){
+		$Result = $this->Property[__FUNCTION__];
+
+        return $Result;
+    }
+
+    public function Header(){
 		$Result = $this->Property[__FUNCTION__];
 
         return $Result;
