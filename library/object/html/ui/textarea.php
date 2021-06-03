@@ -9,7 +9,6 @@
 namespace sPHP\HTML\UI;
 
 class Textarea{
-    #region Property variable
     private $Property = [
         "Name"						=>	null,
         "Width"						=>	595,
@@ -22,7 +21,6 @@ class Textarea{
         "ID"						=>	null,
         "HTML"						=>	null,
     ];
-    #endregion Property variable
 
     #region Method
     public function __construct($Name = null, $Width = null, $Height = null, $DefaultValue = null, $Required = null, $CSSSelector = null, $Placeholder = null, $EventHandlerJavaScript = null, $ID = null){

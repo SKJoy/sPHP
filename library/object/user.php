@@ -9,7 +9,6 @@
 namespace sPHP;
 
 class User{
-    #region Property variable
     private $Property = [
         "Email"							=>	null,
         "PasswordHash"					=>	null,
@@ -26,7 +25,6 @@ class User{
 		"UserGroup"						=>	null,
 		"UserGroupIdentifierHighest"	=>	null,
     ];
-    #endregion Property variable
 
     #region Method
     public function __construct($Email = null, $PasswordHash = null, $Name = null, $Phone = null, $Address = null, $URL = null, $Picture = null, $PictureThumbnail = null, $ID = null, $UserGroupIdentifier = null, $UserGroupWeight = null, $UserGroupMaximumWeight = null, $UserGroup = null, $UserGroupIdentifierHighest = null){

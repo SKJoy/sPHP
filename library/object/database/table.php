@@ -9,7 +9,6 @@
 namespace sPHP\Database;
 
 class Table{
-    #region Property variable
     private $Property = [
         "FormalName"				=>	null,
         "Alias"						=>	null,
@@ -36,7 +35,6 @@ class Table{
 		"QueryHistory"				=>	[],
 		"Structure"					=>	null,
     ];
-    #endregion Property variable
 
 	#region Variable
 	//private $Structure = null;

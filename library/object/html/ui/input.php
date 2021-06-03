@@ -9,7 +9,6 @@
 namespace sPHP\HTML\UI;
 
 class Input{
-    #region Property variable
     private $Property = [
         "Name"						=>	null,
         "Width"						=>	null,
@@ -26,7 +25,6 @@ class Input{
 		"ReadOnly"					=>	false,
         "HTML"						=>	null,
     ];
-    #endregion Property variable
 
     #region Method
     public function __construct($Name = null, $Width = null, $DefaultValue = null, $Required = null, $Type = null, $CSSSelector = null, $Placeholder = null, $EventHandlerJavaScript = null, $ID = null, $Step = null, $Minimum = null, $Maximum = null, $ReadOnly = null){
