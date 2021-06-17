@@ -36,7 +36,7 @@ foreach($Table["{$Entity}"]->Get("
 		curl_setopt($cURL, CURLOPT_URL, $URL = $Utility->ReplaceByKey($Configuration["SMSHTTPAPIURL"], [
 			"PhoneNumber" => urlencode($NotificationRecepient),
 			"Message" => urlencode($Notification["{$Entity}Message"]),
-			"Source" => urlencode($_SERVER["SERVER_NAME"]),
+			"Source" => urlencode($Configuration["ShortName"]),
 			"Purpose" => urlencode("Alert"),
 		]));
 
