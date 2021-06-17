@@ -1021,7 +1021,6 @@ class Terminal{
 }
 
 class Session{
-    #region Property variable
     private $Property = [
         "Environment"			=>	null,
         "Guest"					=>	null,
@@ -1043,7 +1042,6 @@ class Session{
 		"UserSetTime"			=>	null,
 		"Impersonated"			=>	false,
     ];
-    #endregion Property variable
 
     #region Variable
 	private static $AlreadyInstantiated = false;
