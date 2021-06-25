@@ -1,12 +1,4 @@
 <?php
-/*
-    Name:           Database
-    Purpose:        Database object
-    Author:         Broken Arrow (SKJoy2001@GMail.Com);
-    Date modified:  June 12, 2018 10:51 AM
-    Date modified:  January 22, 2021 09:31 PM
-*/
-
 namespace sPHP;
 
 class Database{
