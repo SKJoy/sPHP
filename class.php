@@ -2992,6 +2992,26 @@ class Utility{
         
         return $Result; // Return
     }
+
+    function VariableSize($Variable){
+        // Approximate memory consumption (bytes) of a variable    
+        $Size = 0;
+    
+        if(is_array($Variable)){
+            foreach($Variable as $Element)$Size = $Size + VariableSize($Element);
+        }
+        elseif(is_bool($Variable)){
+            $Size = $Size + 1;
+        }
+        elseif(is_object($Variable)){
+            foreach(get_object_vars($Variable) as $Element)$Size = $Size + VariableSize($Element);
+        }
+        else{
+            $Size = $Size + strlen($Variable);
+        }
+    
+        return $Size;
+    }
     #endregion Method
 
     #region Property

@@ -199,6 +199,14 @@ namespace sPHP{
 
 		return $Environment->Utility()->SecondToTime($Second);
 	}
+
+	function VariableSize($Variable){
+		return \sPHP::$Utility->VariableSize($Variable);
+	}
+
+	function VarSize($Variable){ // Alias for VariableSize()
+		return VariableSize($Variable);
+	}
 }
 
 namespace sPHP\Content{
