@@ -9,7 +9,6 @@
 namespace sPHP\HTML\UI;
 
 class Datagrid{
-    #region Property variable
     private $Property = [
         "Data"						=>	[],
 		"URL"						=>	null,
@@ -36,7 +35,6 @@ class Datagrid{
         // Read only
         "HTML"						=>	null,
     ];
-    #endregion Property variable
 
     #region Method
     public function __construct($Data = null, $URL = null, $RecordCount = null, $Field = null, $Title = null, $RowPerPage = null, $DataIDColumn = null, $Action = null, $BaseURL = null, $IconBaseURL = null, $Footer = null, $PreHTML = null, $BatchAction = null, $ExpandURL = null, $Serial = null, $Selectable = null, $ID = null, $CSSSelector = null, $SerialCaption = null, $PaginatorPageCaption = null, $PaginatorRecordsCaption = null){ //\sPHP\DebugDump(get_defined_vars());
@@ -519,17 +517,19 @@ class Datagrid{
 				}
 
 				foreach(array_filter($this->Property["Action"]) as $Action){
-					if(!$Action->Name() && !$Action->URL())$Action->URL($URL);
-
-					if($Action->URL()){
-						$OriginalActionURL = $Action->URL();
-						$Action->URL("{$Action->URL()}" . (strpos($Action->URL(), "?") === false ? "?" : "&") . "" . (is_null($Action->ParameterKey()) ? "{$this->Property["DataIDColumn"]}" : "{$Action->ParameterKey()}") . "={$Data[$this->Property["DataIDColumn"]]}" . ($Action->SelfTarget() ? "&{$ParameterPrefix}Page={$_POST["{$ParameterPrefix}Page"]}&{$ParameterPrefix}OrderBy=" . urlencode($_POST["{$ParameterPrefix}OrderBy"]) . "&{$ParameterPrefix}Order={$_POST["{$ParameterPrefix}Order"]}" : null) . "");
-						$ActionHTML[] = "{$Action->HTML()}";
-						$Action->URL($OriginalActionURL);
-					}
-					else{
-						$ActionHTML[] = "{$Action->HTML()}";
-					}
+                    if(is_null($Action->EnablerKey()) || $Data[$Action->EnablerKey()]){ // Show/hide action depending on Data for Action EnablerKey
+                        if(!$Action->Name() && !$Action->URL())$Action->URL($URL);
+    
+                        if($Action->URL()){
+                            $OriginalActionURL = $Action->URL();
+                            $Action->URL("{$Action->URL()}" . (strpos($Action->URL(), "?") === false ? "?" : "&") . "" . (is_null($Action->ParameterKey()) ? "{$this->Property["DataIDColumn"]}" : "{$Action->ParameterKey()}") . "={$Data[$this->Property["DataIDColumn"]]}" . ($Action->SelfTarget() ? "&{$ParameterPrefix}Page={$_POST["{$ParameterPrefix}Page"]}&{$ParameterPrefix}OrderBy=" . urlencode($_POST["{$ParameterPrefix}OrderBy"]) . "&{$ParameterPrefix}Order={$_POST["{$ParameterPrefix}Order"]}" : null) . "");
+                            $ActionHTML[] = "{$Action->HTML()}";
+                            $Action->URL($OriginalActionURL);
+                        }
+                        else{
+                            $ActionHTML[] = "{$Action->HTML()}";
+                        }
+                    }
 				}
 
 				$DataHTML[] = "<tr>" . implode(null, $FieldHTML) . (count($ActionHTML) ? "<td class = \"Action\">" . implode(null, $ActionHTML) . "</td>" : null) . "</tr>";

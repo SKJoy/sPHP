@@ -9,7 +9,6 @@
 namespace sPHP\HTML\UI\Datagrid;
 
 class Action{
-    #region Property variable
     private $Property = [
 		"Icon"						=>	null,
         "Caption"					=>	null,
@@ -19,13 +18,13 @@ class Action{
         "Name"						=>	null,
         "Tooltip"					=>	null,
         "SelfTarget"				=>	true,
-        "ParameterKey"				=>	null,
+        "ParameterKey"				=>	null, // Used by Datagrid object to deterine which Field to pass in the URL, default is ID column
+        "EnablerKey"				=>	null, // Used by Datagrid object to deterine which Field to cosider to show this action
 		"HTML"						=>	null,
     ];
-    #endregion Property variable
 
     #region Method
-    public function __construct($Icon = null, $Caption = null, $URL = null, $Target = null, $JavaScript = null, $Name = null, $Tooltip = null, $SelfTarget = null, $ParameterKey = null){
+    public function __construct($Icon = null, $Caption = null, $URL = null, $Target = null, $JavaScript = null, $Name = null, $Tooltip = null, $SelfTarget = null, $ParameterKey = null, $EnablerKey = null){
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
 
@@ -160,6 +159,21 @@ class Action{
     }
 
     public function ParameterKey($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+			$this->Property["HTML"] = null;
+
+			$Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function EnablerKey($Value = null){
         if(is_null($Value)){
             $Result = $this->Property[__FUNCTION__];
         }
