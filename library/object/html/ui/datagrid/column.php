@@ -25,10 +25,11 @@ class Column{
         "Suffix"                    =>  null,  // Content to show after/right value
         "Template"                  =>  null, // String template to be used replacing placeholders with record values
         "TemplateHideEmpty"         =>  true, // Ignore empty value and hide template
+        "CSSStyle"                  =>  true, // Custom CSS style to use with the column/TD element
     ];
 
     #region Method
-    public function __construct($Name = null, $Caption = null, $Type = null, $Align = null, $DataType = null, $DateFormat = null, $TimeFormat = null, $Sortable = null, $IconPrefix = null, $Icon = null, $Target = null, $Prefix = null, $Suffix = null, $Template = null, $TemplateHideEmpty = null){
+    public function __construct($Name = null, $Caption = null, $Type = null, $Align = null, $DataType = null, $DateFormat = null, $TimeFormat = null, $Sortable = null, $IconPrefix = null, $Icon = null, $Target = null, $Prefix = null, $Suffix = null, $Template = null, $TemplateHideEmpty = null, $CSSStyle = null){
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
 
@@ -265,6 +266,19 @@ class Column{
     }
 
     public function TemplateHideEmpty($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+			$Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function CSSStyle($Value = null){
         if(is_null($Value)){
             $Result = $this->Property[__FUNCTION__];
         }

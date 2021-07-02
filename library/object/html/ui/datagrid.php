@@ -513,6 +513,8 @@ class Datagrid{
 					}
 					#endregion Set explicit alignment
 
+                    if($Column->CSSStyle())$ColumnCSSSelector[] = \sPHP::$Utility->ReplaceByKey($Column->CSSStyle(), $Data); // Append custom column CSS style
+
 					$FieldHTML[] = "<td" . (count($ColumnCSSSelector) ? " class=\"" . implode(" ", $ColumnCSSSelector) . "\"" : null) . "><span class=\"FieldCaption\">{$Column->Caption()}</span>" . ($ColumnData ? $Column->Prefix() : null) . "{$ColumnData}" . ($ColumnData ? $Column->Suffix() : null) . "</td>";
 				}
 
