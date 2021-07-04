@@ -9,24 +9,23 @@
 namespace sPHP\Cron;
 
 class Job{
-    #region Property
     private $Property = [
-		"Command"			=>	null,
-		"Interval"			=>	60 * 60, // Seconds
-		"Resource"			=>	[], // Resources passed to job for PHP script; Leave NULL to inherit from Cron object
-        "Name"				=>	null, // Job title
+		"Command"				=>	null,
+		"Interval"				=>	60 * 60, // Seconds
+		"Resource"				=>	[], // Resources passed to job for PHP script; Leave NULL to inherit from Cron object
+        "Name"					=>	null, // Job title
         "MaximumExecutionTime"	=>	60 * 60, // Seconds
-        "Type"				=>	null, // Type of Cron job
-		"Result"			=>	null,
+        "Type"					=>	null, // Type of Cron job
+		"Data"					=>	null, // Information from status file, passed by the Cron object
+		"Result"				=>	null,
     ];
-    #endregion Property
 
     #region Variable
     //private $Buffer = [];
     #endregion Variable
 
     #region Method
-    public function __construct($Command = null, $Interval = null, $Resource = null, $Name = null, $MaximumExecutionTime = null, $Type = null){
+    public function __construct($Command = null, $Interval = null, $Resource = null, $Name = null, $MaximumExecutionTime = null, $Type = null, $Data = null){
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
 
@@ -56,7 +55,7 @@ class Job{
 			curl_close($cURL);
 		}
 		elseif($this->Property["Type"] == \sPHP\CRON_JOB_TYPE_PHP){
-			$this->Property["Result"] = ___CronJob_PHP_Execute($this->Property["Command"], $this->Property["Resource"]);
+			$this->Property["Result"] = ___CronJob_PHP_Execute($this->Property["Command"], $this->Property["Resource"], $this->Property["Data"]);
 		}
 		elseif($this->Property["Type"] == \sPHP\CRON_JOB_TYPE_SHELL){
 			$this->Property["Result"] = ["Error" => ["Code" => 0, "Message" => null, ], "Result" => shell_exec($this->Property["Command"]), ];
@@ -177,6 +176,19 @@ class Job{
         return $Result;
     }
 
+    public function Data($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+            $Result = true;
+        }
+
+        return $Result;
+    }
+
     public function Result(){
         $Result = $this->Property[__FUNCTION__];
 
@@ -185,7 +197,12 @@ class Job{
     #endregion Property
 }
 
-function ___CronJob_PHP_Execute($Script, $Resource){
+function ___CronJob_PHP_Execute($Script, $Resource, $Data){
+    /*
+        $Resource   :   Passed to the Job PHP script as a local variable
+        $Data		:   Passed to the Job PHP script as a local variable containing previous information
+    */
+
 	if(file_exists($Script)){
 		$sPHPCronJob = true; // DO NOT REMOVE THIS; PHP scripts can determine if ran from here by checking this variable
 
@@ -193,12 +210,14 @@ function ___CronJob_PHP_Execute($Script, $Resource){
 
 		if(!isset($CronJobResult["Error"]))$CronJobResult["Error"] = ["Code" => 0, "Message" => null, ];
 		if(!isset($CronJobResult["Status"]))$CronJobResult["Status"] = [];
+		if(!isset($CronJobResult["Data"]))$CronJobResult["Data"] = [];
 	}
 	else{
 		$CronJobResult["Error"] = ["Code" => 1, "Message" => "Script not found", ];
 		$CronJobResult["Status"] = [];
-	}
-//\sPHP\DebugDump($CronJobResult);
+		$CronJobResult["Data"] = [];
+	} //\sPHP\DebugDump($CronJobResult);
+
 	return $CronJobResult;
 }
 ?>
