@@ -46,33 +46,34 @@ class Cron{
 		CreatePath(pathinfo($this->Property["StatusFile"])["dirname"]);
 
 		if(!file_exists($this->Property["StatusFile"]))$this->SaveStatusFile([ // Create missing status JSON file
-			"Exit"		=>	[
-				"Time"			=>	null,
-				"Reason"		=>	null,
+			"Exit" => [
+				"Time"					=>	null,
+				"Reason"				=>	null,
 			],
-			"Configuration"	=>	[
+			"Configuration" => [
 				"Interval"				=>	$this->Property["ServiceInterval"],
 				"MaximumExecutionTime"	=>	$this->Property["MaximumExecutionTime"],
 				"StatusURL"				=>	$this->Property["StatusURL"],
 			],
-			"Running"	=>	false,
-			"Job"		=>		[],
-			"Iteration"	=>	[
-				"Count"		=>	null,
-				"Time"		=>	[
-					"Begin"		=>	null,
-					"End"		=>	null,
-					"Duration"	=>	null,
+			"Running"					=>	false,
+			"Job"						=>	[],
+			"Iteration" => [
+				"Count"					=>	null,
+				"Time" => [
+					"Begin"				=>	null,
+					"End"				=>	null,
+					"Duration"			=>	null,
 				],
 			],
-			"Time"		=>	[
-				"Begin"		=>	null,
-				"End"		=>	null,
-				"Duration"	=>	null,
+			"Time" => [
+				"Begin"					=>	null,
+				"End"					=>	null,
+				"Duration"				=>	null,
+				"Update"				=>	date("Y-m-d H:i:s"), 
 			],
-			"Load"		=>	[
-				"Memory"	=>	null,
-				"System"	=>	null,
+			"Load" => [
+				"Memory"				=>	null,
+				"System"				=>	null,
 			],
 		]);
 
@@ -108,9 +109,11 @@ class Cron{
 				$Status->Running = true;
 
 				if(is_array($Status->Job))$Status->Job = (object)[]; // Convert Job node to stdClass on fresh run
+				$JobNameList = []; // Create an array of Job names from Job property
 
-				foreach($this->Property["Job"] as $JobIndex => $Job){					
+				foreach($this->Property["Job"] as $JobIndex => $Job){ // Update Status for Jobs
 					if(!isset($Status->Job->{$Job->Name()}))$Status->Job->{$Job->Name()} = (object)[ // // Create new Job node as stdClass
+						"Active" => true, 
 						"Running" => false, 
 						"Time" => (object)[], 
 						"Configuration" => (object)[], 
@@ -119,16 +122,24 @@ class Cron{
 						"Data" => (object)[], 
 					];
 
-					#region Check and set if nodes do not exist
+					#region Set if node does not exist
+					if(!isset($Status->Job->{$Job->Name()}->Active))$Status->Job->{$Job->Name()}->Active = true;
 					if(!isset($Status->Job->{$Job->Name()}->Data))$Status->Job->{$Job->Name()}->Data = (object)[];
-					#endregion Check and set if nodes do not exist
+					#endregion Set if node does not exist
 
+					#region Update status with Job attributes
 					$Status->Job->{$Job->Name()}->Configuration->Order = $JobIndex + 1;
 					$Status->Job->{$Job->Name()}->Configuration->Type = $Job->Type();
 					$Status->Job->{$Job->Name()}->Configuration->Command = $Job->Command();
 					$Status->Job->{$Job->Name()}->Configuration->Interval = $Job->Interval();
 					$Status->Job->{$Job->Name()}->Configuration->MaximumExecutionTime = $Job->MaximumExecutionTime();
+					#endregion Update status with Job attributes
+
+					$Job->Data($Status->Job->{$Job->Name()}->Data); // Load data to Job from Status
+					$JobNameList[] = $Job->Name();
 				}
+
+				foreach($Status->Job as $JobName => $Job)$Job->Active = in_array($JobName, $JobNameList); // Check for inactive Job in Status
 
 				$IterationCounter = 0;
 
@@ -159,10 +170,7 @@ class Cron{
 									!isset($Status->Job->{$Job->Name()}->Time->Begin) // Never ran
 								||	time() - strtotime($Status->Job->{$Job->Name()}->Time->Begin) > $Job->Interval() // Expired
 							){
-								#region Pass through resoueces to Job
-								if(!$Job->Resource() && $this->Property["Resource"])$Job->Resource($this->Property["Resource"]); // Assign if not already there
-								$Job->Data($Status->Job->{$Job->Name()}->Data);
-								#endregion Pass through resoueces to Job
+								if(!$Job->Resource() && $this->Property["Resource"])$Job->Resource($this->Property["Resource"]); // Pass through resource if not already there
 								
 								#region Initiate Job execution start
 								$JobBeginTime = microtime(true);
@@ -172,28 +180,20 @@ class Cron{
 								$this->SaveStatusFile($Status); // Update Cron status
 								#endregion Initiate Job execution start
 								
-								$Status->Job->{$Job->Name()}->Result = $Job->Execute(); // Execute the job
+								$Result = $Job->Execute(); // Execute the job
 								
 								#region Initiate Job execution stop
 								$JobEndTime = microtime(true);
-								$Status->Job->{$Job->Name()}->Running = false;
 								$Status->Job->{$Job->Name()}->Time->End = date("r", $JobEndTime);
+								$Status->Job->{$Job->Name()}->Running = false;
 								$Status->Job->{$Job->Name()}->Time->Duration = $JobEndTime - $JobBeginTime;
 								#endregion Initiate Job execution stop
 								
 								#region Check and set the return values from Job
-								if(!isset($Status->Job->{$Job->Name()}->Result["Error"]))$Status->Job->{$Job->Name()}->Result["Error"] = ["Code" => 0, "Message" => null, ];
-								if(!isset($Status->Job->{$Job->Name()}->Result["Status"]))$Status->Job->{$Job->Name()}->Result["Status"] = [];
-								if(!isset($Status->Job->{$Job->Name()}->Result["Data"]))$Status->Job->{$Job->Name()}->Result["Data"] = $Status->Job->{$Job->Name()}->Data; // Keep previous data
+								$Status->Job->{$Job->Name()}->Result->Error = isset($Result["Error"]) ? $Result["Error"] : ["Code" => 0, "Message" => null, ];
+								$Status->Job->{$Job->Name()}->Result->Status = isset($Result["Status"]) ? $Result["Status"] : [];
+								if(isset($Result["Data"]))$Status->Job->{$Job->Name()}->Data = $Result["Data"];
 								#endregion Check and set the return values from Job
-								
-								// Move Data to Job node from Result node
-								$Status->Job->{$Job->Name()}->Data = $Status->Job->{$Job->Name()}->Result["Data"];
-								unset($Status->Job->{$Job->Name()}->Result["Data"]);
-								
-								// Check why this converts the simple array to an indexed array!
-								// Filter out empty status
-								//$Status->Job->{$Job->Name()}->Result["Status"] = array_filter($Status->Job->{$Job->Name()}->Result["Status"]);
 								
 								$this->SaveStatusFile($Status); // Update Cron status
 							}
@@ -208,8 +208,6 @@ class Cron{
 
 						$Status->Iteration->Time->End = date("r", $IterationTimeEnd);
 						$Status->Iteration->Time->Duration = $IterationTimeEnd - $IterationTimeBegin;
-						$Status->Time->End = date("r", $IterationTimeEnd);
-						$Status->Time->Duration = $IterationTimeEnd - $CurrentTime;
 						$Status->Load->Memory = memory_get_usage();
 						$Status->Load->System = function_exists("sys_getloadavg") ? sys_getloadavg()[0] : 0;
 						$this->SaveStatusFile($Status);
@@ -224,6 +222,10 @@ class Cron{
 					&&	time() - $CurrentTime < $this->Property["ExitDuration"] // Shouldn't we get a restart at least once a day :)
 				);
 
+				$CronTimeEnd = microtime(true);
+				
+				$Status->Time->End = date("r", $CronTimeEnd);
+				$Status->Time->Duration = $CronTimeEnd - $CurrentTime;
 				$Status->Running = false;
 				$this->SaveStatusFile($Status);
 			}
@@ -399,6 +401,8 @@ class Cron{
 
 	#region Private function
 	private function SaveStatusFile($Status){
+		$Status->Time->Updated = date("Y-m-d H:i:s"); // Update status file update time
+
 		file_put_contents($this->Property["StatusFile"], json_encode($Status));
 
 		return true;

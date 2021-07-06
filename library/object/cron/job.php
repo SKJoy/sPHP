@@ -56,6 +56,7 @@ class Job{
 		}
 		elseif($this->Property["Type"] == \sPHP\CRON_JOB_TYPE_PHP){
 			$this->Property["Result"] = ___CronJob_PHP_Execute($this->Property["Command"], $this->Property["Resource"], $this->Property["Data"]);
+            $this->Property["Data"] = $this->Property["Result"]["Data"]; // Update data property from result
 		}
 		elseif($this->Property["Type"] == \sPHP\CRON_JOB_TYPE_SHELL){
 			$this->Property["Result"] = ["Error" => ["Code" => 0, "Message" => null, ], "Result" => shell_exec($this->Property["Command"]), ];
@@ -210,12 +211,12 @@ function ___CronJob_PHP_Execute($Script, $Resource, $Data){
 
 		if(!isset($CronJobResult["Error"]))$CronJobResult["Error"] = ["Code" => 0, "Message" => null, ];
 		if(!isset($CronJobResult["Status"]))$CronJobResult["Status"] = [];
-		if(!isset($CronJobResult["Data"]))$CronJobResult["Data"] = [];
+		if(!isset($CronJobResult["Data"]))$CronJobResult["Data"] = $Data; // Keep previous data
 	}
 	else{
 		$CronJobResult["Error"] = ["Code" => 1, "Message" => "Script not found", ];
 		$CronJobResult["Status"] = [];
-		$CronJobResult["Data"] = [];
+		$CronJobResult["Data"] = $Data; // Keep previous data
 	} //\sPHP\DebugDump($CronJobResult);
 
 	return $CronJobResult;

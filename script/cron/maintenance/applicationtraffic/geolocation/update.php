@@ -2,10 +2,11 @@
 namespace sPHP;
 
 if(isset($sPHPCronJob)){ // In case if this script runs through sPHP Cron object
-	$Table = $Resource["Table"];
-	$Utility = $Resource["Utility"];
-
-	$Database = $Table[array_keys($Table)[0]]->Database();
+	$Environment = \sPHP::$Environment;
+	$Table = \sPHP::$Table;
+	$Utility = \sPHP::$Utility;
+	$Configuration = \sPHP::$Configuration;
+	$Database = \sPHP::$Database;
 }
 
 $Entity = "ApplicationTraffic";
@@ -43,11 +44,7 @@ if(isset($sPHPCronJob)){ // Resturn result if ran through sPHP Cron object
 	$CronJobResult["Error"] = ["Code" => 0, "Message" => null, ];
 
 	$CronJobResult["Status"] = [
-		"Count: {$RecordCount} (" . count($SQL) . ")",
-		"Begin: " . date("H:i:s", $CheckpointTime) . "",
-		"PHP: " . date("H:i:s", $CheckpointTime_PHP) . " (" . number_format($CheckpointTime_PHP - $CheckpointTime, 3) . ")",
-		"Database: " . date("H:i:s", $CheckpointTime_Database) . " (" . number_format($CheckpointTime_Database - $CheckpointTime_PHP, 3) . ")",
-		"End: " . date("H:i:s", $CheckpointTime_Database) . " (" . number_format($CheckpointTime_Database - $CheckpointTime, 3) . ")",
+		"Count: " . count($SQL) . " / {$RecordCount}",
 	];
 }
 else{ // Output only if not an sPHP Cron Job (service, background process)
