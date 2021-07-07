@@ -106,6 +106,7 @@ class Cron{
 				$Status->Configuration->MaximumExecutionTime = $this->Property["MaximumExecutionTime"];
 				$Status->Configuration->StatusURL = $this->Property["StatusURL"];
 				$Status->Time->Begin = date("r", $CurrentTime);
+				$Status->Time->End = null;
 				$Status->Running = true;
 
 				if(is_array($Status->Job))$Status->Job = (object)[]; // Convert Job node to stdClass on fresh run
@@ -208,6 +209,7 @@ class Cron{
 
 						$Status->Iteration->Time->End = date("r", $IterationTimeEnd);
 						$Status->Iteration->Time->Duration = $IterationTimeEnd - $IterationTimeBegin;
+						$Status->Time->Duration = microtime(true) - $CurrentTime;
 						$Status->Load->Memory = memory_get_usage();
 						$Status->Load->System = function_exists("sys_getloadavg") ? sys_getloadavg()[0] : 0;
 						$this->SaveStatusFile($Status);
@@ -221,11 +223,8 @@ class Cron{
 					&&	$Command != $this->Property["ExitCommand"]
 					&&	time() - $CurrentTime < $this->Property["ExitDuration"] // Shouldn't we get a restart at least once a day :)
 				);
-
-				$CronTimeEnd = microtime(true);
 				
-				$Status->Time->End = date("r", $CronTimeEnd);
-				$Status->Time->Duration = $CronTimeEnd - $CurrentTime;
+				$Status->Time->End = date("r", microtime(true));
 				$Status->Running = false;
 				$this->SaveStatusFile($Status);
 			}
