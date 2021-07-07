@@ -56,13 +56,13 @@ class Table{
 	public function Get($WHERE = null, $ORDERBY = null, $From = null, $Count = null, $GROUPBY = null, $GroupField = null, $Verbose = false){
 		$SQL = "" .
 			($GROUPBY ? "SELECT {$GroupField} FROM {$this->Property["Prefix"]}{$this->Property["Name"]} AS {$this->Property["Alias"]}" : $this->SELECTStatement()) . "" .
-			($WHERE ? " WHERE {$WHERE}" : null) . "" .
-			($GROUPBY ? " GROUP BY {$GROUPBY}" : null) . "" .
+			($WHERE ? "\nWHERE {$WHERE}" : null) . "" .
+			($GROUPBY ? "GROUP BY {$GROUPBY}" : null) . "" .
 		"";
 
 		if($this->Property["Database"]->Type() == \sPHP\DATABASE_TYPE_MYSQL){
-			$ORDERBYClause = "" . ($ORDERBY ? " ORDER BY {$ORDERBY}" : null) . "";
-			$LIMITClause = "" .  ($From && $Count ? " LIMIT " . ($From - 1) . ", {$Count}" : null) . "";
+			$ORDERBYClause = "" . ($ORDERBY ? "\nORDER BY {$ORDERBY}" : null) . "";
+			$LIMITClause = "" .  ($From && $Count ? "\nLIMIT " . ($From - 1) . ", {$Count}" : null) . "";
 			$WholeSQL = "{$SQL} {$ORDERBYClause} {$LIMITClause}"; //var_dump($WholeSQL);
 		}
 		elseif($this->Property["Database"]->Type() == \sPHP\DATABASE_TYPE_MSSQL){
@@ -98,10 +98,17 @@ class Table{
 		$this->Property["Count"] = 0;
 
 		if(is_null($this->Property["BeforeGet"]) || $this->Property["BeforeGet"]($WholeSQL)){
-			if($Verbose)print "<div class=\"MessageBox\"><div class=\"Container\"><div class=\"Title\">" . __CLASS__ . "-&gt;" . __FUNCTION__ . "</div><div class=\"Content\"><pre class=\"Code\">" . trim($SQL) . "</pre></div></div></div>";
+			/*if($Verbose)\sPHP\DebugDump([
+				"WHERE" => $WHERE, 
+				"ORDERBY" => $ORDERBY, 
+				"ORDERBYClause" => $ORDERBYClause, 
+				"WholeSQL" => $WholeSQL, 
+			]);*/
+
+			//if($Verbose)print "<div class=\"MessageBox\"><div class=\"Container\"><div class=\"Title\">" . __CLASS__ . "-&gt;" . __FUNCTION__ . "</div><div class=\"Content\"><pre class=\"Code\">{$WholeSQL}</pre></div></div></div>";
 			//var_dump($WholeSQL);
 			//if($this->Property["Database"]->Query($WholeSQL) && count($this->Property["Database"]->Recordset())){
-			$QueryResult = $this->Property["Database"]->Query($WholeSQL);
+			$QueryResult = $this->Property["Database"]->Query($WholeSQL, null, $Verbose);
 
 			if(is_array($QueryResult)){
 				$this->Property["LastDuration"] = $this->Property["Database"]->LastDuration();
