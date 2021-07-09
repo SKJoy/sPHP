@@ -9,7 +9,7 @@ if(isset($sPHPCronJob)){ // In case if this script runs through sPHP Cron object
 	$Database = $Table[array_keys($Table)[0]]->Database();
 }
 
-$DateTimeFormat = "{$CFG["DateFormat"]} {$CFG["TimeFormat"]}";
+$DateTimeFormat = "{$Configuration["ShortDateFormat"]} {$Configuration["TimeFormat"]}";
 
 $Recordset = $Database->Query("
 	# Parameter
