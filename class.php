@@ -2892,6 +2892,14 @@ class Utility{
             $ExecStatus = exec("tasklist /fi \"pid eq {$Process["ID"]}\"", $ExecInformation, $ExecReturn);
         }
         elseif(PHP_OS_FAMILY === "Linux"){ // Command for Linux
+            /*file_put_contents(__DIR__ . "/debug-Utility-" . __FUNCTION__ . ".json", json_encode([
+                "Argument" => [
+                    "ProcessID" => $ProcessID, 
+                ], 
+                "Command" => "ps -f -p {$Process["ID"]}", 
+                "Trace" => debug_backtrace(), 
+            ]));*/
+
             $ExecStatus = exec("ps -f -p {$Process["ID"]}", $ExecInformation, $ExecReturn);
         }
         else{ // Unknown OS
@@ -2899,7 +2907,7 @@ class Utility{
         }
         #endregion Get process information from OS
     
-        if($ExecStatus !== false){ // OS command successful, populate process information
+        if($ExecStatus !== false && count($ExecInformation) > 1){ // OS command successful, populate process information
             $ExecInformation = $ExecInformation[count($ExecInformation) - 1];
             $ExecInformation = array_filter(explode(" ", $ExecInformation));
             $ExecInformation = array_values($ExecInformation); //var_dump($ExecInformation);
