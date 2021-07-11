@@ -6,24 +6,27 @@ namespace sPHP;
 <h1>
 	Database process list
 
-	<div class="Control">
-		<input type="text" id="inpUser" placeholder="User">
-		<input type="password" id="inpPassword" placeholder="Password">
-		<label class="LinkButton" onclick="objRequestTimer = Restart(objRequestTimer);"><input type="checkbox" id="inpSleeping"> Sleeping</label>
-
-		<select id="inpInterval" onchange="objRequestTimer = Restart(objRequestTimer);">
-			<option value="2">2 Sec</option>
-			<option value="5" selected>5 Sec</option>
-			<option value="10">10 Sec</option>
-			<option value="20">20 Sec</option>
-		</select>
-
-		<button type="button" id="btnToggle" onclick="objRequestTimer = Toggle(objRequestTimer);">Stop</button>
-	</div>
-
-	<span id="Message"></span>
-	<span id="Error"></span>
+	<span class="Information">
+		<span id="Message"></span>
+		<span id="Error"></span>
+	</span>
 </h1>
+
+<div class="Control">
+	<input type="text" id="inpUser" placeholder="User">
+	<input type="password" id="inpPassword" placeholder="Password">
+	<label class="LinkButton" onclick="objRequestTimer = Restart(objRequestTimer);"><input type="checkbox" id="inpSleeping"> Sleeping</label>
+
+	<select id="inpInterval" onchange="objRequestTimer = Restart(objRequestTimer);">
+		<option value="2">2 Sec</option>
+		<option value="5" selected>5 Sec</option>
+		<option value="10">10 Sec</option>
+		<option value="20">20 Sec</option>
+	</select>
+
+	<button type="button" id="btnToggle" onclick="objRequestTimer = Toggle(objRequestTimer);">Stop</button>
+	<a href="<?=$APP->URL("Utility/Database/Process/List")?>" class="LinkButton">Reload</a>
+</div>
 
 <ul id="DatabaseProcessList"></ul>
 
@@ -67,7 +70,7 @@ namespace sPHP;
 							'<span class="Command">', Process.Command, '</span>', 
 							'<span class="Progress">', parseFloat(Process.Progress).toFixed(2), '</span>', 
 							'<span class="State">', Process.State, '</span>', 
-							'<div readonly class="SQL">', (Process.Info ? Process.Info : ''), '</div>', 
+							'<textarea readonly class="SQL">', (Process.Info ? Process.Info : ''), '</textarea>', 
 						].join('');
 
 						elmProcessList.appendChild(elmProcess);
