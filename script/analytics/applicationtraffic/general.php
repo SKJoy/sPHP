@@ -2,105 +2,106 @@
 namespace sPHP;
 
 print "
-		<h1>Traffic statistics</h1>
-	" . HTML\UI\Form(
-	$Application->URL($_POST["_Script"]),
-	implode(null, [
+	<h1>Traffic statistics</h1>
+	" . HTML\UI\Form($Application->URL($_POST["_Script"]), implode(null, [
 		HTML\UI\Field(HTML\UI\Input("ApplicationTrafficTime" . ($Caption = "From") . "", null, date("Y-m-01"), true, INPUT_TYPE_DATE), "{$Caption}", null, null),
 		HTML\UI\Field(HTML\UI\Input("ApplicationTrafficTime" . ($Caption = "To") . "", null, date("Y-m-t"), true, INPUT_TYPE_DATE), "{$Caption}", null, true),
 		HTML\UI\Field(HTML\UI\Button("Show", BUTTON_TYPE_SUBMIT, "btnShow"), null, null, true),
-	]),
-	"", null, null, null, null, null, null, false
-);
+	]), "", null, null, null, null, null, null, false) . "
+";
 
 $Error = $HitByLocation = $HitByDay = $HitByMonth = $HitByYear = $HitByScript = $HitByUser = [];
 $TimeSelectSQLWHEREClause = "ATr.ApplicationTrafficTime BETWEEN '{$_POST["ApplicationTrafficTimeFrom"]} 00:00:00' AND '{$_POST["ApplicationTrafficTimeTo"]} 23:59:59'";
 
 $Recordset = $Database->Query($SQL = "
-	SET @ColorValueMinimum := 127;
-	SET @ColorValueMultiplier := @ColorValueMinimum + 1;
+	# Parameter
+		SET @ColorValueMinimum := 127;
+		SET @ColorValueMultiplier := @ColorValueMinimum + 1;
 
 	# Top location
-	SELECT			@Country := COALESCE(ATr.ApplicationTrafficCountry, 'Other') AS Country,
-					@City := NULL, #COALESCE(ATr.ApplicationTrafficCity, 'Other') AS City,
-					CONCAT_WS(', ', @City, @Country) AS Label,
-					COUNT(0) AS Hit,
-					CONCAT('#', LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0')) AS Color
-	FROM			sphp_applicationtraffic AS ATr
-	WHERE			{$TimeSelectSQLWHEREClause}
-	GROUP BY		Label
-	ORDER BY		Hit DESC;
+		SELECT			@Country := COALESCE(ATr.ApplicationTrafficCountry, 'Other') AS Country,
+						@City := NULL, #COALESCE(ATr.ApplicationTrafficCity, 'Other') AS City,
+						CONCAT_WS(', ', @City, @Country) AS Label,
+						COUNT(0) AS Hit,
+						CONCAT('#', LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0')) AS Color
+		FROM			sphp_applicationtraffic AS ATr
+		WHERE			{$TimeSelectSQLWHEREClause}
+		GROUP BY		Label
+		ORDER BY		Hit DESC;
 
 	# Generate hourly hit
-	DROP TEMPORARY TABLE IF EXISTS tmp_applicationtraffichitbyday;
+		DROP TEMPORARY TABLE IF EXISTS tmp_applicationtraffichitbyday;
 
-	CREATE TEMPORARY TABLE tmp_applicationtraffichitbyday AS
-	SELECT			ATr.ApplicationTrafficTime,
-					COUNT(0) AS Hit
-	FROM			sphp_applicationtraffic AS ATr
-	WHERE			{$TimeSelectSQLWHEREClause}
-		AND			ATr.ApplicationTrafficTime > DATE_ADD(NOW(), INTERVAL -1 MONTH)
-	GROUP BY		DATE_FORMAT(ATr.ApplicationTrafficTime, '%Y%m%d%H')
-	ORDER BY		ATr.ApplicationTrafficTime ASC;
+		CREATE TEMPORARY TABLE tmp_applicationtraffichitbyday AS
+		SELECT			ATr.ApplicationTrafficTime,
+						COUNT(0) AS Hit
+		FROM			sphp_applicationtraffic AS ATr
+		WHERE			{$TimeSelectSQLWHEREClause}
+			AND			ATr.ApplicationTrafficTime > DATE_ADD(NOW(), INTERVAL -1 MONTH)
+		GROUP BY		DATE_FORMAT(ATr.ApplicationTrafficTime, '%Y%m%d%H')
+		ORDER BY		ATr.ApplicationTrafficTime ASC;
 
 	# By hour
-	SELECT			DATE_FORMAT(ApplicationTrafficTime, '%H:00') AS Label,
-					Hit,
-					CONCAT('#', LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0')) AS Color
-	FROM			tmp_applicationtraffichitbyday
-	GROUP BY		Label
-	ORDER BY		ApplicationTrafficTime ASC;
+		SELECT			DATE_FORMAT(ApplicationTrafficTime, '%H:00') AS Label,
+						Hit,
+						CONCAT('#', LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0')) AS Color
+		FROM			tmp_applicationtraffichitbyday
+		GROUP BY		Label
+		ORDER BY		ApplicationTrafficTime ASC;
 
 	# By date
-	SELECT			DATE(ApplicationTrafficTime) AS Label,
-					SUM(Hit) AS Hit,
-					CONCAT('#', LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0')) AS Color
-	FROM			tmp_applicationtraffichitbyday
-	GROUP BY		Label
-	ORDER BY		ApplicationTrafficTime ASC;
+		SELECT			DATE(ApplicationTrafficTime) AS Label,
+						SUM(Hit) AS Hit,
+						CONCAT('#', LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0')) AS Color
+		FROM			tmp_applicationtraffichitbyday
+		GROUP BY		Label
+		ORDER BY		ApplicationTrafficTime ASC;
 
 	# By month
-	SELECT			DATE_FORMAT(ApplicationTrafficTime, '%M, %Y') AS Label,
-					SUM(Hit) AS Hit,
-					CONCAT('#', LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0')) AS Color
-	FROM			tmp_applicationtraffichitbyday
-	GROUP BY		Label
-	ORDER BY		ApplicationTrafficTime ASC;
+		SELECT			DATE_FORMAT(ApplicationTrafficTime, '%M, %Y') AS Label,
+						SUM(Hit) AS Hit,
+						CONCAT('#', LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0')) AS Color
+		FROM			tmp_applicationtraffichitbyday
+		GROUP BY		Label
+		ORDER BY		ApplicationTrafficTime ASC;
 
 	# By year
-	SELECT			DATE_FORMAT(ApplicationTrafficTime, '%Y') AS Label,
-					SUM(Hit) AS Hit,
-					CONCAT('#', LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0')) AS Color
-	FROM			tmp_applicationtraffichitbyday
-	GROUP BY		Label
-	ORDER BY		ApplicationTrafficTime ASC;
+		SELECT			DATE_FORMAT(ApplicationTrafficTime, '%Y') AS Label,
+						SUM(Hit) AS Hit,
+						CONCAT('#', LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0')) AS Color
+		FROM			tmp_applicationtraffichitbyday
+		GROUP BY		Label
+		ORDER BY		ApplicationTrafficTime ASC;
 
 	# Top script
-	SELECT			ATr.ApplicationTrafficScript AS Label,
-					COUNT(0) AS Hit,
-					CONCAT('#', LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0')) AS Color
-	FROM			sphp_applicationtraffic AS ATr
-	WHERE			{$TimeSelectSQLWHEREClause}
-	GROUP BY		Label
-	ORDER BY		Hit DESC
-	LIMIT			10;
+		SELECT			ATr.ApplicationTrafficScript AS Label,
+						COUNT(0) AS Hit,
+						CONCAT('#', LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0')) AS Color
+		FROM			sphp_applicationtraffic AS ATr
+		WHERE			{$TimeSelectSQLWHEREClause}
+			AND			ATr.ApplicationTrafficScript NOT IN ('webapp/manifest')
+		GROUP BY		Label
+		ORDER BY		Hit DESC
+		LIMIT			10;
 
 	# Top user
-	SELECT			CONCAT_WS(' ', U.UserNameFirst, U.UserNameMiddle, U.UserNameLast) AS Label,
-					COUNT(0) AS Hit,
-					CONCAT('#', LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0')) AS Color
-	FROM			sphp_applicationtraffic AS ATr
-		LEFT JOIN	sphp_user AS U ON U.UserID = ATr.UserID
-	WHERE			{$TimeSelectSQLWHEREClause}
-		AND			U.UserID IS NOT NULL
-	GROUP BY		Label
-	ORDER BY		Hit DESC
-	LIMIT			10;
+		SELECT			CONCAT_WS(' ', U.UserNameFirst, U.UserNameMiddle, U.UserNameLast) AS Label,
+						COUNT(0) AS Hit,
+						CONCAT('#', LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0'), LPAD(HEX(@ColorValueMinimum + ROUND(RAND() * @ColorValueMultiplier)), 2, '0')) AS Color
+		FROM			sphp_applicationtraffic AS ATr
+			LEFT JOIN	sphp_user AS U ON U.UserID = ATr.UserID
+		WHERE			{$TimeSelectSQLWHEREClause}
+			AND			U.UserID IS NOT NULL
+			AND			U.UserEmail NOT IN ('Shahriar@SingularityBD.Com')
+		GROUP BY		Label
+		ORDER BY		Hit DESC
+		LIMIT			10;
 
-	SELECT 'Complete' AS ProcessStatus;
-");
-//DebugDump("<pre>{$SQL}</pre>");
-if(is_array($Recordset) && isset($Recordset[count($Recordset) - 1][0]["ProcessStatus"]) && $Recordset[count($Recordset) - 1][0]["ProcessStatus"] == "Complete"){
+	# Status
+		SELECT 'Complete' AS ProcessStatus;
+"); //DebugDump("<pre>{$SQL}</pre>");
+
+if(is_array($Recordset) && count($Recordset) >= 7){ //DebugDump($Recordset);
 	$HitByLocation = $Recordset[0];
 	$HitByHour = $Recordset[1];
 	$HitByDay = $Recordset[2];
@@ -108,7 +109,6 @@ if(is_array($Recordset) && isset($Recordset[count($Recordset) - 1][0]["ProcessSt
 	$HitByYear = $Recordset[4];
 	$HitByScript = $Recordset[5];
 	$HitByUser = $Recordset[6];
-//DebugDump($Recordset);
 }
 else{
 	$Error[] = "Database query failed!";
