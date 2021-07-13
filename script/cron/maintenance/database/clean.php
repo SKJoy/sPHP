@@ -27,8 +27,8 @@ $Recordset = $Database->Query("
 		DELETE FROM		sphp_applicationtraffic
 		WHERE			ApplicationTrafficTime < @TimeToKeepFrom
 			OR			ApplicationTrafficScript LIKE 'cron/%'
-			#OR			ApplicationTrafficScript LIKE 'api/%'
-			#OR			ApplicationTrafficScript IN ('user/signout', 'user/signin', 'user/signinaction', 'home')
+			OR			ApplicationTrafficScript LIKE 'api/%'
+			OR			ApplicationTrafficScript IN ('user/signout', 'user/signin', 'user/signinaction', 'home')
 			OR			ApplicationTrafficIP IN (
 							'127.0.0.1', # Local
 							''
