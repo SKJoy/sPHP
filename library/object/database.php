@@ -509,9 +509,11 @@ class Database{
 			])
 		);
 
-		$CallStackOrigin = $DebugCallStack[0];
-		if($TriggerError)trigger_error("Database: {$Message}. Origin: {$CallStackOrigin["file"]}:{$CallStackOrigin["line"]}", E_USER_ERROR);
-		if($Verbose)$this->ShowMessage($Message, $SQL, $Parameter);
+		if(isset($DebugCallStack[0])){ // Check this back!!! Put in a condition because error reporting said UDEFINED OFFSET 0
+			$CallStackOrigin = $DebugCallStack[0];
+			if($TriggerError)trigger_error("Database: {$Message}. Origin: {$CallStackOrigin["file"]}:{$CallStackOrigin["line"]}", E_USER_ERROR);
+			if($Verbose)$this->ShowMessage($Message, $SQL, $Parameter);
+		}
 
 		return true;
 	}
