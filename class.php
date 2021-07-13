@@ -1629,8 +1629,8 @@ class Application{
 				NotificationFrom,
 				NotificationIsActive,
 				TimeInserted
-			) VALUES " . implode(", ", $SQL_INSERT_VALUE) . ";";
-            //DebugDump("<pre>{$SQL}</pre>");
+			) VALUES " . implode(", ", $SQL_INSERT_VALUE) . ";"; //DebugDump("<pre>{$SQL}</pre>");
+            
 			$Recordset = $Database->Query($SQL);
 		}
 
