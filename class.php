@@ -628,7 +628,7 @@ class Terminal{
         "Icon"              =>  "favicon",
         "BackgroundColor"   =>  "Black",
         "ThemeColor"        =>  "Grey",
-        "Manifest"          =>  "manifest.json",
+        "Manifest"          =>  null,
     ];
 
     #region Variable
@@ -656,7 +656,7 @@ class Terminal{
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
 
-        $this->Property["Manifest"] = "{$Environment->URL()}{$this->Property["Manifest"]}";
+        $this->Property["Manifest"] = "{$Environment->URL()}manifest/{$_SERVER["SERVER_NAME"]}.webmanifest";
 
         return true;
     }
@@ -678,7 +678,11 @@ class Terminal{
         //header("XX-sPHP-Developer-URL: http://Binary.Men");
         #endregion sPHP custom header
 
-        header("Content-Type: " . EXTENSION_MIMETYPE[strtolower($this->Property["DocumentType"])] . (!is_null($this->Property["CharacterSet"]) ? "; charset={$this->Property["CharacterSet"]}" : null));
+        //header_remove("Pragma");
+        //header_remove("Expires");
+
+		header("Content-Type: " . EXTENSION_MIMETYPE[strtolower($this->Property["DocumentType"])] . (!is_null($this->Property["CharacterSet"]) ? "; charset={$this->Property["CharacterSet"]}" : null));
+		//header("Server: UNKNOWN"); // Security warning: Server header should contain server name only; So, detect the server name and put only the name here
 
         if($this->Property["DocumentType"] == DOCUMENT_TYPE_HTML && !isset($_POST["_MainContentOnly"])){
             $HTML_Head_META[] = HTML\Meta(null, null, null, null, strtolower($this->Property["CharacterSet"]));
@@ -697,15 +701,17 @@ class Terminal{
             $HTML_Head_META[] = HTML\Meta("theme-color", $this->Property["ThemeColor"]);
             #endregion Filter duplicate META by name
 
-            foreach($this->HTML_Head_Link as $Item)$HTML_Head_Link[] = "<link" . ($Item["Relation"] ? " rel=\"{$Item["Relation"]}\"" : null) . ($Item["Type"] ? " type=\"{$Item["Type"]}\"" : null) . ($Item["URL"] ? " href=\"{$Item["URL"]}\"" : null) . ">";
-            //$HTML_Head_Link[] = "<link rel=\"manifest\" href=\"{$this->Property["Manifest"]}\">";
-            //$HTML_Head_Link[] = "<link rel=\"manifest\" href=\"{$this->Property["Environment"]->URL()}webapp_manifest.php\">";
-            $HTML_Head_Link[] = "<link rel=\"manifest\" href=\"{$this->Property["Environment"]->URL()}?_Script=WebApp/Manifest\">";
+			foreach($this->HTML_Head_Link as $Item)$HTML_Head_Link[] = "<link" . ($Item["Relation"] ? " rel=\"{$Item["Relation"]}\"" : null) . ($Item["Type"] ? " type=\"{$Item["Type"]}\"" : null) . ($Item["URL"] ? " href=\"{$Item["URL"]}\"" : null) . ">";
+			$HTML_Head_Link[] = "<link rel=\"manifest\" href=\"{$this->Property["Manifest"]}\">";
+			//$HTML_Head_Link[] = "<link rel=\"manifest\" href=\"{$this->Property["Environment"]->URL()}webapp_manifest.php\">";
+			//$HTML_Head_Link[] = "<link rel=\"manifest\" href=\"{$this->Property["Environment"]->URL()}?_Script=WebApp/Manifest\">";
 
             foreach($this->HTML_Head_JavaScript as $Item)$HTML_Head_JavaScript[] = "<script" . ($Item["URL"] ? " src=\"{$Item["URL"]}\"" : null) . "></script>";
 
-            print "<!DOCTYPE html><html lang=\"{$this->Property["Language"]->HTMLCode()}\"><head><title>{$this->Property["Title"]}</title><link rel=\"shortcut icon\" href=\"{$this->Property["Environment"]->ImageURL()}{$this->Property["Icon"]}.ico\">
-                " . implode(null, $HTML_Head_META) . "
+            print "<!DOCTYPE html><html lang=\"{$this->Property["Language"]->HTMLCode()}\"><head>
+				" . implode(null, $HTML_Head_META) . "
+				<title>{$this->Property["Title"]}</title>
+				<link rel=\"shortcut icon\" href=\"{$this->Property["Environment"]->ImageURL()}{$this->Property["Icon"]}.ico\">
                 " . (isset($HTML_Head_Link) ? implode(null, $HTML_Head_Link) : null) . "
                 " . (isset($HTML_Head_JavaScript) ? implode(null, $HTML_Head_JavaScript) : null) . "
             {$this->Property["HTMLHeadCode"]}</head><body id=\"DocumentBody\"" . (isset($_POST["_NoHeader"]) && isset($_POST["_NoFooter"]) ? " class=\"ContentView\"" : null) . ">";
@@ -1512,6 +1518,33 @@ class Application{
 			], "ApplicationTrafficID = {$ApplicationTrafficID}");
 		}
 		#endregion Update traffic log with additional information upon each request
+
+        #region Update WebManifest
+        $WebManifestFile = "{$this->Property["Terminal"]->Environment()->Path()}manifest/{$_SERVER["SERVER_NAME"]}.webmanifest";
+
+        if(!file_exists($WebManifestFile) || time() - filemtime($WebManifestFile) > 24 * 60 * 60){ // File does not exist or expired
+			$WebManifestLogoURL = "{$this->Property["Terminal"]->Environment()->ImageURL()}" . strtolower($_SERVER["SERVER_NAME"]) . "/logo.png";
+
+            file_put_contents($WebManifestFile, json_encode([
+                "background_color" => $Configuration["BackgroundColor"],
+                "description" => $Configuration["Description"],
+                "icons" => [
+                    //["src" => $WebManifestLogoURL, "type" => "image/png", "sizes" => "72x72", ], 
+                    //["src" => $WebManifestLogoURL, "type" => "image/png", "sizes" => "96x96", ], 
+                    //["src" => $WebManifestLogoURL, "type" => "image/png", "sizes" => "128x128", ], 
+                    //["src" => $WebManifestLogoURL, "type" => "image/png", "sizes" => "256x256", ], 
+                    ["src" => $WebManifestLogoURL, "type" => "image/png", "sizes" => "512x512", ], 
+                ],
+                "lang" => $this->Language()->HTMLCode(), 
+                "name" => $this->Name(),
+                "short_name" => $Configuration["ShortName"],
+                "start_url" => $this->Property["Terminal"]->Environment()->HTTPSURL(),
+                "theme_color" => $this->Property["Terminal"]->ThemeColor(), 
+                "display" => "standalone",
+                "scope" => "/",
+            ]));
+        }
+        #endregion Update WebManifest
 
         return true;
     }
