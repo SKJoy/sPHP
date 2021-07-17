@@ -69,8 +69,8 @@ $EM->ListColumn([
 	//new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Message") . "", "{$Caption}"),
 	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "From") . "", "{$Caption}"),
 	//new HTML\UI\Datagrid\Column("{$Entity}Event" . ($Caption = "Time") . "", "{$Caption}", FIELD_TYPE_DATETIME, ALIGN_CENTER),
-	//new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Attempt") . "Time", "{$Caption}ed", FIELD_TYPE_DATETIME),
-	//new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Attempt") . "", "{$Caption}", FIELD_TYPE_NUMBER),
+	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Attempt") . "Time", "{$Caption}ed", FIELD_TYPE_DATETIME),
+	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Attempt") . "", "{$Caption}", FIELD_TYPE_NUMBER),
 	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Source") . "LookupCaption", "{$Caption}", FIELD_TYPE_ICON, ALIGN_CENTER),
 	new HTML\UI\Datagrid\Column("" . ($Caption = "") . "TimeInserted", "{$Caption}Created", FIELD_TYPE_DATETIME, ALIGN_CENTER),
 	new HTML\UI\Datagrid\Column("{$Entity}" . ($Caption = "Sent") . "Time", "{$Caption}", FIELD_TYPE_DATETIME, ALIGN_CENTER),
@@ -84,7 +84,7 @@ $EM->ListColumn([
 $EM->Action([
 	//new HTML\UI\Datagrid\Action("{$Environment->IconURL()}listener.png", null, $Application->URL("{$Entity}/ListenerActivity"), null, null, null, "Listener activity"),
 	//new HTML\UI\Datagrid\Action("{$Environment->IconURL()}" . strtolower($ActionEntity = "{$Entity}Assignment") . ".png", null, $Application->URL("management/generic/{$ActionEntity}&btnInput"), null, null, null, "{$Entity} assignment"),
-	new HTML\UI\Datagrid\Action("{$Environment->IconURL()}edit.png", null, $Application->URL($_POST["_Script"], "btnInput"), null, null, null, "Edit"),
+	//new HTML\UI\Datagrid\Action("{$Environment->IconURL()}edit.png", null, $Application->URL($_POST["_Script"], "btnInput"), null, null, null, "Edit"),
 	//new HTML\UI\Datagrid\Action("{$Environment->IconURL()}delete.png", null, $Application->URL($_POST["_Script"], "btnDelete"), null, "return confirm('Are you sure to remove the information?');", null, "Delete"),
 ]);
 

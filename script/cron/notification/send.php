@@ -2,17 +2,17 @@
 namespace sPHP;
 
 if(isset($sPHPCronJob)){ // In case if this script runs through sPHP Cron object
-	$Table = $Resource["Table"];
-	$Utility = $Resource["Utility"];
-	$Configuration = $Resource["Configuration"];
-
-	$Database = $Table[array_keys($Table)[0]]->Database();
+	$Table = \sPHP::$Table;
+	$Utility = \sPHP::$Utility;
+	$Configuration = \sPHP::$Configuration;
+	$Database = \sPHP::$Database;
 }
 
 $Entity = "Notification";
 $CheckpointTime = microtime(true);
 $NotificationMobileSMSCount = 0;
 $NotificationEmailCount = 0;
+$NotificationAppCount = 0;
 $NotificationUPDATESQL = [];
 
 $cURL = curl_init(); // Initialize cURL for repeatative use by single connection
@@ -22,7 +22,7 @@ $NotificationRecordset = $Table["{$Entity}"]->Get("
 		" . ($Configuration["SendNotification"] ? "TRUE" : "FALSE") . " # Configuration: SendNotification
 	AND	N.{$Entity}SentTime IS NULL
 	AND	N.TimeInserted > DATE_ADD(NOW(), INTERVAL -1 DAY)
-	AND	NT.{$Entity}TypeIdentifier IN ('" . NOTIFICATION_TYPE_MOBILE_SMS . "', '" . NOTIFICATION_TYPE_EMAIL . "')
+	AND	NT.{$Entity}TypeIdentifier IN ('" . NOTIFICATION_TYPE_MOBILE_SMS . "', '" . NOTIFICATION_TYPE_EMAIL . "') # Do not include NOTIFICATION_TYPE_APP here; Use firebase-push.php on application layer
 	AND	N.{$Entity}Attempt < 3
 	AND	N.{$Entity}IsActive = 1
 ", "N.TimeInserted DESC", 1, 120);
@@ -77,6 +77,16 @@ if(is_array($NotificationRecordset))foreach($NotificationRecordset as $Notificat
 	}
 	#endregion Send out email
 
+	#region Forward message to App
+	// THIS SECTION DOES NOT WORK, WE EXCLUDE APP NOTIFICATIONS IN THIS SCRIPT
+	if($Notification["{$Entity}TypeIdentifier"] == NOTIFICATION_TYPE_APP && $NotificationRecepient){
+		if(false){ // App message send out succeded
+			$NotificationSendOutResult = true;
+			$NotificationAppCount++;
+		}
+	}
+	#endregion Forward message to App
+
 	$NotificationUPDATESQL[] = "UPDATE sphp_notification SET {$Entity}SentTime = '" . date("Y-m-d H:i:s", $NotificationAttemptTime) . "' WHERE {$Entity}ID = {$Notification["{$Entity}ID"]};";
 }
 
@@ -89,6 +99,7 @@ if(isset($sPHPCronJob)){ // Resturn result if ran through sPHP Cron object
 	$CronJobResult["Status"] = [
 		"SMS: {$NotificationMobileSMSCount}",
 		"Email: {$NotificationEmailCount}",
+		"App: {$NotificationAppCount}",
 	];
 }
 else{ // Output only if not an sPHP Cron Job (service, background process)
@@ -99,6 +110,7 @@ else{ // Output only if not an sPHP Cron Job (service, background process)
 			<li>Send notification: " . ($Configuration["SendNotification"] ? "Yes" : "No") . "</li>
 			<li>SMS: {$NotificationMobileSMSCount}</li>
 			<li>Email: {$NotificationEmailCount}</li>
+			<li>App: {$NotificationAppCount}</li>
 			<li>Begin: " . date("H:i:s", $CheckpointTime) . "</li>
 			<li>End: " . date("H:i:s") . " (" . number_format(microtime(true) - $CheckpointTime, 3) . ")</li>
 		</ul>
