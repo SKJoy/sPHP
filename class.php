@@ -662,6 +662,7 @@ class Terminal{
     }
 
     public function __destruct(){
+        #region Output compression
         ob_end_clean(); // Empty and close output buffer to compress the output
 
         if(!$this->Property["Environment"]->Utility()->Debug()->Enabled()){ // Compress output only if not in debug mode
@@ -669,6 +670,7 @@ class Terminal{
             ini_set("zlib.output_compression", 131072); // Default is 4096 (4 KB)
             ini_set("zlib.output_compression_level", 9); // 0 to 9
         }
+        #endregion Output compression
 
         #region sPHP custom header
         header("XX-Powered-By: {$this->Property["Environment"]->Name()}/{$this->Property["Environment"]->Version()->Full()}");
@@ -702,26 +704,18 @@ class Terminal{
 
             foreach($this->HTML_Head_JavaScript as $Item)$HTML_Head_JavaScript[] = "<script" . ($Item["URL"] ? " src=\"{$Item["URL"]}\"" : null) . "></script>";
 
-            print "<!DOCTYPE html>
-<html lang=\"{$this->Property["Language"]->HTMLCode()}\">
-<head>
-    " . implode(null, $HTML_Head_META) . "
-    <link rel=\"shortcut icon\" href=\"{$this->Property["Environment"]->ImageURL()}{$this->Property["Icon"]}.ico\">
-    <title>{$this->Property["Title"]}</title>
-    " . (isset($HTML_Head_Link) ? implode(null, $HTML_Head_Link) : null) . "
-    " . (isset($HTML_Head_JavaScript) ? implode(null, $HTML_Head_JavaScript) : null) . "
-    {$this->Property["HTMLHeadCode"]}
-</head>
-
-<body id=\"DocumentBody\"" . (isset($_POST["_NoHeader"]) && isset($_POST["_NoFooter"]) ? " class=\"ContentView\"" : null) . ">
-    <!--<a id=\"PageLocation_Top\"></a>-->";
+            print "<!DOCTYPE html><html lang=\"{$this->Property["Language"]->HTMLCode()}\"><head><title>{$this->Property["Title"]}</title><link rel=\"shortcut icon\" href=\"{$this->Property["Environment"]->ImageURL()}{$this->Property["Icon"]}.ico\">
+                " . implode(null, $HTML_Head_META) . "
+                " . (isset($HTML_Head_Link) ? implode(null, $HTML_Head_Link) : null) . "
+                " . (isset($HTML_Head_JavaScript) ? implode(null, $HTML_Head_JavaScript) : null) . "
+            {$this->Property["HTMLHeadCode"]}</head><body id=\"DocumentBody\"" . (isset($_POST["_NoHeader"]) && isset($_POST["_NoFooter"]) ? " class=\"ContentView\"" : null) . ">";
         }
 
+        // Ouput contents
         foreach(array_merge(isset($this->Buffer[OUTPUT_BUFFER_MODE_HEADER]) ? $this->Buffer[OUTPUT_BUFFER_MODE_HEADER] : [], isset($this->Buffer[OUTPUT_BUFFER_MODE_MAIN]) ? $this->Buffer[OUTPUT_BUFFER_MODE_MAIN] : []) as $Content)print $Content;
 
-        if($this->Property["DocumentType"] == DOCUMENT_TYPE_HTML && !isset($_POST["_MainContentOnly"])){
-            print "{$this->Property["Environment"]->Utility()->Debug()->CheckpointHTML()}</body></html>";
-        }
+        // Close HTML document output
+        if($this->Property["DocumentType"] == DOCUMENT_TYPE_HTML && !isset($_POST["_MainContentOnly"]))print "{$this->Property["Environment"]->Utility()->Debug()->CheckpointHTML()}</body></html>";
 
         return true;
     }
@@ -1006,8 +1000,7 @@ class Terminal{
     #endregion Property
 
     #region Function
-    // This function is called with each PRINT/ECHO by the PHP's built in output handler
-    private function Send($Content){
+    private function Send($Content){ // This function is called with each PRINT/ECHO by the PHP's built in output handler
         if(!$this->Property["Suspended"]){
 			$this->Buffer[$this->Property["Mode"]][] = $Content;
 
@@ -1391,8 +1384,9 @@ class Application{
         $this->Language(new Language($Configuration["LanguageName"], $Configuration["LanguageCode"], $Configuration["LanguageRegionCode"], $Configuration["LanguageNativeName"], $Configuration["LanguageNativelyName"]));
 
 		// Keep assigning the HEAD HTML here, modify it later assuming user can alter in in the script level
-        require __DIR__ . "/tinymce_head_html.php";
-        $this->Property["Terminal"]->HTMLHeadCode("{$Configuration["HTMLHeadCode"]}\n\n{$TinyMCEHTMLHeadCode}");
+        //require __DIR__ . "/tinymce_head_html.php";
+        //$this->Property["Terminal"]->HTMLHeadCode("{$Configuration["HTMLHeadCode"]}\n\n{$TinyMCEHTMLHeadCode}");
+        $this->Property["Terminal"]->HTMLHeadCode("{$Configuration["HTMLHeadCode"]}");
 
 		// Set environment SMTP configuration
 		$this->Property["Terminal"]->Environment()->SMTPHost($Configuration["SMTPHost"]);
@@ -1488,12 +1482,13 @@ class Application{
         if($Configuration["ContentEditMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["ContentEditModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["ContentEditModeClient"]))))))$this->Property["Session"]->ContentEditMode(true);
         if($Configuration["DebugMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeClient"]))))))$this->Property["Session"]->DebugMode(true); 
 
-        // Configure stylesheet inclusion
+        #region Include stylesheet
         if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}" . ($CSSFile = "script/{$_POST["_Script"]}.css") . ""))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}{$CSSFile}?TimeUpdated=" . filemtime("{$this->Property["Terminal"]->Environment()->StylePath()}{$CSSFile}") . "";
         $Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}language/{$this->Property["Language"]->HTMLCode()}.css";
         if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}{$_SERVER["SERVER_NAME"]}/loader.css"))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}{$_SERVER["SERVER_NAME"]}/loader.css";
         if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}{$_SERVER["SERVER_NAME"]}/script/{$_POST["_Script"]}.css"))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}{$_SERVER["SERVER_NAME"]}/script/{$_POST["_Script"]}.css";
 		foreach($Configuration["Stylesheet"] as $URL)$this->Property["Terminal"]->Link("stylesheet", "text/css", $URL);
+        #endregion Include stylesheet
 
         // Moved here from above to allow including the script specific JavaScript
         if(file_exists("{$this->Property["Terminal"]->Environment()->Path()}" . ($JavaScriptFile = "javascript/script/{$_POST["_Script"]}.js") . ""))$Configuration["JavaScript"][] = "{$this->Property["Terminal"]->Environment()->URL()}{$JavaScriptFile}?TimeUpdated=" . filemtime("{$this->Property["Terminal"]->Environment()->Path()}{$JavaScriptFile}") . "";
@@ -1503,7 +1498,7 @@ class Application{
 		___ExecuteApplicationScript($this, new Template($this, $Configuration, $Configuration["TemplateCacheLifetime"], $Configuration["TemplateCacheActionMarker"]), $Configuration);
 
         // Add to the final HEAD HTML, assuming user has changed it in the script level
-        $this->Property["Terminal"]->HTMLHeadCode("{$this->Property["Terminal"]->HTMLHeadCode()}\n\n<!-- OpenGraph meta tag: BEGIN -->\n{$this->Property["OpenGraph"]->MetaHTML()}\n<!-- OpenGraph meta tag: END -->");
+        $this->Property["Terminal"]->HTMLHeadCode("{$this->Property["Terminal"]->HTMLHeadCode()}{$this->Property["OpenGraph"]->MetaHTML()}");
 
 		#region Update traffic log with additional information upon each request
 		if($Configuration["DatabaseLogTraffic"] && !is_null($this->Property["Database"]) && !is_null($this->Property["Database"]->Connection())){
