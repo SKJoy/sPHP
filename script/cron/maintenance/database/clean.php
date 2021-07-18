@@ -12,18 +12,27 @@ if(isset($sPHPCronJob)){ // In case if this script runs through sPHP Cron object
 $DateTimeFormat = "{$Configuration["ShortDateFormat"]} {$Configuration["TimeFormat"]}";
 
 $Recordset = $Database->Query("
-	# Parameter
+	# Argument
 		SET @HistoryMonthsToKeep := 3; # Keep data of past N months
-		SET @ProcessTimeStart := NOW();
-		SET @TimeToKeepFrom := CONCAT(DATE_ADD(DATE_FORMAT(@ProcessTimeStart, '%Y-%m-01'), INTERVAL (-1) * @HistoryMonthsToKeep MONTH), ' 00:00:00');
 
-	# System: Maintenance: Clean
+	# Parameter
+		SET @TimeToKeepFrom := CONCAT(DATE_ADD(DATE_FORMAT(@ProcessTimeStart, '%Y-%m-01'), INTERVAL (-1) * @HistoryMonthsToKeep MONTH), ' 00:00:00');
+		SET @ProcessTimeStart := NOW();
+
+	# Aged
 		DELETE FROM sphp_notification WHERE TimeInserted < @TimeToKeepFrom LIMIT 9999;
 		DELETE FROM sphp_userdevice WHERE TimeInserted < @TimeToKeepFrom LIMIT 9999;
 		DELETE FROM sphp_useruserdevice WHERE UserUserDeviceTimeActiveLast < @TimeToKeepFrom LIMIT 9999;
 		DELETE FROM sphp_useruserdevicenotification WHERE TimeInserted < @TimeToKeepFrom OR UserUserDeviceNotificationIsRead = 1 LIMIT 9999;
 
-	# Clean up aged Application Traffic
+	# Orphan
+		DELETE UUG FROM	sphp_userusergroup AS UUG
+			LEFT JOIN	sphp_user AS U ON U.UserID = UUG.UserID
+			LEFT JOIN	sphp_usergroup AS UG ON UG.UserGroupID = UUG.UserGroupID
+		WHERE			U.UserID IS NULL
+			OR			UG.UserGroupID IS NULL;
+
+	# Application traffic
 		DELETE FROM		sphp_applicationtraffic
 		WHERE			ApplicationTrafficTime < @TimeToKeepFrom
 			OR			ApplicationTrafficScript LIKE 'cron/%'
@@ -31,9 +40,9 @@ $Recordset = $Database->Query("
 			OR			ApplicationTrafficScript IN ('user/signout', 'user/signin', 'user/signinaction', 'home')
 			OR			ApplicationTrafficIP IN (
 							'127.0.0.1', # Local
-							''
+							'::'
 						)
-		LIMIT 9999;
+		;
 
 	# Status
 		SELECT			@TimeToKeepFrom AS TimeToKeepFrom, 
@@ -56,7 +65,7 @@ if(is_array($Recordset) && count($Recordset)){
 	}
 	else{ // Output only if not an sPHP Cron Job (service, background process)
 		print "
-			<h2>Database: Clean</h2>
+			<h2>System: Database: Clean</h2>
 	
 			<ul>
 				<li>Keep from: {$TimeToKeepFromCaption}</li>
@@ -72,7 +81,7 @@ else{
 	}
 	else{ // Output only if not an sPHP Cron Job (service, background process)
 		print "
-			<h2>Database: Clean</h2>
+			<h2>System: Database: Clean</h2>
 	
 			<ul>
 				<li>Error: Database query failed</li>
