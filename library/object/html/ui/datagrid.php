@@ -394,7 +394,13 @@ class Datagrid{
 			if(count($this->Property["Action"]))$ColumnTitleHTML[] = "<th></th>";
 			#endregion Column title
 
-            $SerialStart = (($_POST["{$ParameterPrefix}Page"] - 1) * $this->Property["RowPerPage"]) + 1;
+            $Page = intval($_POST["{$ParameterPrefix}Page"]);
+            if($Page < 1)$Page = 1;
+
+            $RowPerPage = intval($this->Property["RowPerPage"]);
+            if($RowPerPage < 1)$RowPerPage = 15;
+
+            $SerialStart = (($Page - 1) * $RowPerPage) + 1;
             
             $DataKeyFieldForTemplate = [];
             if(count($this->Property["Data"]))foreach(array_keys($this->Property["Data"][0]) as $DataKey)$DataKeyFieldForTemplate[] = "%{$DataKey}%";
@@ -524,7 +530,7 @@ class Datagrid{
     
                         if($Action->URL()){
                             $OriginalActionURL = $Action->URL();
-                            $Action->URL("{$Action->URL()}" . (strpos($Action->URL(), "?") === false ? "?" : "&") . "" . (is_null($Action->ParameterKey()) ? "{$this->Property["DataIDColumn"]}" : "{$Action->ParameterKey()}") . "={$Data[$this->Property["DataIDColumn"]]}" . ($Action->SelfTarget() ? "&{$ParameterPrefix}Page={$_POST["{$ParameterPrefix}Page"]}&{$ParameterPrefix}OrderBy=" . urlencode($_POST["{$ParameterPrefix}OrderBy"]) . "&{$ParameterPrefix}Order={$_POST["{$ParameterPrefix}Order"]}" : null) . "");
+                            $Action->URL("{$Action->URL()}" . (strpos($Action->URL(), "?") === false ? "?" : "&") . "" . (is_null($Action->ParameterKey()) ? "{$this->Property["DataIDColumn"]}" : "{$Action->ParameterKey()}") . "={$Data[$this->Property["DataIDColumn"]]}" . ($Action->SelfTarget() ? "&{$ParameterPrefix}Page={$Page}&{$ParameterPrefix}OrderBy=" . urlencode($_POST["{$ParameterPrefix}OrderBy"]) . "&{$ParameterPrefix}Order={$_POST["{$ParameterPrefix}Order"]}" : null) . "");
                             $ActionHTML[] = "{$Action->HTML()}";
                             $Action->URL($OriginalActionURL);
                         }
@@ -540,10 +546,10 @@ class Datagrid{
 
 			foreach($this->Property["BatchAction"] as $BatchAction)$BatchActionHTML[] = $BatchAction->HTML();
 
-			$Paginator = new Paginator($this->Property["RecordCount"], $this->Property["RowPerPage"], null, "{$URL}{$ParameterPrefix}OrderBy={$_POST["{$ParameterPrefix}OrderBy"]}&{$ParameterPrefix}Order={$_POST["{$ParameterPrefix}Order"]}", null, $this->Property["ID"]);
+			$Paginator = new Paginator($this->Property["RecordCount"], $RowPerPage, null, "{$URL}{$ParameterPrefix}OrderBy={$_POST["{$ParameterPrefix}OrderBy"]}&{$ParameterPrefix}Order={$_POST["{$ParameterPrefix}Order"]}", null, $this->Property["ID"]);
 
 			$Form = new Form(
-				"{$URL}{$ParameterPrefix}Page={$_POST["{$ParameterPrefix}Page"]}&{$ParameterPrefix}OrderBy={$_POST["{$ParameterPrefix}OrderBy"]}&{$ParameterPrefix}Order={$_POST["{$ParameterPrefix}Order"]}",
+				"{$URL}{$ParameterPrefix}Page={$Page}&{$ParameterPrefix}OrderBy={$_POST["{$ParameterPrefix}OrderBy"]}&{$ParameterPrefix}Order={$_POST["{$ParameterPrefix}Order"]}",
 				"
 					<table id=\"DatagridTable_{$this->Property["ID"]}\" class=\"Grid" . ($this->Property["CSSSelector"] ? " {$this->Property["CSSSelector"]}" : null) . "\">
 						<thead>
@@ -559,7 +565,7 @@ class Datagrid{
 							<tr class=\"Page\">
 								<th colspan=\"99999\">
 									<div class=\"Paginator\">{$Paginator->HTML()}</div>
-									<div class=\"Suffix\">{$this->Property["PaginatorPageCaption"]} {$Paginator->CurrentPage()} / {$Paginator->PageCount()}: " . ($RecordFrom = (($Paginator->CurrentPage() - 1) * $this->Property["RowPerPage"]) + 1) . " - " . ($RecordFrom + $this->Property["RowPerPage"] - 1) . " / {$this->RecordCount()} {$this->Property["PaginatorRecordsCaption"]}</div>
+									<div class=\"Suffix\">{$this->Property["PaginatorPageCaption"]} {$Paginator->CurrentPage()} / {$Paginator->PageCount()}: " . ($RecordFrom = (($Paginator->CurrentPage() - 1) * $RowPerPage) + 1) . " - " . ($RecordFrom + $RowPerPage - 1) . " / {$this->RecordCount()} {$this->Property["PaginatorRecordsCaption"]}</div>
 								</th>
 							</tr>
 

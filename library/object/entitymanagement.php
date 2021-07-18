@@ -607,9 +607,8 @@ class EntityManagement{
 
         return $Result;
     }
-
-    // Keep the search values in the new input form
-    public function DefaultFromSearchColumn($Value = null){
+    
+    public function DefaultFromSearchColumn($Value = null){ // Keep the search values in the new input form
         if(is_null($Value)){
             $Result = $this->Property[__FUNCTION__];
         }
@@ -818,7 +817,22 @@ class EntityManagement{
 				)$SearchArgument[] = "{$Key}=" . urlencode($Value) . "";
 			} //var_dump($_POST, $this->Property["OrderBy"], SetVariable("OrderBy", $this->Property["OrderBy"]));
 
-            $this->Property["VisibleRecordset"] = $this->Property["Table"]->Get(implode(" AND ", array_filter($this->Property["SearchSQL"])), "" . SetVariable("OrderBy", $this->Property["OrderBy"]) . " " . SetVariable("Order", $this->Property["Order"]) . "", ((SetVariable("Page", 1) - 1) * ($this->Property["RecordsPerPage"])) + 1, $this->Property["RecordsPerPage"], null, null, $this->Property["Verbose"]);
+            #region Validate parameter & prevent SQL injection for ORDER clause
+            $OrderBy = SetVariable("OrderBy", $this->Property["OrderBy"]);
+            $AllowedOrderByColumn = array_merge([$this->Property["OrderBy"]], array_keys($this->Property["Table"]->Structure()["Column"]));
+            if(!in_array($OrderBy, $AllowedOrderByColumn))$OrderBy = $AllowedOrderByColumn[0];
+            
+            $Order = strtoupper(SetVariable("Order", $this->Property["Order"]));
+            if(!in_array($Order, ["ASC", "DESC"]))$Order = "ASC";
+            
+			$Page = intval(SetVariable("Page", 1));
+			if($Page < 1)$Page = 1;
+
+            $RecordsPerPage = intval(SetVariable("RecordsPerPage", $this->Property["RecordsPerPage"]));
+			if($RecordsPerPage < 1)$Page = 15;
+            #endregion Validate parameter & prevent SQL injection for ORDER clause
+
+            $this->Property["VisibleRecordset"] = $this->Property["Table"]->Get(implode(" AND ", array_filter($this->Property["SearchSQL"])), "{$OrderBy} {$Order}", (($Page - 1) * ($RecordsPerPage)) + 1, $RecordsPerPage, null, null, $this->Property["Verbose"]);
 
 			$this->Property[__FUNCTION__] = "
 				" . HTML\UI\Datagrid(
@@ -828,7 +842,7 @@ class EntityManagement{
 					$this->Property["Table"]->Count(),
 					$this->Property["ListColumn"], // Columns to display
 					"<img src=\"{$this->Property["IconURL"]}{$this->Property["LowercaseEntityName"]}.png\" alt=\"{$this->Property["Table"]->EntityName()}\" class=\"Icon\">" . ($this->Property["ListTitle"] ? $this->Property["ListTitle"] : $this->Property["Table"]->FormalName()) . "",
-					$this->Property["RecordsPerPage"],
+					$RecordsPerPage,
 					$this->Property["Table"]->Structure()["Primary"][0],
 					$this->Property["Action"],
 					$this->Property["BaseURL"], // Base URL

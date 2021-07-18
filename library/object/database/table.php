@@ -54,6 +54,10 @@ class Table{
     }
 
 	public function Get($WHERE = null, $ORDERBY = null, $From = null, $Count = null, $GROUPBY = null, $GroupField = null, $Verbose = false){
+		// Validate arguments
+		$From = intval($From);
+		$Count = intval($Count);
+
 		$SQL = "" .
 			($GROUPBY ? "SELECT {$GroupField} FROM {$this->Property["Prefix"]}{$this->Property["Name"]} AS {$this->Property["Alias"]}" : $this->SELECTStatement()) . "" .
 			($WHERE ? "\nWHERE {$WHERE}" : null) . "" .
@@ -61,7 +65,7 @@ class Table{
 		"";
 
 		if($this->Property["Database"]->Type() == \sPHP\DATABASE_TYPE_MYSQL){
-			$ORDERBYClause = "" . ($ORDERBY ? "\nORDER BY {$ORDERBY}" : null) . "";
+			$ORDERBYClause = "" . ($ORDERBY ? "\nORDER BY " . $this->Property["Database"]->Escape($ORDERBY) . "" : null) . "";
 			$LIMITClause = "" .  ($From && $Count ? "\nLIMIT " . ($From - 1) . ", {$Count}" : null) . "";
 			$WholeSQL = "{$SQL} {$ORDERBYClause} {$LIMITClause}"; //var_dump($WholeSQL);
 		}
