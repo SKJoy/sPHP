@@ -554,7 +554,7 @@ class Datagrid{
                     }
 				}
 
-				$DataHTML[] = "<tr class=\"" . str_replace($DataKeyFieldForTemplate, $Data, $this->Property["RowCSSSelector"]) . "\">" . implode(null, $FieldHTML) . (count($ActionHTML) ? "<td class=\"Action\">" . implode(null, $ActionHTML) . "</td>" : null) . "</tr>";
+				$DataHTML[] = "<tr class=\"" . ($this->Property["RowCSSSelector"] ? str_replace($DataKeyFieldForTemplate, $Data, $this->Property["RowCSSSelector"]) : null) . "\">" . implode(null, $FieldHTML) . (count($ActionHTML) ? "<td class=\"Action\">" . implode(null, $ActionHTML) . "</td>" : null) . "</tr>";
 				if($this->Property["ExpandURL"])$DataHTML[] = "<tr id=\"{$ExpansionAreaHTMLID}\" class=\"Expansion\" style=\"display: none;\"><td id=\"{$ExpansionAreaHTMLID}_Cell\" colspan=\"99999\">EXPANSION AREA</td></tr>";
 			}
 
