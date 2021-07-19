@@ -264,8 +264,8 @@ namespace sPHP\HTML\UI{
 		return $Object->HTML();
     }
 
-	function Datagrid($Data = null, $URL = null, $RecordCount = null, $Field = null, $Title = null, $RowPerPage = null, $DataIDColumn = null, $Action = null, $BaseURL = null, $IconBaseURL = null, $Footer = null, $PreHTML = null, $BatchAction = null, $ExpandURL = null, $Serial = null, $Selectable = null, $ID = null, $CSSSelector = null, $SerialCaption = null, $PaginatorPageCaption = null, $PaginatorRecordsCaption = null){
-		$Object = new Datagrid($Data, $URL, $RecordCount, $Field, $Title, $RowPerPage, $DataIDColumn, $Action, $BaseURL, $IconBaseURL, $Footer, $PreHTML, $BatchAction, $ExpandURL, $Serial, $Selectable, $ID, $CSSSelector, $SerialCaption, $PaginatorPageCaption, $PaginatorRecordsCaption);
+	function Datagrid($Data = null, $URL = null, $RecordCount = null, $Field = null, $Title = null, $RowPerPage = null, $DataIDColumn = null, $Action = null, $BaseURL = null, $IconBaseURL = null, $Footer = null, $PreHTML = null, $BatchAction = null, $ExpandURL = null, $Serial = null, $Selectable = null, $ID = null, $CSSSelector = null, $SerialCaption = null, $PaginatorPageCaption = null, $PaginatorRecordsCaption = null, $RowCSSSelector = null){
+		$Object = new Datagrid($Data, $URL, $RecordCount, $Field, $Title, $RowPerPage, $DataIDColumn, $Action, $BaseURL, $IconBaseURL, $Footer, $PreHTML, $BatchAction, $ExpandURL, $Serial, $Selectable, $ID, $CSSSelector, $SerialCaption, $PaginatorPageCaption, $PaginatorRecordsCaption, $RowCSSSelector);
 
 		return $Object->HTML();
     }

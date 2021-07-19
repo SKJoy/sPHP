@@ -31,13 +31,14 @@ class Datagrid{
         "SerialCaption"				=>	"#",
         "PaginatorPageCaption"      =>  "Page", 
         "PaginatorRecordsCaption"   =>  "Record(s)", 
+        "RowCSSSelector"            =>  null, 
 
         // Read only
         "HTML"						=>	null,
     ];
 
     #region Method
-    public function __construct($Data = null, $URL = null, $RecordCount = null, $Field = null, $Title = null, $RowPerPage = null, $DataIDColumn = null, $Action = null, $BaseURL = null, $IconBaseURL = null, $Footer = null, $PreHTML = null, $BatchAction = null, $ExpandURL = null, $Serial = null, $Selectable = null, $ID = null, $CSSSelector = null, $SerialCaption = null, $PaginatorPageCaption = null, $PaginatorRecordsCaption = null){ //\sPHP\DebugDump(get_defined_vars());
+    public function __construct($Data = null, $URL = null, $RecordCount = null, $Field = null, $Title = null, $RowPerPage = null, $DataIDColumn = null, $Action = null, $BaseURL = null, $IconBaseURL = null, $Footer = null, $PreHTML = null, $BatchAction = null, $ExpandURL = null, $Serial = null, $Selectable = null, $ID = null, $CSSSelector = null, $SerialCaption = null, $PaginatorPageCaption = null, $PaginatorRecordsCaption = null, $RowCSSSelector = null){ //\sPHP\DebugDump(get_defined_vars());
 		// Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
 
@@ -362,6 +363,19 @@ class Datagrid{
         return $Result;
     }
 
+    public function RowCSSSelector($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{ //\sPHP\DebugDump($this->Property[__FUNCTION__]);
+            $this->Property[__FUNCTION__] = $Value;
+
+            $Result = true;
+        }
+
+        return $Result;
+    }
+
     public function HTML(){
 		if(is_null($this->Property[__FUNCTION__])){
             //\sPHP\DebugDump($this->Property);
@@ -540,7 +554,7 @@ class Datagrid{
                     }
 				}
 
-				$DataHTML[] = "<tr>" . implode(null, $FieldHTML) . (count($ActionHTML) ? "<td class = \"Action\">" . implode(null, $ActionHTML) . "</td>" : null) . "</tr>";
+				$DataHTML[] = "<tr class=\"" . str_replace($DataKeyFieldForTemplate, $Data, $this->Property["RowCSSSelector"]) . "\">" . implode(null, $FieldHTML) . (count($ActionHTML) ? "<td class=\"Action\">" . implode(null, $ActionHTML) . "</td>" : null) . "</tr>";
 				if($this->Property["ExpandURL"])$DataHTML[] = "<tr id=\"{$ExpansionAreaHTMLID}\" class=\"Expansion\" style=\"display: none;\"><td id=\"{$ExpansionAreaHTMLID}_Cell\" colspan=\"99999\">EXPANSION AREA</td></tr>";
 			}
 

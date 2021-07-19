@@ -55,6 +55,7 @@ class EntityManagement{
 		"ListTitle"					=>	null,
 		"InputTitle"				=>	null,
 		"ListRowExpandURL"			=>	null,
+		"ListRowCSSSelector"		=>	null,
 
         "ListHTML"					=>	null,
         "InputHTML"					=>	null,
@@ -807,6 +808,19 @@ class EntityManagement{
         return $Result;
     }
 
+    public function ListRowCSSSelector($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+            $Result = true;
+        }
+
+        return $Result;
+    }
+
     public function ListHTML(){
         if(is_null($this->Property[__FUNCTION__])){
             foreach($_POST as $Key => $Value){ // Generate URL arguments for search field(s)
@@ -836,7 +850,6 @@ class EntityManagement{
 
 			$this->Property[__FUNCTION__] = "
 				" . HTML\UI\Datagrid(
-					// WHERE clause for search
 					$this->Property["VisibleRecordset"],
 					$this->Property["URL"] . (isset($SearchArgument) ? "&" . implode("&", $SearchArgument) : null) . "",
 					$this->Property["Table"]->Count(),
@@ -857,7 +870,11 @@ class EntityManagement{
 					null,
 					null,
 					null,
-					$this->Property["DatagridCSSSelector"] // CSSSelector
+					$this->Property["DatagridCSSSelector"], // CSSSelector
+                    null, 
+                    null, 
+                    null, 
+                    $this->Property["ListRowCSSSelector"] // RowCSSSelector
 				) . "
 			";
 		}
