@@ -25,7 +25,7 @@ class Column{
         "Suffix"                    =>  null,  // Content to show after/right value
         "Template"                  =>  null, // String template to be used replacing placeholders with record values
         "TemplateHideEmpty"         =>  true, // Ignore empty value and hide template
-        "CSSStyle"                  =>  true, // Custom CSS style to use with the column/TD element
+        "CSSStyle"                  =>  null, // Custom CSS style to use with the column/TD element
     ];
 
     #region Method
