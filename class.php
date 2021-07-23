@@ -672,19 +672,21 @@ class Terminal{
         }
         #endregion Output compression
 
+        #region Header
         #region sPHP custom header
         header("XX-Powered-By: {$this->Property["Environment"]->Name()}/{$this->Property["Environment"]->Version()->Full()}");
         //header("XX-sPHP-Developer: Binary Men");
         //header("XX-sPHP-Developer-URL: http://Binary.Men");
         #endregion sPHP custom header
-
+        
         //header_remove("Pragma");
         //header_remove("Expires");
-
+        
 		header("Content-Type: " . EXTENSION_MIMETYPE[strtolower($this->Property["DocumentType"])] . (!is_null($this->Property["CharacterSet"]) ? "; charset={$this->Property["CharacterSet"]}" : null));
 		//header("Server: UNKNOWN"); // Security warning: Server header should contain server name only; So, detect the server name and put only the name here
+        #endregion Header
 
-        if($this->Property["DocumentType"] == DOCUMENT_TYPE_HTML && !isset($_POST["_MainContentOnly"])){
+        if($this->Property["DocumentType"] == DOCUMENT_TYPE_HTML && !isset($_POST["_MainContentOnly"])){ // Full HTML document
             $HTML_Head_META[] = HTML\Meta(null, null, null, null, strtolower($this->Property["CharacterSet"]));
 
             #region Filter duplicate META by name
@@ -714,7 +716,7 @@ class Terminal{
 				<link rel=\"shortcut icon\" href=\"{$this->Property["Environment"]->ImageURL()}{$this->Property["Icon"]}.ico\">
                 " . (isset($HTML_Head_Link) ? implode(null, $HTML_Head_Link) : null) . "
                 " . (isset($HTML_Head_JavaScript) ? implode(null, $HTML_Head_JavaScript) : null) . "
-            {$this->Property["HTMLHeadCode"]}</head><body id=\"DocumentBody\"" . (isset($_POST["_NoHeader"]) && isset($_POST["_NoFooter"]) ? " class=\"ContentView\"" : null) . ">";
+            {$this->Property["HTMLHeadCode"]}</head><body id=\"DocumentBody\"" . (isset($_POST["_NoHeader"]) && isset($_POST["_NoFooter"]) ? " class=\"DocumentBodyContentView\"" : null) . ">";
         }
 
         // Ouput contents
