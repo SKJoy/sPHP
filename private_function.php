@@ -53,12 +53,10 @@ function ___ExecuteApplicationScript($APP, $TPL, $CFG){
 	}
 	#endregion Update globalized resources
 
-	// Execute script
+	#region Execute script
 	require "{$ENV->Path()}system/pre.php";
 
-	// Use a call back function in pre.php to allow the developer to check the script to be executed or alter it
-	if(($AllowedScript = AllowScriptAccess($_POST["_Script"], $APP)) !== true)$_POST["_Script"] = $AllowedScript;
-
+	$_POST["_Script"] = strtolower($_POST["_Script"]);
 	$DebugCheckpointID = $DBG->StartCheckpoint("script/{$_POST["_Script"]}");
 
 	if(file_exists($ScriptToExecute = "{$ENV->ScriptPath()}{$_POST["_Script"]}.php")){
@@ -90,9 +88,10 @@ function ___ExecuteApplicationScript($APP, $TPL, $CFG){
 		}
 	}
 
-	require "{$ENV->Path()}system/post.php";
-
 	$DBG->StopCheckpoint($DebugCheckpointID);
+
+	require "{$ENV->Path()}system/post.php";
+	#endregion Execute script
 	
 	//$APP->Terminal()->Flush(); // Required to set the contents in order of header and main
 	$APP->Terminal()->Suspended(false); // Automatically calls the Flush method of Terminal

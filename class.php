@@ -1334,6 +1334,7 @@ class Application{
 		"Data"					=>	[],
         "OpenGraph"             =>  null,
         "UserDeviceNotification"    =>  false, 
+        "ScriptPermitted"       =>  true, // If the currently requested script is permitted to execute; Check system/security.php in application path
     ];
 
     #region Variable
@@ -2244,6 +2245,19 @@ class Application{
     }
 
     public function UserDeviceNotification($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+            $Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function ScriptPermitted($Value = null){
         if(is_null($Value)){
             $Result = $this->Property[__FUNCTION__];
         }
