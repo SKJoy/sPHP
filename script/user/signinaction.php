@@ -83,8 +83,10 @@ else{
 if($Result){
 	if($CFG["UserSignInNotification"])$APP->NotifyUserDevice("{$SSN->User()->Name()} signed in on " . date("F d, Y H:i:s") . "", null, "User sign in", "ADMINISTRATOR");
 	//$TRM->Redirect($_POST["_Referer"]);
-	$TRM->Redirect($APP->URL());
-	//print "<a href=\"{$APP->URL()}\">Click here<a/> to continue.";
+	//$TRM->Redirect($APP->URL());
+	$TRM->Redirect($_SERVER["REQUEST_METHOD"] == "GET" ? $_POST["_Referer"] : $APP->URL());
+
+	print HTML\UI\MessageBox("<a href=\"{$APP->URL()}\">Click here<a/> to continue.", "Security");
 }
 else{
 	require __DIR__ . "/signin.php";
