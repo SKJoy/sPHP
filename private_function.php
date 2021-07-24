@@ -67,9 +67,10 @@ function ___ExecuteApplicationScript($APP, $TPL, $CFG){
 			// Below system scripts are always allowed to be executed
 			"user/signin",
 			"user/signinaction",
+			"user/password/reset",
 			"user/signout",
-			"utility/settings/input",
-			"utility/settings/action"
+			//"utility/settings/input",
+			//"utility/settings/action"
 		])) && file_exists($ScriptToExecute = "{$ENV->SystemPath()}script/{$_POST["_Script"]}.php")){
 			require $ScriptToExecute; // Execute script from framework
 		}
