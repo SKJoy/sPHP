@@ -17,9 +17,10 @@ $Recordset = $Database->Query("
 		SET @HistoryDaysToKeep := {$Configuration["DataExpiryDay"]}; # Keep data of past N days
 
 	# Parameter
+		SET @ProcessTimeStart := NOW();
+		
 		#SET @TimeToKeepFrom := CONCAT(DATE_ADD(DATE_FORMAT(@ProcessTimeStart, '%Y-%m-01'), INTERVAL (-1) * @HistoryMonthsToKeep MONTH), ' 00:00:00');
 		SET @TimeToKeepFrom := CONCAT(DATE_ADD(DATE_FORMAT(@ProcessTimeStart, '%Y-%m-01'), INTERVAL (-1) * @HistoryDaysToKeep DAY), ' 00:00:00');
-		SET @ProcessTimeStart := NOW();
 
 	# Aged
 		DELETE FROM sphp_notification WHERE TimeInserted < @TimeToKeepFrom LIMIT 9999;
@@ -48,7 +49,9 @@ $Recordset = $Database->Query("
 		;
 
 	# Status
-		SELECT			@TimeToKeepFrom AS TimeToKeepFrom, 
+		SELECT			@HistoryMonthsToKeep AS HistoryMonthsToKeep, 
+						@HistoryDaysToKeep AS HistoryDaysToKeep, 
+						@TimeToKeepFrom AS TimeToKeepFrom, 
 						@ProcessTimeStart AS ProcessTimeStart, 
 						TIMEDIFF(NOW(), @ProcessTimeStart) AS ProcessDuration
 		;
