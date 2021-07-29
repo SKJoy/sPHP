@@ -178,4 +178,32 @@ const SECOND_MONTH_3 = SECOND_MONTH * 3;
 const SECOND_MONTH_6 = SECOND_MONTH_3 * 2;
 const SECOND_YEAR = SECOND_MONTH_6 * 2;
 #endregion Seconds in periods
+
+#region Log
+#region Type
+const LOG_TYPE_GENERAL = "LOG";
+const LOG_TYPE_INFORMATION = "INFORMATION";
+const LOG_TYPE_STATUS = "STATUS";
+const LOG_TYPE_PROGRESS = "PROGRESS";
+const LOG_TYPE_ALERT = "ALERT";
+const LOG_TYPE_INTERNAL = "INTERNAL";
+const LOG_TYPE_EXTERNAL = "EXTERNAL";
+const LOG_TYPE_DEBUG = "DEBUG";
+const LOG_TYPE_SPECIAL = "SPECIAL";
+const LOG_TYPE_APPLICATION = "APPLICATION";
+const LOG_TYPE_SYSTEM = "SYSTEM";
+const LOG_TYPE_SECURITY = "SECURITY";
+const LOG_TYPE_TEST = "TEST";
+const LOG_TYPE_WARNING = "WARNING";
+const LOG_TYPE_ERROR = "ERROR";
+const LOG_TYPE_OTHER = "OTHER";
+#endregion Type
+
+#region Data
+const LOG_DATA_TYPE_TEXT = "TEXT";
+const LOG_DATA_TYPE_JSON = "JSON";
+const LOG_DATA_TYPE_OBJECT = "OBJECT";
+const LOG_DATA_TYPE_NUMERIC = "NUMERIC";
+#endregion Log
+#endregion Data
 ?>

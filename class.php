@@ -21,7 +21,9 @@ class Environment{
 		"TimeLimit"				=>	30, // Maximum execution time in seconds
 		"CustomError"			=>	false,
 		"MemoryLimit"			=>	256, // Set memory limit in MB
+		"Log"			        =>	null, 
         #endregion Writable
+
         #region Read only
         "Path"					=>	"./",
         "ImagePath"				=>	"./image/",
@@ -141,8 +143,7 @@ class Environment{
 		}
 		#endregion Convert command line argument variables to GET parameters
 
-        // Create POST variable for each GET variable id not already exists
-		foreach($_GET as $Key=>$Value)if(!isset($_POST[$Key]))$_POST[$Key] = $Value;
+		foreach($_GET as $Key => $Value)if(!isset($_POST[$Key]))$_POST[$Key] = $Value; // Create POST variable for each GET variable if not already exists
 
         #region Set path properties
         $this->Property["Path"] = pathinfo($_SERVER["SCRIPT_FILENAME"])["dirname"] . "/";
@@ -193,12 +194,17 @@ class Environment{
 
 		$this->Property["Utility"]->Debug()->BasePath($this->Property["Path"]);
 
+		#region Set up global Log
+        $this->Property["Log"] = new Log();
+        $this->Property["Log"]->File("{$this->Property["Path"]}log/application.log");
+        $this->Property["Log"]->BasePath([$this->Property["SystemPath"], $this->Property["Path"], ]);
+		#endregion Set up global Log
+
         return true;
     }
 
     public function __destruct(){
-
-        return true;
+		return true;
     }
 
     public function SetVariable($Name, $DefaultValue = null, $GET = true, $POST = true, $SESSION = false, $COOKIE = false){
@@ -433,6 +439,11 @@ class Environment{
         }
 
         return $Result;
+    }
+
+    public function Log($Value = null){
+        if(is_null($Value))return $this->Property[__FUNCTION__];
+        $this->Property[__FUNCTION__] = $Value;
     }
 
     public function Path(){
@@ -1055,7 +1066,7 @@ class Session{
         $this::$AlreadyInstantiated = true;
 
         // Set property values from arguments passed during object instantiation
-        foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
+        foreach(get_defined_vars() as $ArgumentName => $ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
 
         return true;
     }
@@ -1179,6 +1190,8 @@ class Session{
 			$_SESSION["DebugMode"] = false;
 			$_SESSION["UserSetTime"] = time();
 			$_SESSION["Impersonated"] = false;
+        
+            $this->Property["Environment"]->Log()->UserID($this->User()->ID()); // Update global Log UserID
 
             $Result = true;
         }
@@ -1334,6 +1347,7 @@ class Application{
 		"Data"					=>	[],
         "OpenGraph"             =>  null,
         "UserDeviceNotification"    =>  false, 
+        "Log"                   =>  null, 
     ];
 
     #region Variable
@@ -1348,6 +1362,7 @@ class Application{
 		if($this::$AlreadyInstantiated)trigger_error("Instantiation is prohibited for " . __CLASS__ .  " object.");
 		$this::$AlreadyInstantiated = true;
 
+		$this->Property["Log"] = $Terminal->Environment()->Log(); // Inherit global Log
 		$this->Property["Database"] = new Database();
 		$this->Property["EncryptionKey"] = $_SERVER["SERVER_NAME"];
 		$this->Property["OpenGraph"] = new OpenGraph(null, null, null, null, null, time() - (24 * 60 * 60));
@@ -1378,11 +1393,12 @@ class Application{
 		//if($Configuration["CustomError"])___SetErrorHandler(); // Custom error tuggle is incorporated in the Environment object
 		$this->Property["Terminal"]->Environment()->CustomError($Configuration["CustomError"]);
 
-		// Set indirect properties from configuration items
+		#region Set indirect properties from configuration items
         $this->Property["Guest"] = new User($Configuration["GuestEmail"], null, $Configuration["GuestName"], $Configuration["CompanyPhone"], null, null, null, null, null, "GUEST", null, null, "Guest", "GUEST");
         $this->Property["Administrator"] = new User($Configuration["AdministratorEmail"], $Configuration["AdministratorPasswordHash"], $Configuration["AdministratorName"], $Configuration["CompanyPhone"], null, null, null, null, null, "ADMINISTRATOR", null, null, "Administrator", "ADMINISTRATOR");
         $this->Property["Company"] = new User($Configuration["CompanyEmail"], null, $Configuration["CompanyName"], $Configuration["CompanyPhone"], $Configuration["CompanyAddress"], $Configuration["CompanyURL"]);
 		$this->Property["Version"] = new Version($Configuration["VersionMajor"], $Configuration["VersionMinor"], $Configuration["VersionRevision"]);
+		#endregion Set indirect properties from configuration items
 
         // Other static assignments from the configuration
         $this->Property["Terminal"]->META("author", $Configuration["CompanyName"]);
@@ -1396,22 +1412,24 @@ class Application{
         //$this->Property["Terminal"]->HTMLHeadCode("{$Configuration["HTMLHeadCode"]}\n\n{$TinyMCEHTMLHeadCode}");
         $this->Property["Terminal"]->HTMLHeadCode("{$Configuration["HTMLHeadCode"]}");
 
-		// Set environment SMTP configuration
+		#region Environment SMTP configuration
 		$this->Property["Terminal"]->Environment()->SMTPHost($Configuration["SMTPHost"]);
 		$this->Property["Terminal"]->Environment()->SMTPPort($Configuration["SMTPPort"]);
 		$this->Property["Terminal"]->Environment()->SMTPUser($Configuration["SMTPUser"]);
 		$this->Property["Terminal"]->Environment()->SMTPPassword($Configuration["SMTPPassword"]);
+		#endregion Environment SMTP configuration
 
         // Assume default script to execute if no script is requested
         // Moved here from below to allow ignoring session activity
         // for specific scripts
 		$_POST["_Script"] = strtolower(SetVariable("_Script", $this->Property["DefaultScript"]));
 
-        // Set session configuration
+        #region Session configuration
 		$this->Property["Session"]->Name($Configuration["SessionName"]);
 		$this->Property["Session"]->Lifetime($Configuration["SessionLifetime"]);
         $this->Property["Session"]->Isolate($Configuration["SessionIsolate"]);
         $this->Property["Session"]->Guest($this->Property["Guest"]);
+        #endregion Session configuration
 
         // Ignore session activity for specific scripts as set with Configuration
         // Special care taken in case if this Configuration parameter is not set!
@@ -1422,14 +1440,13 @@ class Application{
                 break; // Match found, no need to check anymore
             }
         }
-
-		// Set up database
+		
 		if(
 				$Configuration["DatabaseType"]
 			&&	$Configuration["DatabaseHost"]
 			&&	$Configuration["DatabaseUser"]
 			&&	$Configuration["DatabaseName"]
-		){
+		){ // Set up database
 			$this->Property["Database"] = new Database($Configuration["DatabaseType"], $Configuration["DatabaseHost"], $Configuration["DatabaseUser"], $Configuration["DatabasePassword"], $Configuration["DatabaseName"], $Configuration["DatabaseODBCDriver"], $Configuration["DatabaseTablePrefix"], $Configuration["DatabaseTimezone"], $Configuration["CharacterSet"], $Configuration["DatabaseStrictMode"]);
 			$this->Property["Database"]->ErrorLogPath("{$this->Property["Terminal"]->Environment()->LogPath()}error/");
 			$this->Property["Database"]->Connect();
@@ -1441,6 +1458,7 @@ class Application{
 			$Configuration["DatabaseTable"]["" . ($Entity = "User") . ""] = new Database\Table("{$Entity}");
 			$Configuration["DatabaseTable"]["" . ($Entity = "User") . "Group"] = new Database\Table("{$Entity} group");
 			$Configuration["DatabaseTable"]["" . ($Entity = "User") . "UserGroup"] = new Database\Table("{$Entity} user group");
+			$Configuration["DatabaseTable"]["" . ($Entity = "Log") . ""] = new Database\Table("{$Entity}");
 			$Configuration["DatabaseTable"]["" . ($Entity = "Application") . "Traffic"] = new Database\Table("{$Entity} traffic", "ATr");
 			$Configuration["DatabaseTable"]["" . ($Entity = "Measure") . "Type"] = new Database\Table("{$Entity} type");
 			$Configuration["DatabaseTable"]["" . ($Entity = "Measure") . ""] = new Database\Table("{$Entity}");
@@ -1454,12 +1472,18 @@ class Application{
 				$Table->SQLSELECTPath("{$this->Property["Terminal"]->Environment()->SQLSELECTPath()}" . strtolower($this->Property["Database"]->Type()) . "/");
 				$Table->Database($this->Property["Database"]);
 			}
+
+			// Need to inform Log object to use the new Database
+			// TODO: Investigate why putting this somewhere below fails to keep a hold on the database!!!
+			$this->Property["Log"]->Database($this->Property["Database"]);
+			$this->Property["Log"]->DatabaseTable("sphp_log");
 		}
         #endregion Set configuration
         #endregion Load configuration
 
-        $this->Property["Session"]->Start(); // Start the session after configuring accordingly
+        $this->Property["Session"]->Start(); // Start the session after configuring accordingly. Log User ID updated with Session->User() property method
         //var_dump(__FILE__, __LINE__, __FUNCTION__, debug_backtrace()); exit;
+		
 		#region Create session log upon each session reset
 		if($Configuration["DatabaseLogTraffic"] && !is_null($this->Property["Database"]->Connection())){
 			$Configuration["DatabaseTable"]["ApplicationTraffic"]->Put([ // Traffic
@@ -2252,6 +2276,12 @@ class Application{
 
             $Result = true;
         }
+
+        return $Result;
+    }
+
+    public function Log(){
+        $Result = $this->Property[__FUNCTION__];
 
         return $Result;
     }
@@ -3154,7 +3184,7 @@ class Graphic{
 			}
 
 			if(!$PictureHandle){ // Error loading picture
-var_dump("Irrecoverable error with '{$PictureFile}' at " . __FILE__ . ":" . __LINE__);
+				var_dump("Irrecoverable error with '{$PictureFile}' at " . __FILE__ . ":" . __LINE__);
 			}
 			else{
 				if($MaximumWidth > 0 && $MaximumHeight > 0){
@@ -3200,11 +3230,11 @@ var_dump("Irrecoverable error with '{$PictureFile}' at " . __FILE__ . ":" . __LI
 				imagedestroy($ResampleHandle);
 
 				$Result = basename($ResampleFile);
-//var_dump($PictureFileInformation, $PictureInformation, $PictureHandle, $Width, $Height, $ResampleFile, basename($ResampleFile)); exit;
+				//var_dump($PictureFileInformation, $PictureInformation, $PictureHandle, $Width, $Height, $ResampleFile, basename($ResampleFile)); exit;
 			}
 		}
 		else{ // Picture file not found
-var_dump("Picture file '{$PictureFile}' not found at " . __FILE__ . ":" . __LINE__);
+			var_dump("Picture file '{$PictureFile}' not found at " . __FILE__ . ":" . __LINE__);
 		}
 
 		return $Result;

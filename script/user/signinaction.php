@@ -81,13 +81,17 @@ else{
 }
 
 if($Result){
+	$APP->Log()->Put("{$SSN->User()->Name()} ({$SSN->User()->UserGroupIdentifierHighest()})", ["User" => ["Email" => $SSN->User()->Email(), ], "IP" => $_SERVER["REMOTE_ADDR"], ], null, LOG_TYPE_SECURITY, "Sign in", "User", "Application");
 	if($CFG["UserSignInNotification"])$APP->NotifyUserDevice("{$SSN->User()->Name()} signed in on " . date("F d, Y H:i:s") . "", null, "User sign in", "ADMINISTRATOR");
+
 	//$TRM->Redirect($_POST["_Referer"]);
 	$TRM->Redirect($APP->URL());
 
-	print HTML\UI\MessageBox("<a href=\"{$APP->URL()}\">Click here<a/> to continue.", "Security");
+	print HTML\UI\MessageBox("<a href=\"{$APP->URL()}\">Click here<a/> to continue.", "Security");	
 }
 else{
+	$APP->Log()->Put("Authentication failed", ["Email" => $_POST["{$EntityName}Email"], "IP" => $_SERVER["REMOTE_ADDR"], ], null, LOG_TYPE_SECURITY, "Sign in", "User", "Application");
+
 	require __DIR__ . "/signin.php";
 }
 ?>

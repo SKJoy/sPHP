@@ -30,7 +30,7 @@ class User{
     public function __construct($Email = null, $PasswordHash = null, $Name = null, $Phone = null, $Address = null, $URL = null, $Picture = null, $PictureThumbnail = null, $ID = null, $UserGroupIdentifier = null, $UserGroupWeight = null, $UserGroupMaximumWeight = null, $UserGroup = null, $UserGroupIdentifierHighest = null){
 
         // Set property values from arguments passed during object instantiation
-        foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
+        foreach(get_defined_vars() as $ArgumentName => $ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
 
         return true;
     }
