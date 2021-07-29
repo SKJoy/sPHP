@@ -14,9 +14,11 @@ $DateTimeFormat = "{$Configuration["ShortDateFormat"]} {$Configuration["TimeForm
 $Recordset = $Database->Query("
 	# Argument
 		SET @HistoryMonthsToKeep := 3; # Keep data of past N months
+		SET @HistoryDaysToKeep := {$Configuration["DataExpiryDay"]}; # Keep data of past N days
 
 	# Parameter
-		SET @TimeToKeepFrom := CONCAT(DATE_ADD(DATE_FORMAT(@ProcessTimeStart, '%Y-%m-01'), INTERVAL (-1) * @HistoryMonthsToKeep MONTH), ' 00:00:00');
+		#SET @TimeToKeepFrom := CONCAT(DATE_ADD(DATE_FORMAT(@ProcessTimeStart, '%Y-%m-01'), INTERVAL (-1) * @HistoryMonthsToKeep MONTH), ' 00:00:00');
+		SET @TimeToKeepFrom := CONCAT(DATE_ADD(DATE_FORMAT(@ProcessTimeStart, '%Y-%m-01'), INTERVAL (-1) * @HistoryDaysToKeep DAY), ' 00:00:00');
 		SET @ProcessTimeStart := NOW();
 
 	# Aged
@@ -24,6 +26,7 @@ $Recordset = $Database->Query("
 		DELETE FROM sphp_userdevice WHERE TimeInserted < @TimeToKeepFrom LIMIT 9999;
 		DELETE FROM sphp_useruserdevice WHERE UserUserDeviceTimeActiveLast < @TimeToKeepFrom LIMIT 9999;
 		DELETE FROM sphp_useruserdevicenotification WHERE TimeInserted < @TimeToKeepFrom OR UserUserDeviceNotificationIsRead = 1 LIMIT 9999;
+		DELETE FROM sphp_log WHERE TimeInserted < @TimeToKeepFrom LIMIT 9999;
 
 	# Orphan
 		DELETE UUG FROM	sphp_userusergroup AS UUG
