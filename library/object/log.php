@@ -74,7 +74,7 @@ class Log{
 			#region Detect data type and format data for store
 			if(is_array($Data)){
 				$DataType = LOG_DATA_TYPE_JSON;
-				$Data = json_encode($Data);
+				$Data = json_encode(array_filter($Data));
 			}
 			elseif(is_object($Data)){
 				$DataType = LOG_DATA_TYPE_OBJECT;
