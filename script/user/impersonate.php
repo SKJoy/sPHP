@@ -11,7 +11,7 @@ if(isset($_POST["btnSubmit"])){
 		print HTML\UI\MessageBox("Impersonation authenticated and intiated. Please <a href=\"{$APP->URL()}\">click here</a> to proceed.");
 	}
 	else{
-		$APP->Log()->Put("{$USR->Name()} ({$USR->UserGroupIdentifierHighest()}) ineligible", ["Email" => $_POST["UserEmail"], "Result" => $Result, ], null, LOG_TYPE_ERROR, "Impersonate", "User", "Session");
+		$LOG->Put("{$USR->Name()} ({$USR->UserGroupIdentifierHighest()}) ineligible", ["Email" => $_POST["UserEmail"], "Result" => $Result, ], null, LOG_TYPE_ERROR, "Impersonate", "User", "Session");
 		print HTML\UI\MessageBox("<ul><li>" . implode("</li><li>", array_column($Result, "Message")) . "</li></ul>", "Error");
 	}
 }
