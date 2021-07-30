@@ -488,7 +488,7 @@ class Database{
 		array_pop($DebugCallStack);
 		array_pop($DebugCallStack); //var_dump($DebugCallStack);
 
-		file_put_contents(
+		if($this->Property["ErrorLogPath"])file_put_contents(
 			"{$this->Property["ErrorLogPath"]}database.json",
 			json_encode([
 				"Error" => [
