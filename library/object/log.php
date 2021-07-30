@@ -165,7 +165,12 @@ class Log{
 	}
 
 	public function Flush(){
-        if($this->Property["Database"] && $this->Property["DatabaseTable"] && count($this->Property["SQL_INSERT_VALUES"])){ // Save log to database all at once
+        if(
+			count($this->Property["SQL_INSERT_VALUES"]) && // We have pending logs for database
+			$this->Property["Database"] && // Database set up
+			$this->Property["DatabaseTable"] && // Database table specified
+			!is_null($this->Property["Database"]->Connection()) // Database connected
+		){ // Save log to database all at once
             $this->Property["Database"]->Query("INSERT INTO {$this->Property["DatabaseTable"]} (" . implode(", ", array_keys($this->Property["DatabaseColumn"])) . ") VALUES" . PHP_EOL . implode(", " . PHP_EOL, $this->Property["SQL_INSERT_VALUES"]) . "");
             $this->Property["SQL_INSERT_VALUES"] = []; // CLear SQL buffer
         }
