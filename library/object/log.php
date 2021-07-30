@@ -157,7 +157,7 @@ class Log{
 
 				if($Database)$this->Property["SQL_INSERT_VALUES"][] = "(" . str_replace(
 					["%TIME%", "%TYPE%", "%SOURCE%", "%SUBJECT%", "%ACTION%", "%DESCRIPTION%", "%DATATYPE%", "%DATA%", "%SCRIPT%", "%LINE%", "%USERID%"], 
-					[$this->Property["Database"]->Escape($Time), $this->Property["Database"]->Escape($Type), $this->Property["Database"]->Escape($Source), $this->Property["Database"]->Escape($Subject), $this->Property["Database"]->Escape($Action), $this->Property["Database"]->Escape($Description), $this->Property["Database"]->Escape($DataType), $this->Property["Database"]->Escape($Data), $this->Property["Database"]->Escape($CallerFile), $CallerLine, $this->Property["Database"]->Escape(intval($this->Property["UserID"]))], 
+					[$this->Property["Database"]->Escape($Time), $this->Property["Database"]->Escape($Type), $this->Property["Database"]->Escape($Source), $this->Property["Database"]->Escape($Subject), $this->Property["Database"]->Escape($Action), $this->Property["Database"]->Escape($Description), $this->Property["Database"]->Escape($DataType), $this->Property["Database"]->Escape($Data), $this->Property["Database"]->Escape($CallerFile), $CallerLine, strlen($this->Property["UserID"]) ? $this->Property["Database"]->Escape($this->Property["UserID"]) : "NULL"], 
 					implode(", ", $this->Property["DatabaseColumn"])
 				) . ")";
 			}
