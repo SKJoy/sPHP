@@ -93,7 +93,7 @@ if(is_array($NotificationRecordset))foreach($NotificationRecordset as $Notificat
 curl_close($cURL); // Close cURL connection
 if(count($NotificationUPDATESQL))$Database->Query(implode("\n", $NotificationUPDATESQL)); // Update notification status
 
-if(isset($sPHPCronJob)){ // Resturn result if ran through sPHP Cron object
+if(isset($sPHPCronJob)){ // Return result if ran through sPHP Cron object
 	$CronJobResult["Error"] = ["Code" => 0, "Message" => null, ];
 
 	$CronJobResult["Status"] = [
