@@ -14,7 +14,7 @@ $DateTimeFormat = "{$Configuration["ShortDateFormat"]} {$Configuration["TimeForm
 $Recordset = $Database->Query("
 	# Argument
 		SET @HistoryMonthsToKeep := 3; # Keep data of past N months
-		SET @HistoryDaysToKeep := {$Configuration["DataExpiryDay"]}; # Keep data of past N days
+		SET @HistoryDaysToKeep := {$Configuration["HistoricDataExpiryDay"]}; # Keep data of past N days
 
 	# Parameter
 		SET @ProcessTimeStart := NOW();
