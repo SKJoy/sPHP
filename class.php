@@ -1367,10 +1367,17 @@ class Application{
 		if($this::$AlreadyInstantiated)trigger_error("Instantiation is prohibited for " . __CLASS__ .  " object.");
 		$this::$AlreadyInstantiated = true;
 
-		$this->Property["Log"] = $Terminal->Environment()->Log(); // Inherit global Log
+		#region Initialize dynamic properties
 		$this->Property["Database"] = new Database();
+		$this->Property["Log"] = $Terminal->Environment()->Log(); // Inherit global Log
 		$this->Property["EncryptionKey"] = $_SERVER["SERVER_NAME"];
 		$this->Property["OpenGraph"] = new OpenGraph(null, null, null, null, null, time() - (24 * 60 * 60));
+		#endregion Initialize dynamic properties
+
+		#region Set up log database
+		$this->Property["Log"]->Database($this->Property["Database"]);
+		$this->Property["Log"]->DatabaseTable("sphp_log");
+		#endregion Set up log database
 
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
@@ -1452,11 +1459,23 @@ class Application{
 			&&	$Configuration["DatabaseUser"]
 			&&	$Configuration["DatabaseName"]
 		){ // Set up database
-			$this->Property["Database"] = new Database($Configuration["DatabaseType"], $Configuration["DatabaseHost"], $Configuration["DatabaseUser"], $Configuration["DatabasePassword"], $Configuration["DatabaseName"], $Configuration["DatabaseODBCDriver"], $Configuration["DatabaseTablePrefix"], $Configuration["DatabaseTimezone"], $Configuration["CharacterSet"], $Configuration["DatabaseStrictMode"]);
+			#region Database properties
+			$this->Property["Database"]->Type($Configuration["DatabaseType"]);
+			$this->Property["Database"]->Host($Configuration["DatabaseHost"]);
+			$this->Property["Database"]->User($Configuration["DatabaseUser"]);
+			$this->Property["Database"]->Password($Configuration["DatabasePassword"]);
+			$this->Property["Database"]->Name($Configuration["DatabaseName"]);
+			$this->Property["Database"]->ODBCDriver($Configuration["DatabaseODBCDriver"]);
+			$this->Property["Database"]->TablePrefix($Configuration["DatabaseTablePrefix"]);
+			$this->Property["Database"]->Timezone($Configuration["DatabaseTimezone"]);
+			$this->Property["Database"]->Encoding($Configuration["CharacterSet"]);
+			$this->Property["Database"]->Strict($Configuration["DatabaseStrictMode"]);
 			$this->Property["Database"]->ErrorLogPath("{$this->Property["Terminal"]->Environment()->LogPath()}error/");
+			#endregion Database properties
+
 			$this->Property["Database"]->Connect();
 
-			#region Add generic tables
+			#region Framework generic tables
 			$Configuration["DatabaseTable"]["" . ($Entity = "Language") . ""] = new Database\Table("{$Entity}");
 			$Configuration["DatabaseTable"]["" . ($Entity = "Country") . ""] = new Database\Table("{$Entity}");
 			$Configuration["DatabaseTable"]["" . ($Entity = "Gender") . ""] = new Database\Table("{$Entity}");
@@ -1470,18 +1489,13 @@ class Application{
 			$Configuration["DatabaseTable"]["" . ($Entity = "Dictionary") . "Data"] = new Database\Table("{$Entity} data");
 			$Configuration["DatabaseTable"]["" . ($Entity = "Dictionary") . ""] = new Database\Table("{$Entity}");
 			$Configuration["DatabaseTable"]["" . ($Entity = "Dictionary") . "Type"] = new Database\Table("{$Entity} type");
-			#endregion Add generic tables
+			#endregion Framework generic tables
 
 			foreach($Configuration["DatabaseTable"] as $Table){ // Set dynamic & common table properties
 				$Table->UploadPath("{$this->Property["Terminal"]->Environment()->UploadPath()}{$Table->Name()}/");
 				$Table->SQLSELECTPath("{$this->Property["Terminal"]->Environment()->SQLSELECTPath()}" . strtolower($this->Property["Database"]->Type()) . "/");
 				$Table->Database($this->Property["Database"]);
 			}
-
-			// Need to inform Log object to use the new Database
-			// TODO: Investigate why putting this somewhere below fails to keep a hold on the database!!!
-			$this->Property["Log"]->Database($this->Property["Database"]);
-			$this->Property["Log"]->DatabaseTable("sphp_log");
 		}
         #endregion Set configuration
         #endregion Load configuration
