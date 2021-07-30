@@ -200,7 +200,8 @@ class EntityManagement{
 					}
 				}
 
-				print "" . HTML\UI\MessageBox("Information saved into the database successfully.", "System") . "";
+				\sPHP::$Log->Put("" . \sPHP::$User->Name() . " (" . \sPHP::$User->UserGroupIdentifierHighest() . ")", ["ID" => $AffectedRecord[$this->Property["Table"]->Structure()["Primary"][0]], "WHERE" => $WHERE, ], null, LOG_TYPE_APPLICATION, $this->Property["EntityID"] ? "Edit" : "Add new", "{$this->Property["Table"]->FormalName()}", "Database");
+                print "" . HTML\UI\MessageBox("Information saved into the database successfully.", "System") . "";
 
 				//$Result = true;
 				$Result = $AffectedRecord;
@@ -228,6 +229,7 @@ class EntityManagement{
 			null
 		);
 
+        \sPHP::$Log->Put("" . \sPHP::$User->Name() . " (" . \sPHP::$User->UserGroupIdentifierHighest() . ")", ["WhereClause" => $WhereClause, ], null, LOG_TYPE_APPLICATION, "Remove", "{$this->Property["Table"]->FormalName()}", "Database");
 		print "" . HTML\UI\MessageBox("Information removed from system.", "System") . "";
 
 		return true;

@@ -834,6 +834,7 @@ class Terminal{
         print $Content; // Output content
 
         $this->Suspended(true); // Suppress any further output
+        $this->Property["Environment"]->Log()->Put("" . \sPHP::$User->Name() . " (" . \sPHP::$User->UserGroupIdentifierHighest() . ")", ["File" => $FileName, "Type" => $DocumentType, "Byte" => strlen($Content), ], null, LOG_TYPE_ALERT, "File download", "User", "Application");
 
         return true;
     }
