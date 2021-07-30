@@ -1038,7 +1038,7 @@ class Session{
         "Guest"					=>	null,
         "Lifetime"				=>	20 * 60, // In seconds
         "Isolate"				=>	true,
-        "User"					=>	null,
+        "User"					=>	null, // Not used, served from session store
         "Name"					=>	null,
 		"ContentEditMode"		=>	false,
         "DebugMode"				=>	false,
@@ -1086,13 +1086,13 @@ class Session{
             $this->Property["IsFresh"] = true;
             $this->Reset(); // Reset session to set up guest properties
         }
-        else{ // Session exists, Old
-            // Reset session upon activity time out
-            if((time() - $_SESSION["LastActivityTime"]) > $this->Property["Lifetime"]){
+        else{ // Session exists, Old            
+            if((time() - $_SESSION["LastActivityTime"]) > $this->Property["Lifetime"]){ // Reset session upon activity time out
 				$this->Reset(); // Reset session to set up guest properties
 			}
 			else{ // Existing valid session
                 // Reflect session values to external resources
+                $this->Property["Environment"]->Log()->UserID($this->User()->ID()); // Update global Log UserID
 				$this->Property["Environment"]->Utility()->Debug()->Enabled($_SESSION["DebugMode"]);
 			}
         }
@@ -1104,9 +1104,8 @@ class Session{
 		$Result = true;
 
 		$this->Property["IsReset"] = true;
-
-		// Set user through method to take user change related actions
-        $this->User($this->Property["Guest"]);
+		
+        $this->User($this->Property["Guest"]); // Set user through method to take user change related actions
         $this->Language(new Language());
 
 		return $Result;
