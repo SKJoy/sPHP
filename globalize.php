@@ -27,6 +27,7 @@ class sPHP{ // Class abstraction for auto global static properties
 	public static $Database; 
 	public static $Table; 
 	public static $Variable; 
+	public static $Log; 
 
 	public static $APP; 
 	public static $CFG; 
@@ -40,5 +41,6 @@ class sPHP{ // Class abstraction for auto global static properties
 	public static $DTB; 
 	public static $TBL; 
 	public static $VAR; 
+	public static $LOG; 
 }
 ?>

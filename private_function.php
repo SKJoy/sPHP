@@ -37,6 +37,7 @@ function ___ExecuteApplicationScript($APP, $TPL, $CFG){
 	\sPHP::$Template = \sPHP::$TPL = $sPHP["Template"] = $sPHP["TPL"] = $TPL;
 	$DTB = \sPHP::$Database = \sPHP::$DTB = $sPHP["Database"] = $sPHP["DTB"] = $APP->Database();
 	$TBL = \sPHP::$Table = \sPHP::$TBL = $sPHP["Table"] = $sPHP["TBL"] = $CFG["DatabaseTable"];
+	$LOG = \sPHP::$Log = \sPHP::$LOG = $sPHP["Log"] = $sPHP["LOG"] = $APP->Log();
 
 	if(!isset($CFG["LegacySupport_sPHP_LongLocalVariable"]) || $CFG["LegacySupport_sPHP_LongLocalVariable"]){ // Legacy support
 		$Application = $APP;
@@ -141,6 +142,7 @@ function ___ExecuteTemplateView($Script, $VAR, $APP, $CFG){
 	$DBG = \sPHP::$Debug;
 	$DTB = \sPHP::$Database;
 	$TBL = \sPHP::$Table;
+	$LOG = \sPHP::$Log;
 
 	if(!isset($CFG["LegacySupport_sPHP_LongLocalVariable"]) || $CFG["LegacySupport_sPHP_LongLocalVariable"]){ // Legacy support
 		$Variable = $VAR;
