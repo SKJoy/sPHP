@@ -1113,6 +1113,8 @@ class Session{
 	}
 
 	public function Impersonate($User){
+        $this->Property["Environment"]->Log()->Put("{$this->User()->Name()} ($this->User()->UserGroupIdentifierHighest())", ["User" => ["Name" => $User->Name(), "Email" => $User->Eamil(), "UserGroupIdentifierHighest" => $User->UserGroupIdentifierHighest(), ], ], null, LOG_TYPE_SECURITY, "Impersonate", "User", "Session");
+
 		$this->Reset();
 		$this->User($User);
 
@@ -1192,6 +1194,7 @@ class Session{
 			$_SESSION["Impersonated"] = false;
         
             $this->Property["Environment"]->Log()->UserID($this->User()->ID()); // Update global Log UserID
+            $this->Property["Environment"]->Log()->Put("{$this->User()->Name()} ($this->User()->UserGroupIdentifierHighest())", null, null, LOG_TYPE_APPLICATION, "Set", "User", "Session");
 
             $Result = true;
         }
