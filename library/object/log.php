@@ -16,8 +16,8 @@ class Log{
             "LogSource"			=>	"'%SOURCE%'", 
             "LogSubject"		=>	"'%SUBJECT%'", 
             "LogAction"			=>	"'%ACTION%'", 
-            "LogDescription"	=>	"'%DESCRIPTION%'", 
             "LogDataType"		=>	"'%DATATYPE%'", 
+            "LogDescription"	=>	"'%DESCRIPTION%'", 
             "LogData"			=>	"'%DATA%'", 
             "LogCallerFile"		=>	"'%SCRIPT%'", 
             "LogCallerFileLine"	=>	"'%LINE%'", 
@@ -33,7 +33,7 @@ class Log{
         ], 
         "MinimumTypeLength" => 11, 
         "MinimumSourceLength" => 11, 
-        "MinimumSubjectLength" => 11, 
+        "MinimumSubjectLength" => 24, 
         "MinimumActionLength" => 16, 
         "MinimumDescriptionLength" => 50, 
         
