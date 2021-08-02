@@ -2977,6 +2977,8 @@ class Utility{
 				$ExecStatus = exec($ShellCommand, $ExecInformation, $ExecReturn);
 			}
 			catch(\Exception $Error){
+                $ExecStatus = false;
+                
 				file_put_contents(__DIR__ . "/DEBUG-sPHP-Utility-" . __FUNCTION__ . ".json", json_encode([
 					"Error" => $Error, 
 					"Argument" => [

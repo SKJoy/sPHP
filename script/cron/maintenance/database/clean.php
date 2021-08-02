@@ -18,11 +18,11 @@ $Recordset = $Database->Query("
 		SET @TimeToKeepFrom := CONCAT(DATE_ADD(DATE_FORMAT(@ProcessTimeStart, '%Y-%m-01'), INTERVAL (-1) * @HistoryDaysToKeep DAY), ' 00:00:00');
 
 	# Aged
-		DELETE FROM sphp_notification WHERE TimeInserted < @TimeToKeepFrom LIMIT 9999;
-		DELETE FROM sphp_userdevice WHERE TimeInserted < @TimeToKeepFrom LIMIT 9999;
-		DELETE FROM sphp_useruserdevice WHERE UserUserDeviceTimeActiveLast < @TimeToKeepFrom LIMIT 9999;
-		DELETE FROM sphp_useruserdevicenotification WHERE TimeInserted < @TimeToKeepFrom OR UserUserDeviceNotificationIsRead = 1 LIMIT 9999;
-		DELETE FROM sphp_log WHERE TimeInserted < @TimeToKeepFrom LIMIT 9999;
+		DELETE FROM sphp_notification WHERE TimeInserted < @TimeToKeepFrom LIMIT 99999;
+		DELETE FROM sphp_userdevice WHERE TimeInserted < @TimeToKeepFrom LIMIT 99999;
+		DELETE FROM sphp_useruserdevice WHERE UserUserDeviceTimeActiveLast < @TimeToKeepFrom LIMIT 99999;
+		DELETE FROM sphp_useruserdevicenotification WHERE TimeInserted < @TimeToKeepFrom OR UserUserDeviceNotificationIsRead = 1 LIMIT 99999;
+		DELETE FROM sphp_log WHERE TimeInserted < @TimeToKeepFrom LIMIT 99999;
 
 	# Orphan
 		DELETE UUG FROM	sphp_userusergroup AS UUG LEFT JOIN sphp_user AS U ON U.UserID = UUG.UserID LEFT JOIN sphp_usergroup AS UG ON UG.UserGroupID = UUG.UserGroupID WHERE U.UserID IS NULL OR UG.UserGroupID IS NULL;
