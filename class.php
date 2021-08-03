@@ -2971,23 +2971,12 @@ class Utility{
             $ExecStatus = exec("tasklist /fi \"pid eq {$Process["ID"]}\"", $ExecInformation, $ExecReturn);
         }
         elseif(PHP_OS_FAMILY === "Linux"){ // Command for Linux
-			$ShellCommand = "ps -f -p {$Process["ID"]}";
-
-			try{
-				$ExecStatus = exec($ShellCommand, $ExecInformation, $ExecReturn);
-			}
-			catch(\Exception $Error){
-                $ExecStatus = false;
-                
-				file_put_contents(__DIR__ . "/DEBUG-sPHP-Utility-" . __FUNCTION__ . ".json", json_encode([
-					"Error" => $Error, 
-					"Argument" => [
-						"ProcessID" => $ProcessID, 
-					], 
-					"Command" => $ShellCommand, 
-					"Trace" => debug_backtrace(), 
-				]));
-			}
+            try{
+                @$ExecStatus = exec("ps -f -p {$Process["ID"]}", $ExecInformation, $ExecReturn);
+            }
+            catch(\Exception $Error){
+                $ExecStatus = false;    
+            }
         }
         else{ // Unknown OS
             $ExecStatus = false;
