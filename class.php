@@ -2967,15 +2967,17 @@ class Utility{
         $Process["ID"] = is_null($ProcessID) ? getmypid() : intval($ProcessID); // Validate and default to own process ID
     
         #region Get process information from OS
+        $ExecStatus = false;
+        
         if(PHP_OS_FAMILY === "Windows"){ // Command for Windows
             $ExecStatus = exec("tasklist /fi \"pid eq {$Process["ID"]}\"", $ExecInformation, $ExecReturn);
         }
         elseif(PHP_OS_FAMILY === "Linux"){ // Command for Linux
             try{
-                @$ExecStatus = exec("ps -f -p {$Process["ID"]}", $ExecInformation, $ExecReturn);
+                $ExecStatus = @exec("ps -f -p {$Process["ID"]}", $ExecInformation, $ExecReturn);
             }
             catch(\Exception $Error){
-                $ExecStatus = false;    
+                $ExecStatus = false;
             }
         }
         else{ // Unknown OS
