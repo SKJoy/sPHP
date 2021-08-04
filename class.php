@@ -1181,7 +1181,7 @@ class Session{
 
     public function User($Value = null){
         if(is_null($Value)){
-            $Result = $_SESSION[__FUNCTION__];
+            $Result = isset($_SESSION[__FUNCTION__]) ? $_SESSION[__FUNCTION__] : $this->Property["Guest"]; // Return Guest in case if User is not set
         }
         else{
             $_SESSION[__FUNCTION__] = $Value;
