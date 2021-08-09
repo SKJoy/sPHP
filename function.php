@@ -241,6 +241,12 @@ namespace sPHP\Comm{
 
 		return $Mail->Send();
 	}
+
+	function cURL(?string $URI = null, ?array $POST = null, ?array $FILE = null, ?string $CookiePath = null, $CookieFile = null, ?string $Method = null, ?bool $SSLVerifyPeer = null, ?bool $SSLVerifyHost = null, ?string $UserAgent = null, ?string $Referer = null, ?bool $FollowRedirection = null){
+		$cURL = new cURL();
+
+		return $cURL->Call($URI, $POST, $FILE, $CookiePath, $CookieFile, $Method, $SSLVerifyPeer, $SSLVerifyHost, $UserAgent, $Referer, $FollowRedirection);
+	}
 }
 
 namespace sPHP\HTML{
