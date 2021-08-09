@@ -9,7 +9,6 @@
 namespace sPHP\HTML\UI;
 
 class Checkbox{
-    #region Property variable
     private $Property = [
         "Value"						=>	null,
         "Caption"					=>	null,
@@ -19,7 +18,6 @@ class Checkbox{
         "ID"						=>	null,
         "HTML"						=>	null,
     ];
-    #endregion Property variable
 
     #region Method
     public function __construct($Value = null, $Caption = null, $Name = null, $CSSSelector = null, $EventHandlerJavaScript = null, $ID = null){
@@ -130,7 +128,7 @@ class Checkbox{
 
     public function HTML(){
 		if(!$this->Property[__FUNCTION__]){
-			if(is_array($this->Property["EventHandlerJavaScript"]))foreach(array_filter($this->Property["EventHandlerJavaScript"]) as $Handler)if(is_array($Handler) && isset($Handler[1]))$EventHandler[] = "{$Handler[0]}=\"{$Handler[1]}\"";
+            foreach(is_array($this->Property["EventHandlerJavaScript"]) ? $this->Property["EventHandlerJavaScript"] : ["OnChange" => $this->Property["EventHandlerJavaScript"], ] as $Event => $Handler)$EventHandler[] = "{$Event}=\"{$Handler}\"";
 
 			$HTML[] = "<input type=\"checkbox\" id=\"{$this->Property["ID"]}\" name=\"{$this->Property["Name"]}\" value=\"{$this->Property["Value"]}\"" . (isset($_POST[$this->Property["Name"]]) && $_POST[$this->Property["Name"]] == $this->Property["Value"] ? " checked" : null) . "" . (isset($EventHandler) ? " " . implode(" ", $EventHandler) . " " : null) . ">";
 			$HTML[] = "<label for=\"{$this->Property["ID"]}\"><span class=\"Caption\">{$this->Property["Caption"]}</span></label>";

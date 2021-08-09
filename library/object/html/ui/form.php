@@ -309,7 +309,7 @@ class Form{
 
 	public function BeginHTML(){
 		if(is_null($this->Property[__FUNCTION__])){
-			if(is_array($this->Property["EventHandlerJavaScript"]))foreach(array_filter($this->Property["EventHandlerJavaScript"]) as $Handler)if(is_array($Handler) && isset($Handler[1]))$EventHandler[] = "{$Handler[0]}=\"{$Handler[1]}\"";
+			foreach(array_filter(is_array($this->Property["EventHandlerJavaScript"]) ? $this->Property["EventHandlerJavaScript"] : ["OnSubmit" => $this->Property["EventHandlerJavaScript"], ]) as $Event => $Handler)$EventHandler[] = "{$Event}=\"{$Handler}\"";
 
 			$this->Property[__FUNCTION__] = "
 				<form id=\"{$this->Property["ID"]}\" name=\"{$this->Property["ID"]}\" action=\"{$this->Property["Action"]}\" method=\"POST\" enctype=\"multipart/form-data\"" . ($this->Property["CSSSelector"] ? " class=\"{$this->Property["CSSSelector"]}\"" : null) . (isset($EventHandler) ? " " . implode(" ", $EventHandler) . " " : null) . ">
