@@ -57,21 +57,9 @@ class Database{
 					//\PDO::ATTR_TIMEOUT => 300,
 					//\PDO::ATTR_EMULATE_PREPARES => false, // This triggers false error with SET XXXX statements
 				]);
-			}
-			catch(\Throwable $Exception){ // Log and show the error/exception but do not trigger a PHP fatal error
-				$this->LogError("Database connection failed!", null, [
-					$Key = "Host" => $this->Property["{$Key}"], 
-					$Key = "User" => $this->Property["{$Key}"], 
-					$Key = "Name" => $this->Property["{$Key}"], 
-					$Key = "Password" => "*****", 
-				], false, true);
-			}
 
-			if(!is_null($this->Property["Connection"])){
-				$this->Query("
-					# Following does not work with PDO::ATTR_EMULATE_PREPARES = false; neither could be appended with MYSQL_ATTR_INIT_COMMAND
-					SET sql_mode = '" . ($this->Property["Strict"] ? "STRICT_ALL_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO" : null) . "';
-				");
+				// Following does not work with PDO::ATTR_EMULATE_PREPARES = false; neither could be appended with MYSQL_ATTR_INIT_COMMAND
+				if($this->Property["Strict"])$this->Query("SET sql_mode = 'STRICT_ALL_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO'");
 
 				if($this->Property["Transactional"])$this->Property["Connection"]->beginTransaction(); // Encapsulate execution within transaction
 				
@@ -82,7 +70,14 @@ class Database{
 
 				$Result = $this->Property["Connection"];
 			}
-			else{
+			catch(\Throwable $Exception){ // Log and show the error/exception but do not trigger a PHP fatal error
+				$this->LogError("Database connection failed", null, [
+					$Key = "Host" => $this->Property["{$Key}"], 
+					$Key = "User" => $this->Property["{$Key}"], 
+					$Key = "Name" => $this->Property["{$Key}"], 
+					$Key = "Password" => "*****", 
+				], false, true);
+
 				$Result = false;
 			}
 		}
@@ -138,14 +133,12 @@ class Database{
 	}
 
 	public function Disconnect(){
-		$Result = true;
-
-		if(!is_null($this->Property["Connection"])){ // Connection exists
+		if($this->Property["Connection"]){ // Connection exists
 			if($this->Property["Transactional"])$this->Property["Connection"]->commit(); // Encapsulate execution within transaction
 			$this->Property["Connection"] = null; // Close connection
 		}
 
-		return $Result;
+		return true;
 	}
 
 	/*
@@ -159,6 +152,7 @@ class Database{
 		Return value
 			Array of full or partial recordset(s) when query is successfully executed with at least one statement
 			Explicit FALSE upon connection or complete query execution error (no statement could be executed)
+			Returned recordsets are fixed in number, no empty recordset is discarded, rather served as a recordset node
 
 		Note
 			Return type Array does not necessarily mean the query execution went without error through the entire way.
@@ -170,6 +164,7 @@ class Database{
 	*/
 	public function Query($SQL, $Parameter = null, $Verbose = null, $NoHistory = null, $IgnoreError = null){ //DebugDump($SQL);
 		#region Set default argument values
+		if(is_null($Parameter))$Parameter = [];
 		if(is_null($Verbose))$Verbose = $this->Property["Verbose"];
 		if(is_null($NoHistory))$NoHistory = !$this->Property["KeepQueryHistory"];
 		if(is_null($IgnoreError))$IgnoreError = false;
@@ -177,56 +172,48 @@ class Database{
 
 		if($Verbose)$this->ShowMessage("Initiating query execution.", $SQL, $Parameter);
 
-		if(is_null($this->Property["Connection"])){ // No database connection
-			$Result = false; // Return explicit FALSE on connection error
-			$this->LogError("No connection", $SQL, $Parameter, false, true); // Show error message but do not throw Exception
-		}
-		else{ // Process the query
+		if($this->Property["Connection"]){ // Process the query
 			$LastDurationStart = microtime(true);
 
 			#region Try executing the query
+			$Result = []; // Initialize Result as an Array to hold the recordset(s)
+			$Query = $this->Property["Connection"]->prepare($SQL); // Does not throw error when PDO::ATTR_EMULATE_PREPARES = false
+
 			try{
-				$Query = $this->Property["Connection"]->prepare($SQL); // Does not throw error when PDO::ATTR_EMULATE_PREPARES = false
-				$Query->execute(is_null($Parameter) ? [] : $Parameter);
-				$Result = []; // Initialize Result as an Array to hold the recordset(s)
+				$Query->execute($Parameter);
 			}
 			catch(\Throwable $Exception){
 				$Result = false; // Return explicit FALSE as no statement could be executed successfully
-				$this->LogError("{$Exception->errorInfo[0]}: {$Exception->errorInfo[2]}", $SQL, $Parameter, !$IgnoreError, $Verbose);
+				$this->LogError($Exception->getMessage(), $SQL, $Parameter, !$IgnoreError, $Verbose);
 			}
 			#endregion Try executing the query
 			
 			#region Generate resulting recordset(s)
-			if($Result !== false){ // No error detected
-				do{ // Generate mutiple recordset
-					try{ // Get current recordset by TRYing as this might result into a GENERAL ERROR which appears to be a false positive
-						$Dataset = $Query->fetchAll(\PDO::FETCH_ASSOC); //DebugDump($Dataset);
-						if($Dataset)$Result[] = $Dataset; // Generate result only if a valid recordset
-					}catch(\Throwable $Exception){ //DebugDump($Exception->errorInfo);
-						// We do not do anything as we do not add up any empty recordset into the result
-					}
+			if($Result !== false)do{ // Generate mutiple recordset
+				try{ // Get current recordset by TRYing as this might result into a GENERAL ERROR which appears to be a false positive
+					$Dataset = $Query->fetchAll(\PDO::FETCH_ASSOC); //DebugDump($Dataset);
 
-					// Special thanks to Saiful Islam for the tricky flow control below
-					try{ // Advance the recordset pointer to the next available
-						$ContinueLoop = $Query->nextRowset();
-					}
-					catch(\Throwable $Exception){ //DebugDump($Exception->errorInfo);
-						$ContinueLoop = false; // Somehow the system sets the end value to FALSE and is able exit the DO WHILE loop! But this is phishy!
-						
-						// We do not need the following
-						//$Result = false; // Keep with Array with results so far
+					// Below is replaced with below to keep the number of recordsets fixed; do not discard empty recordset
+					//if($Dataset)$Result[] = $Dataset; // Generate result only if a valid recordset
+					$Result[] = $Dataset ? $Dataset : []; // Get recordset, or make an empty if not found; important to keep fixed number of recordsets
+				}catch(\Throwable $Exception){} // Is there really anything to do here!
 
-						$this->LogError("{$Exception->errorInfo[0]} ({$Exception->errorInfo[1]}): {$Exception->errorInfo[2]}", $SQL, $Parameter, !$IgnoreError, $Verbose);
-					}
-				}while($ContinueLoop); //DebugDump($ContinueLoop);
-			}
+				// Special thanks to Saiful Islam for the tricky flow control below
+				try{ // Advance the recordset pointer to the next available
+					$RecordsetLeft = $Query->nextRowset();
+				}
+				catch(\Throwable $Exception){ //DebugDump($Exception->errorInfo);
+					$RecordsetLeft = false; // Somehow the system sets the end value to FALSE and is able exit the DO WHILE loop! But this is phishy!
+					$this->LogError($Exception->getMessage(), $SQL, $Parameter, !$IgnoreError, $Verbose);
+				}
+			}while($RecordsetLeft !== false); //DebugDump($RecordsetLeft);
 			#endregion Generate resulting recordset(s)
-
+	
 			#region Update query information & history
 			$this->Property["LastDuration"] = microtime(true) - $LastDurationStart;
 			$this->Property["Duration"] = $this->Property["Duration"] + $this->Property["LastDuration"];
 			$this->Property["QueryCount"]++;
-
+	
 			if(!$NoHistory)$this->Property["QueryHistory"][] = [ // Add query information to history
 				"SQL" => $SQL, 
 				"Parameter" => $Parameter, 
@@ -234,8 +221,12 @@ class Database{
 				"Result" => $Result, // Beware, huge recordsets can make the history too heavy to cause memory load/out
 			];
 			#endregion Update query information & history
+		}
+		else{ // No database connection
+			$Result = false; // Return explicit FALSE on connection error
+			$this->LogError("No connection", $SQL, $Parameter, false, true); // Show error message but do not throw Exception
 		} //DebugDump($Result);
-
+		
 		$this->Property["Recordset"] = $Result; // Update Recordset property with the generated result set
 
 		return $Result;
@@ -511,6 +502,7 @@ class Database{
 
 		if(isset($DebugCallStack[0])){ // Check this back!!! Put in a condition because error reporting said UDEFINED OFFSET 0
 			$CallStackOrigin = $DebugCallStack[0];
+
 			if($TriggerError)trigger_error("Database: {$Message}. Origin: {$CallStackOrigin["file"]}:{$CallStackOrigin["line"]}", E_USER_ERROR);
 			if($Verbose)$this->ShowMessage($Message, $SQL, $Parameter);
 		}
