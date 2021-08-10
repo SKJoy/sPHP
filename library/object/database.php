@@ -52,7 +52,8 @@ class Database{
 		if($this->Property["Type"] == DATABASE_TYPE_MYSQL){
 			try{
 				$this->Property["Connection"] = new \PDO("mysql:host={$this->Property["Host"]};dbname={$this->Property["Name"]};charset=" . strtolower(str_replace("-", null, $this->Property["Encoding"])) . "", $this->Property["User"], $this->Property["Password"], [
-					\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+					\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,					
+    				\PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
 					\PDO::MYSQL_ATTR_INIT_COMMAND => "SET time_zone = '{$this->Property["Timezone"]}'",
 					//\PDO::ATTR_TIMEOUT => 300,
 					//\PDO::ATTR_EMULATE_PREPARES => false, // This triggers false error with SET XXXX statements
@@ -191,11 +192,8 @@ class Database{
 			#region Generate resulting recordset(s)
 			if($Result !== false)do{ // Generate mutiple recordset
 				try{ // Get current recordset by TRYing as this might result into a GENERAL ERROR which appears to be a false positive
-					$Dataset = $Query->fetchAll(\PDO::FETCH_ASSOC); //DebugDump($Dataset);
-
-					// Below is replaced with below to keep the number of recordsets fixed; do not discard empty recordset
-					//if($Dataset)$Result[] = $Dataset; // Generate result only if a valid recordset
-					$Result[] = $Dataset ? $Dataset : []; // Get recordset, or make an empty if not found; important to keep fixed number of recordsets
+					$Dataset = $Query->fetchAll(); //DebugDump($Dataset);
+					if($Dataset)$Result[] = $Dataset; // Take valid recordset only; Failed to find a reliable & generic way to filter out non SELECT recordset only
 				}catch(\Throwable $Exception){} // Is there really anything to do here!
 
 				// Special thanks to Saiful Islam for the tricky flow control below
