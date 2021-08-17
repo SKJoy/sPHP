@@ -35,6 +35,7 @@ class Environment{
 		"SQLPath"				=>	"./database/sql/",
 		"SQLSELECTPath"			=>	"./database/sql/select/",
 		"TempPath"				=>	"./temp/",
+		"DomainPath"			=>	"./localhost/",
 		"SystemPath"			=>	null,
 		"SystemScriptPath"		=>	null,
 		"LogPath"				=>	"./log/",
@@ -50,6 +51,7 @@ class Environment{
         "UploadURL"				=>	"./upload/",
         "ContentUploadURL"		=>	"./content/upload/",
         "StyleURL"				=>	"./style/",
+        "DomainURL"				=>	"./localhost/",
         "Name"					=>	"sPHP",
         "Version"				=>	null,
 		"Client"				=>	null,
@@ -156,6 +158,7 @@ class Environment{
         $this->Property["SQLPath"] = "{$this->Property["Path"]}database/sql/";
         $this->Property["SQLSELECTPath"] = "{$this->Property["SQLPath"]}select/";
         $this->Property["TempPath"] = "{$this->Property["Path"]}temp/";
+        $this->Property["DomainPath"] = "{$this->Property["Path"]}domain/{$_SERVER["SERVER_NAME"]}/";
 		$this->Property["SystemPath"] = realpath(__DIR__) . "/";
 		$this->Property["SystemScriptPath"] = "{$this->Property["SystemPath"]}script/";
         $this->Property["LogPath"] = "{$this->Property["Path"]}log/";
@@ -175,6 +178,7 @@ class Environment{
         $this->Property["UploadURL"] = "{$this->Property["URL"]}upload/";
         $this->Property["ContentUploadURL"] = "{$this->Property["URL"]}content/upload/";
         $this->Property["StyleURL"] = "{$this->Property["URL"]}style/";
+        $this->Property["DomainURL"] = "{$this->Property["URL"]}domain/{$_SERVER["SERVER_NAME"]}/";
         #endregion Set up URLs
 
 		#region Error configuration
@@ -506,6 +510,12 @@ class Environment{
         return $Result;
     }
 
+    public function DomainPath(){
+        $Result = $this->Property[__FUNCTION__];
+
+        return $Result;
+    }
+
     public function SystemPath(){
         $Result = $this->Property[__FUNCTION__];
 
@@ -591,6 +601,12 @@ class Environment{
     }
 
     public function StyleURL(){
+        $Result = $this->Property[__FUNCTION__];
+
+        return $Result;
+    }
+
+    public function DomainURL(){
         $Result = $this->Property[__FUNCTION__];
 
         return $Result;
@@ -1534,16 +1550,26 @@ class Application{
         if($Configuration["DebugMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeClient"]))))))$this->Property["Session"]->DebugMode(true); 
 
         #region Include stylesheet
-        if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}" . ($CSSFile = "script/{$_POST["_Script"]}.css") . ""))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}{$CSSFile}?TimeUpdated=" . filemtime("{$this->Property["Terminal"]->Environment()->StylePath()}{$CSSFile}") . "";
         $Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}language/{$this->Property["Language"]->HTMLCode()}.css";
+        if(file_exists(($CSSPath = "{$this->Property["Terminal"]->Environment()->StylePath()}") . ($CSSFile = "script/{$_POST["_Script"]}.css") . ""))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}{$CSSFile}?TimeUpdated=" . filemtime("{$CSSPath}{$CSSFile}") . "";
+
+        # LEGACY: Domain specific stylesheet
         if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}{$_SERVER["SERVER_NAME"]}/loader.css"))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}{$_SERVER["SERVER_NAME"]}/loader.css";
         if(file_exists("{$this->Property["Terminal"]->Environment()->StylePath()}{$_SERVER["SERVER_NAME"]}/script/{$_POST["_Script"]}.css"))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}{$_SERVER["SERVER_NAME"]}/script/{$_POST["_Script"]}.css";
+
+        # Domain specific stylesheet
+        if(file_exists(($CSSPath = "{$this->Property["Terminal"]->Environment()->DomainPath()}") . ($CSSFile = "style/loader.css") . ""))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->DomainURL()}{$CSSFile}?TimeUpdated=" . filemtime("{$CSSPath}{$CSSFile}") . "";
+        if(file_exists(($CSSPath = "{$this->Property["Terminal"]->Environment()->DomainPath()}") . ($CSSFile = "style/script/{$_POST["_Script"]}.css") . ""))$Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->DomainURL()}{$CSSFile}?TimeUpdated=" . filemtime("{$CSSPath}{$CSSFile}") . "";
+
 		foreach($Configuration["Stylesheet"] as $URL)$this->Property["Terminal"]->Link("stylesheet", "text/css", $URL);
         #endregion Include stylesheet
 
-        // Moved here from above to allow including the script specific JavaScript
-        if(file_exists("{$this->Property["Terminal"]->Environment()->Path()}" . ($JavaScriptFile = "javascript/script/{$_POST["_Script"]}.js") . ""))$Configuration["JavaScript"][] = "{$this->Property["Terminal"]->Environment()->URL()}{$JavaScriptFile}?TimeUpdated=" . filemtime("{$this->Property["Terminal"]->Environment()->Path()}{$JavaScriptFile}") . "";
-        foreach($Configuration["JavaScript"] as $URL)$this->Property["Terminal"]->JavaScript($URL);
+        #region Include JavaScript
+        if(file_exists(($JavaScriptPath = "{$this->Property["Terminal"]->Environment()->Path()}") . ($JavaScriptFile = "javascript/script/{$_POST["_Script"]}.js") . ""))$Configuration["JavaScript"][] = "{$this->Property["Terminal"]->Environment()->URL()}{$JavaScriptFile}?TimeUpdated=" . filemtime("{$JavaScriptPath}{$JavaScriptFile}") . "";
+        if(file_exists(($JavaScriptPath = "{$this->Property["Terminal"]->Environment()->DomainPath()}") . ($JavaScriptFile = "javascript/script/{$_POST["_Script"]}.js") . ""))$Configuration["JavaScript"][] = "{$this->Property["Terminal"]->Environment()->DomainURL()}{$JavaScriptFile}?TimeUpdated=" . filemtime("{$JavaScriptPath}{$JavaScriptFile}") . "";
+
+        foreach($Configuration["JavaScript"] as $URL)$this->Property["Terminal"]->JavaScript($URL); // Load JavaScript in Terminal
+        #endregion Include JavaScript
 
 		// Execute the requested script
 		___ExecuteApplicationScript($this, new Template($this, $Configuration, $Configuration["TemplateCacheLifetime"], $Configuration["TemplateCacheActionMarker"]), $Configuration);

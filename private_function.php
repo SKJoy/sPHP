@@ -62,6 +62,7 @@ function ___ExecuteApplicationScript($APP, $TPL, $CFG){
 
 	if(file_exists($ScriptToExecute = "{$ENV->ScriptPath()}{$_POST["_Script"]}.php")){
 		require $ScriptToExecute; // Execute script from application
+		if(file_exists($ScriptToExecute = "{$ENV->DomainPath()}script/{$_POST["_Script"]}.php"))require $ScriptToExecute; // Execute domain script only when Application script exists
 	}
 	else{ // Application script not found
 		if(($APP->UseSystemScript() || in_array($_POST["_Script"], [
@@ -108,6 +109,8 @@ function ___ExecuteApplicationScript($APP, $TPL, $CFG){
 			if($APP->UserDeviceNotification())require __DIR__ . "/include/useruserdevice_add.php"; // Register user device
 
 			require "{$ENV->Path()}template/header.php"; // Execute header script
+			if(file_exists($HeaderScript = "{$ENV->DomainPath()}template/header.php"))require $HeaderScript; // Execute domain header script
+
 			$DBG->StopCheckpoint($DebugCheckpointID);
 			$APP->Terminal()->Flush(); // Required to set the contents in order of header and main
 		}
@@ -115,7 +118,9 @@ function ___ExecuteApplicationScript($APP, $TPL, $CFG){
 		if(!isset($_POST["_NoFooter"])){ // Footer
 			$APP->Terminal()->Mode(OUTPUT_BUFFER_MODE_MAIN); // Change back buffer to main mode
 			$DebugCheckpointID = $DBG->StartCheckpoint("template/footer.php");
+
 			require "{$ENV->Path()}template/footer.php"; // Execute footer script
+			if(file_exists($FooterScript = "{$ENV->DomainPath()}template/footer.php"))require $FooterScript; // Execute domain footer script
 
 			// This is put here to exclusively use for Terminals that are real browsing devices
 			// Do not waste system resource if User device notificatin is not required
