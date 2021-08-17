@@ -56,6 +56,7 @@ class Environment{
         "Version"				=>	null,
 		"Client"				=>	null,
         "OSProcess"             =>  null, 
+        "CLI"					=>  false, 
         #endregion Read only
     ];
 
@@ -72,6 +73,7 @@ class Environment{
         ini_set("memory_limit", "{$this->Property["MemoryLimit"]}M"); // Set PHP memory limit before everything
 
         $this->Property["OSProcess"] = $Utility->OSProcess(); // Get own process information
+        $this->Property["CLI"] = php_sapi_name() == "cli" ? true : false; // Detect if ran from command line interface
         $this->Property["Name"] = "sPHP";
         $this->Property["Version"] = new Version(10);
 
@@ -158,7 +160,7 @@ class Environment{
         $this->Property["SQLPath"] = "{$this->Property["Path"]}database/sql/";
         $this->Property["SQLSELECTPath"] = "{$this->Property["SQLPath"]}select/";
         $this->Property["TempPath"] = "{$this->Property["Path"]}temp/";
-        $this->Property["DomainPath"] = "{$this->Property["Path"]}domain/{$_SERVER["SERVER_NAME"]}/";
+        $this->Property["DomainPath"] = "{$this->Property["Path"]}domain/" . strtolower($_SERVER["SERVER_NAME"]) . "/";
 		$this->Property["SystemPath"] = realpath(__DIR__) . "/";
 		$this->Property["SystemScriptPath"] = "{$this->Property["SystemPath"]}script/";
         $this->Property["LogPath"] = "{$this->Property["Path"]}log/";
@@ -178,7 +180,7 @@ class Environment{
         $this->Property["UploadURL"] = "{$this->Property["URL"]}upload/";
         $this->Property["ContentUploadURL"] = "{$this->Property["URL"]}content/upload/";
         $this->Property["StyleURL"] = "{$this->Property["URL"]}style/";
-        $this->Property["DomainURL"] = "{$this->Property["URL"]}domain/{$_SERVER["SERVER_NAME"]}/";
+        $this->Property["DomainURL"] = "{$this->Property["URL"]}domain/" . strtolower($_SERVER["SERVER_NAME"]) . "/";
         #endregion Set up URLs
 
 		#region Error configuration
@@ -635,6 +637,12 @@ class Environment{
 
         return $Result;
     }
+
+    public function CLI(){
+        $Result = $this->Property[__FUNCTION__];
+
+        return $Result;
+    }
     #endregion Property
 
     #region Function
@@ -678,6 +686,7 @@ class Terminal{
 
         ob_start(array($this, "Send")); // Redirect all output to this function than the standard output terminal
 
+        $this->Property["DocumentType"] = $Environment->CLI() ? DOCUMENT_TYPE_TXT : DOCUMENT_TYPE_HTML;
         $this->Property["Language"] = new Language();
 
         // Set property values from arguments passed during object instantiation
@@ -1384,6 +1393,7 @@ class Application{
 		$this::$AlreadyInstantiated = true;
 
 		#region Initialize dynamic properties
+		$this->Property["DocumentType"] = $Terminal->DocumentType(); // Default document type from Terminal
 		$this->Property["Database"] = new Database();
 		$this->Property["Log"] = $Terminal->Environment()->Log(); // Inherit global Log
 		$this->Property["EncryptionKey"] = $_SERVER["SERVER_NAME"];
