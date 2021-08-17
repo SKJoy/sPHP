@@ -195,26 +195,14 @@ class Button{
 
     public function HTML(){
 		if(!$this->Property[__FUNCTION__]){
-			if(!is_array($this->Property["EventHandlerJavaScript"]) && trim($this->Property["EventHandlerJavaScript"]))$this->Property["EventHandlerJavaScript"] = ["OnClick" => $this->Property["EventHandlerJavaScript"]];
-			if(is_array($this->Property["EventHandlerJavaScript"]))foreach(array_filter($this->Property["EventHandlerJavaScript"]) as $Event=>$Code)if(trim($Code))$EventHandler[] = "{$Event}=\"{$Code}\"";
+            foreach(is_array($this->Property["EventHandlerJavaScript"]) ? $this->Property["EventHandlerJavaScript"] : ["OnClick" => $this->Property["EventHandlerJavaScript"], ] as $Event => $Handler)$EventHandler[] = "{$Event}=\"{$Handler}\"";
 
-			/*
-			if(is_array($this->Property["EventHandlerJavaScript"])){
-				foreach(array_filter($this->Property["EventHandlerJavaScript"]) as $Handler)if(is_array($Handler) && isset($Handler[1]))$EventHandler[] = "{$Handler[0]}=\"{$Handler[1]}\"";
-			}
-			elseif($this->Property["EventHandlerJavaScript"]){
-				$EventHandler[] = "onclick=\"{$this->Property["EventHandlerJavaScript"]}\"";
-			}
-			else{
-			}
-			*/
-
-			$this->Property[__FUNCTION__] = "<button" . ($this->Property["ID"] ? " id=\"{$this->Property["ID"]}\"" : null) . " type=\"" . strtolower($this->Property["Type"]) . "\" name=\"{$this->Property["Name"]}\" value=\"{$this->Property["Value"]}\"" . ($this->Property["Tooltip"] ? " title=\"{$this->Property["Tooltip"]}\"" : null) . " class=\"{$this->Property["CSSSelector"]}\" style=\"" . implode(" ", array_filter([
+            $this->Property[__FUNCTION__] = "<button" . ($this->Property["ID"] ? " id=\"{$this->Property["ID"]}\"" : null) . " type=\"" . strtolower($this->Property["Type"]) . "\" name=\"{$this->Property["Name"]}\" value=\"{$this->Property["Value"]}\"" . ($this->Property["Tooltip"] ? " title=\"{$this->Property["Tooltip"]}\"" : null) . " class=\"{$this->Property["CSSSelector"]}\" style=\"" . implode(" ", array_filter([
 				$this->Property["Width"] ? "width: {$this->Property["Width"]}" . (strpos($this->Property["Width"], "%") === false ? "px" : null) . ";" : null,
-			])) . "\"" . (isset($EventHandler) ? " " . implode(" ", $EventHandler) . " " : null) . ">
-                " . ($this->Property["Icon"] ? "<img src=\"{$this->Property["Icon"]}\" alt=\"{$this->Property["Caption"]}\" class=\"Icon\">" : null) . "
-                " . ($this->Property["Caption"] ? "<span class=\"Caption\">{$this->Property["Caption"]}</span>" : null) . "
-            </button>";
+			])) . "\"" . (isset($EventHandler) ? "  " : null) . ">" . implode(" ", array_filter([
+                $this->Property["Icon"] ? "<img src=\"{$this->Property["Icon"]}\" alt=\"{$this->Property["Caption"]}\" class=\"Icon\">" : null, 
+                $this->Property["Caption"] ? "<span class=\"Caption\">{$this->Property["Caption"]}</span>" : null, 
+            ])) . "</button>";
 		}
 
 		$Result = $this->Property[__FUNCTION__];
