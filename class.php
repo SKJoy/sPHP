@@ -1432,8 +1432,8 @@ class Application{
 		$this->Property["Terminal"]->Environment()->CustomError($Configuration["CustomError"]);
 
 		#region Set indirect properties from configuration items
-        $this->Property["Guest"] = new User($Configuration["GuestEmail"], null, $Configuration["GuestName"], $Configuration["CompanyPhone"], null, null, null, null, null, "GUEST", null, null, "Guest", "GUEST");
-        $this->Property["Administrator"] = new User($Configuration["AdministratorEmail"], $Configuration["AdministratorPasswordHash"], $Configuration["AdministratorName"], $Configuration["CompanyPhone"], null, null, null, null, null, "ADMINISTRATOR", null, null, "Administrator", "ADMINISTRATOR");
+        $this->Property["Guest"] = new User($Configuration["GuestEmail"], null, $Configuration["GuestName"], $Configuration["CompanyPhone"], null, null, null, null, 0, "GUEST", null, null, "Guest", "GUEST");
+        $this->Property["Administrator"] = new User($Configuration["AdministratorEmail"], $Configuration["AdministratorPasswordHash"], $Configuration["AdministratorName"], $Configuration["CompanyPhone"], null, null, null, null, 1, "ADMINISTRATOR", null, null, "Administrator", "ADMINISTRATOR");
         $this->Property["Company"] = new User($Configuration["CompanyEmail"], null, $Configuration["CompanyName"], $Configuration["CompanyPhone"], $Configuration["CompanyAddress"], $Configuration["CompanyURL"]);
 		$this->Property["Version"] = new Version($Configuration["VersionMajor"], $Configuration["VersionMinor"], $Configuration["VersionRevision"]);
 		#endregion Set indirect properties from configuration items
@@ -1527,7 +1527,7 @@ class Application{
         #endregion Load configuration
 
         $this->Property["Session"]->Start(); // Start the session after configuring accordingly. Log User ID updated with Session->User() property method
-        //var_dump(__FILE__, __LINE__, __FUNCTION__, debug_backtrace()); exit;
+        if($this->Property["Terminal"]->Environment()->CLI())$this->Property["Session"]->User($this->Property["Administrator"]); // Set session User to Application Administrator for CLI mode
 		
 		#region Create session log upon each session reset
 		if($Configuration["DatabaseLogTraffic"] && !is_null($this->Property["Database"]->Connection())){
