@@ -9,16 +9,21 @@
 
 namespace sPHP;
 
-function ___LoadConfiguration($Application){
-    // Make useful objects accessible through shortcut local variables
-    $Environment = $ENV = $Application->Terminal()->Environment();
-    $Utility = $UTL = $Environment->Utility();
-	//$Debug = $DBG = $Utility->Debug();
+function ___LoadConfiguration($APP){
+	// Create useful shortcut variables to use within configuration script
+	$ENV = $APP->Terminal()->Environment();
 
-    // Execute configuration script
-	require "{$Environment->Path()}system/configuration.php";
+    // Load central configuration
+	require "{$APP->Terminal()->Environment()->Path()}system/configuration.php"; 
+	$Result = $Configuration;
 
-    return $Configuration;
+	// Load domain specific configuration
+	if(file_exists($ConfigurationScript = "{$APP->Terminal()->Environment()->DomainPath()}/system/configuration.php")){
+		require $ConfigurationScript;
+		$Result = array_merge($Result, $Configuration);
+	}
+
+    return $Result;
 }
 
 function ___ExecuteApplicationScript($APP, $TPL, $CFG){
