@@ -2,7 +2,7 @@
 namespace sPHP;
 
 class Database{
-    private $Property = [
+    private $Property = [ // Property value store
         "Type"						=>	DATABASE_TYPE_MYSQL,
         "Host"						=>	"127.0.0.1",
         "User"						=>	null,
@@ -17,6 +17,7 @@ class Database{
 		"Transactional"				=>	false,
 		"KeepQueryHistory"			=>	false, // Memory consuming!
 		"ErrorLogPath"				=>	null,
+		"IgnoreQueryError"			=>	false, // Trigger error on $this->Query() malfunction
 
 		// Read only
         "Connection"				=>	null,
@@ -33,7 +34,7 @@ class Database{
 	#endregion Variable
 
     #region Method
-    public function __construct($Type = null, $Host = null, $User = null, $Password = null, $Name = null, $ODBCDriver = null, $TablePrefix = null, $Timezone = null, $Encoding = null, $Strict = null, $Verbose = null, $ErrorLogPath = null){
+    public function __construct($Type = null, $Host = null, $User = null, $Password = null, $Name = null, $ODBCDriver = null, $TablePrefix = null, $Timezone = null, $Encoding = null, $Strict = null, $Verbose = null, $ErrorLogPath = null, $IgnoreQueryError = null){
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
 
@@ -51,16 +52,18 @@ class Database{
 		
 		if($this->Property["Type"] == DATABASE_TYPE_MYSQL){
 			try{
-				$this->Property["Connection"] = new \PDO("mysql:host={$this->Property["Host"]};dbname={$this->Property["Name"]};charset=" . strtolower(str_replace("-", null, $this->Property["Encoding"])) . "", $this->Property["User"], $this->Property["Password"], [
-					\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,					
+				$this->Property["Connection"] = new \PDO("mysql:host={$this->Property["Host"]};dbname={$this->Property["Name"]};charset=" . strtolower(str_replace("-", null, $this->Property["Encoding"])) . "", $this->Property["User"], $this->Property["Password"], array_filter([
     				\PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-					\PDO::MYSQL_ATTR_INIT_COMMAND => "SET time_zone = '{$this->Property["Timezone"]}'",
-					//\PDO::ATTR_TIMEOUT => 300,
 					//\PDO::ATTR_EMULATE_PREPARES => false, // This triggers false error with SET XXXX statements
-				]);
+					\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,					
+					//\PDO::ATTR_TIMEOUT => 300, // Not reliable; policy deffers for MySQL/MySQLND & underlying PHP compilation
+					\PDO::MYSQL_ATTR_COMPRESS  => !in_array(strtoupper($this->Property["Host"]), ["LOCALHOST", "127.0.0.1", "::1", $_SERVER["LOCAL_ADDR"], ]), // Compress connection content for remote hosts
+					\PDO::MYSQL_ATTR_INIT_COMMAND => "SET time_zone = '{$this->Property["Timezone"]}'",
+					//\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY  => true, // Default is TRUE
+				]));
 
 				// Following does not work with PDO::ATTR_EMULATE_PREPARES = false; neither could be appended with MYSQL_ATTR_INIT_COMMAND
-				if($this->Property["Strict"])$this->Query("SET sql_mode = 'STRICT_ALL_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO'");
+				if($this->Property["Strict"])$this->Query("SET sql_mode = 'STRICT_ALL_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO'", null, null, null, true);
 
 				if($this->Property["Transactional"])$this->Property["Connection"]->beginTransaction(); // Encapsulate execution within transaction
 				
@@ -71,13 +74,18 @@ class Database{
 
 				$Result = $this->Property["Connection"];
 			}
-			catch(\Throwable $Exception){ // Log and show the error/exception but do not trigger a PHP fatal error
-				$this->LogError("Database connection failed", null, [
-					$Key = "Host" => $this->Property["{$Key}"], 
-					$Key = "User" => $this->Property["{$Key}"], 
-					$Key = "Name" => $this->Property["{$Key}"], 
-					$Key = "Password" => "*****", 
-				], false, true);
+			catch(\Throwable $Exception){ // Connection error
+				$this->LogError( // Log and show error message but don't trigger any error so the User can use Custom settings to update database connection
+					"Connection failed", // Error message
+					null, // We don't have any SQL to log
+					[ // Parameters to log
+						//$Key = "Host" => $this->Property["{$Key}"], 
+						//$Key = "User" => $this->Property["{$Key}"], 
+						//$Key = "Name" => $this->Property["{$Key}"], 
+						//$Key = "Password" => "*****", 
+					], 
+					true // Show error message
+				);
 
 				$Result = false;
 			}
@@ -148,15 +156,15 @@ class Database{
 			Parameter: Query parameters to pass to prepare the statement with
 			Verbose: Display query information on demand
 			NoHistory: TRUE = Does not keep query informatio history; Keeps otherwise
-			IgnoreError: TRUE = Does not trigger PHP fatal error on query execution error; Error log is still generated
+			IgnoreError: Default = TRUE = Does not trigger PHP fatal error on query execution error; Error log is still generated
 
 		Return value
 			Array of full or partial recordset(s) when query is successfully executed with at least one statement
 			Explicit FALSE upon connection or complete query execution error (no statement could be executed)
-			Returned recordsets are fixed in number, no empty recordset is discarded, rather served as a recordset node
+			Returned recordsets may vary in number, depending on how many SQL statements could be executed before an error occurred
 
 		Note
-			Return type Array does not necessarily mean the query execution went without error through the entire way.
+			Return type Array does not necessarily mean the query execution went without error entirely.
 			Empty or partial Array of recordset(s) may be generated even if error is encountered during query execution.
 			This happens especially with multi query where error is encountered after at least one successful statement execution.
 			
@@ -168,12 +176,12 @@ class Database{
 		if(is_null($Parameter))$Parameter = [];
 		if(is_null($Verbose))$Verbose = $this->Property["Verbose"];
 		if(is_null($NoHistory))$NoHistory = !$this->Property["KeepQueryHistory"];
-		if(is_null($IgnoreError))$IgnoreError = false;
+		if(is_null($IgnoreError))$IgnoreError = $this->Property["IgnoreQueryError"];
 		#endregion Set default argument values
 
-		if($Verbose)$this->ShowMessage("Initiating query execution.", $SQL, $Parameter);
-
 		if($this->Property["Connection"]){ // Process the query
+			if($Verbose)$this->ShowMessage("Initiating query execution.", $SQL, $Parameter);
+	
 			$LastDurationStart = microtime(true);
 
 			#region Try executing the query
@@ -185,7 +193,8 @@ class Database{
 			}
 			catch(\Throwable $Exception){
 				$Result = false; // Return explicit FALSE as no statement could be executed successfully
-				$this->LogError($Exception->getMessage(), $SQL, $Parameter, !$IgnoreError, $Verbose);
+				$this->LogError($Exception->getMessage(), $SQL, $Parameter, true);
+				if(!$IgnoreError)trigger_error($Exception->getMessage(), E_USER_ERROR);
 			}
 			#endregion Try executing the query
 			
@@ -202,7 +211,8 @@ class Database{
 				}
 				catch(\Throwable $Exception){ //DebugDump($Exception->errorInfo);
 					$RecordsetLeft = false; // Somehow the system sets the end value to FALSE and is able exit the DO WHILE loop! But this is phishy!
-					$this->LogError($Exception->getMessage(), $SQL, $Parameter, !$IgnoreError, $Verbose);
+					$this->LogError($Exception->getMessage(), $SQL, $Parameter, true);
+					if(!$IgnoreError)trigger_error($Exception->getMessage(), E_USER_ERROR);
 				}
 			}while($RecordsetLeft !== false); //DebugDump($RecordsetLeft);
 			#endregion Generate resulting recordset(s)
@@ -222,7 +232,7 @@ class Database{
 		}
 		else{ // No database connection
 			$Result = false; // Return explicit FALSE on connection error
-			$this->LogError("No connection", $SQL, $Parameter, false, true); // Show error message but do not throw Exception
+			$this->LogError("No database connection", $SQL, $Parameter, true); // Show error message but do not throw Exception
 		} //DebugDump($Result);
 		
 		$this->Property["Recordset"] = $Result; // Update Recordset property with the generated result set
@@ -426,6 +436,11 @@ class Database{
         return $Result;
     }
 
+	public function IgnoreQueryError($Value = null){
+		if(is_null($Value))return $this->Property[__FUNCTION__];
+		$this->Property[__FUNCTION__] = $Value;
+	}
+
     public function Connection(){
 		$Result = $this->Property[__FUNCTION__];
 
@@ -470,14 +485,19 @@ class Database{
 	#endregion Property
 	
 	#region Function
-	private function LogError($Message, $SQL, $Parameter, $TriggerError, $Verbose){
+	private function LogError($Message, $SQL, $Parameter, $Verbose){
+		#region Call trace
 		$DebugCallStack = debug_backtrace();
-		array_shift($DebugCallStack);
-		array_pop($DebugCallStack);
-		array_pop($DebugCallStack);
-		array_pop($DebugCallStack); //var_dump($DebugCallStack);
+		array_shift($DebugCallStack); // Remove self
+		
+		#region Filter out framework base calls
+		array_pop($DebugCallStack); // sPHP\Application->__destruct()
+		if(substr($DebugCallStack[$DebugCallIndex = count($DebugCallStack) - 1]["file"], strlen($DebugCallStack[$DebugCallIndex]["file"]) - strlen($Keyword = "\class.php")) == $Keyword && $DebugCallStack[$DebugCallIndex]["function"] == "sPHP\___ExecuteApplicationScript")array_pop($DebugCallStack);
+		if(substr($DebugCallStack[$DebugCallIndex = count($DebugCallStack) - 1]["file"], strlen($DebugCallStack[$DebugCallIndex]["file"]) - strlen($Keyword = "\private_function.php")) == $Keyword && $DebugCallStack[$DebugCallIndex]["function"] == "require")array_pop($DebugCallStack);
+		#endregion Filter out framework base calls
+		#endregion Call trace
 
-		if($this->Property["ErrorLogPath"])file_put_contents(
+		if($this->Property["ErrorLogPath"])file_put_contents( // Write error information to log file
 			"{$this->Property["ErrorLogPath"]}database.json",
 			json_encode([
 				"Error" => [
@@ -485,35 +505,57 @@ class Database{
 					"Message" => $Message,
 				],
 				"Time" => date("r"),
-				"Procedure" => [
-					"Namespace" => __NAMESPACE__,
-					"Object" => __CLASS__,
-					"Method" => __FUNCTION__,
-					"Argument" => [
-						"SQL" => $SQL,
-						"Parameter" => $Parameter,
-					],
+				"Argument" => [
+					"SQL" => $SQL,
+					"Parameter" => $Parameter,
 				],
 				"Callstack" => $DebugCallStack,
 			])
 		);
 
-		if(isset($DebugCallStack[0])){ // Check this back!!! Put in a condition because error reporting said UDEFINED OFFSET 0
-			$CallStackOrigin = $DebugCallStack[0];
-
-			if($TriggerError)trigger_error("Database: {$Message}. Origin: {$CallStackOrigin["file"]}:{$CallStackOrigin["line"]}", E_USER_ERROR);
-			if($Verbose)$this->ShowMessage($Message, $SQL, $Parameter);
-		}
+		if($Verbose)$this->ShowMessage($Message, $SQL, $Parameter, $DebugCallStack);
 
 		return true;
 	}
 
-	private function ShowMessage($Message, $SQL, $Parameter){
+	private function ShowMessage($Message = null, $SQL = null, $Parameter = null, $CallStack = []){
 		if(!is_array($Parameter))$Parameter = [$Parameter];
 
-		$ParameterHTML = [];
-		foreach($Parameter as $Key => $Value)$ParameterHTML[] = "{$Key}: {$Value}";
-		print \sPHP\HTML\UI\MessageBox("{$Message}" . (count($ParameterHTML) ? "<ul><li>" . implode("</li><li>", $ParameterHTML) . "</li></ul>" : null) . ($SQL ? "<code>{$SQL}</code>" : null) . "", "Database", "MessageBox_Error");
+		foreach($Parameter as $Key => $Value)$ParameterHTML[] = "{$Key}: {$Value}";		
+
+		$CallCount = count($CallStack);
+
+		foreach($CallStack as $CallIndex => $Call){
+			if(isset($Call["file"])){
+				$CallFile = $Call["file"];
+
+				if(isset(\sPHP::$Environment)){
+					$Path = \sPHP::$Environment->Path();
+					$SystemPath = \sPHP::$Environment->SystemPath();
+
+					if(substr($CallFile, 0, strlen($Path)) == $Path)$CallFile = "APP" . DIRECTORY_SEPARATOR . substr($CallFile, strlen($Path));
+					if(substr($CallFile, 0, strlen($SystemPath)) == $SystemPath)$CallFile = "sPHP" . DIRECTORY_SEPARATOR . substr($CallFile, strlen($SystemPath));
+				}
+			}
+			else{
+				$CallFile = null;
+			}
+
+			$CallStackHTML[] = "	" . ($CallCount - $CallIndex) . ". " . ($CallFile ? "{$CallFile}:{$Call["line"]} &gt; " : null) . (isset($Call["class"]) ? "{$Call["class"]}{$Call["type"]}" : null) . "{$Call["function"]}()";		
+		}
+
+		$sPHPEligible = false && isset(\sPHP::$User) && (\sPHP::$User->UserGroupIdentifierHighest() == "ADMINISTRATOR" || \sPHP::$Session->DebugMode());
+
+		print \sPHP\HTML\UI\MessageBox(
+			implode("<br><br>", array_filter([
+				$Message ? $Message : null, 
+				count($CallStack) ? "<code>Call stack" . PHP_EOL . implode(PHP_EOL, $CallStackHTML) . "</code>" : null, 
+				count($Parameter) && $sPHPEligible ? "<ul><li>" . implode("</li><li>", $ParameterHTML) . "</li></ul>" : null, 
+				$SQL && $sPHPEligible ? "<code>{$SQL}</code>" : null, 
+			])), 
+			"Database", 
+			"MessageBoxError"
+		);
 
 		return true;
 	}
