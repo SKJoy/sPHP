@@ -150,7 +150,7 @@ class Environment{
 		foreach($_GET as $Key => $Value)if(!isset($_POST[$Key]))$_POST[$Key] = $Value; // Create POST variable for each GET variable if not already exists
 
         #region Set path properties
-        $this->Property["Path"] = pathinfo($_SERVER["SCRIPT_FILENAME"])["dirname"] . "/";
+        $this->Property["Path"] = pathinfo($_SERVER["SCRIPT_FILENAME"])["dirname"] . DIRECTORY_SEPARATOR;
         $this->Property["ImagePath"] = "{$this->Property["Path"]}image/";
         $this->Property["ContentPath"] = "{$this->Property["Path"]}content/";
         $this->Property["ContentUploadPath"] = "{$this->Property["ContentPath"]}upload/";
@@ -160,8 +160,8 @@ class Environment{
         $this->Property["SQLPath"] = "{$this->Property["Path"]}database/sql/";
         $this->Property["SQLSELECTPath"] = "{$this->Property["SQLPath"]}select/";
         $this->Property["TempPath"] = "{$this->Property["Path"]}temp/";
-        $this->Property["DomainPath"] = "{$this->Property["Path"]}domain/" . strtolower($_SERVER["SERVER_NAME"]) . "/";
-		$this->Property["SystemPath"] = realpath(__DIR__) . "/";
+        $this->Property["DomainPath"] = "{$this->Property["Path"]}domain/" . strtolower($_SERVER["SERVER_NAME"]) . DIRECTORY_SEPARATOR;
+		$this->Property["SystemPath"] = realpath(__DIR__) . DIRECTORY_SEPARATOR;
 		$this->Property["SystemScriptPath"] = "{$this->Property["SystemPath"]}script/";
         $this->Property["LogPath"] = "{$this->Property["Path"]}log/";
         $this->Property["MailLogPath"] = "{$this->Property["LogPath"]}mail/";
@@ -1497,6 +1497,7 @@ class Application{
 			$this->Property["Database"]->Encoding($Configuration["CharacterSet"]);
 			$this->Property["Database"]->Strict($Configuration["DatabaseStrictMode"]);
 			$this->Property["Database"]->ErrorLogPath("{$this->Property["Terminal"]->Environment()->LogPath()}error/");
+			$this->Property["Database"]->IgnoreQueryError($Configuration["DatabaseIgnoreQueryError"]);
 			#endregion Database properties
 
 			$this->Property["Database"]->Connect();
