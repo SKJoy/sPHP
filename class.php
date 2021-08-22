@@ -1345,7 +1345,7 @@ class Session{
 }
 
 class Application{
-    private $Property = [
+    private $Property = [ // Property value store
         "Terminal"				=>	null,
         "Session"				=>	null,
         "Guest"					=>	null,

@@ -12,6 +12,10 @@ namespace sPHP;
 function ___LoadConfiguration($APP){
 	// Create useful shortcut variables to use within configuration script
 	$ENV = $APP->Terminal()->Environment();
+	
+	if(!isset($CFG["LegacySupport_sPHP_LongLocalVariable"]) || $CFG["LegacySupport_sPHP_LongLocalVariable"]){
+		$Environment = $ENV;
+	}
 
     // Load central configuration
 	require "{$APP->Terminal()->Environment()->Path()}system/configuration.php"; 
