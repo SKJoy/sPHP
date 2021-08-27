@@ -10,7 +10,7 @@ class Database{
         "Name"						=>	null,
 		"ODBCDriver"				=>	null,
 		"TablePrefix"				=>	null,
-		"Timezone"					=>	"GMT", // GMT Asia/Dhaka
+		"Timezone"					=>	"+00:00", // Using named time zone is unstable in some cases
 		"Encoding"					=>	"UTF8MB4",
 		"Strict"					=>	true,
 		"Verbose"					=>	false,
@@ -241,7 +241,7 @@ class Database{
 	}
 
 	public function Escape($Value){
-		return str_replace("'", "''", $Value);
+		return str_replace(str_split("'\\"), str_split("''\\\\", 2), $Value);
 	}
 
 	public function ClearHistory(){
