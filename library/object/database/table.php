@@ -136,6 +136,7 @@ class Table{
 		if(!is_array($Data[key($Data)]))$Data = [$Data]; // Convert single record to multi record format
 		if($WHERE)$Data = [$Data[key($Data)]]; // Take only one row for UPDATE mode
 		$Field = array_intersect($Field ? \sPHP\ListToArray($Field) : array_keys($Data[0]), array_keys($this->Structure()["Column"]));
+		$CurrentApplicationUserID = isset($_SESSION["User"]) && $_SESSION["User"]->ID() ? intval($_SESSION["User"]->ID()) : "NULL";
 
 		foreach($Data as $Row){
 			$Row = array_values($Row);
@@ -172,10 +173,10 @@ class Table{
 			}
 
 			if($sPHPColumn && in_array("UserIDInserted", $this->Structure()["Number"])){
-				$INSERTColumnSQL[] = $_SESSION["User"]->ID() ? $_SESSION["User"]->ID() : "NULL";
+				$INSERTColumnSQL[] = $CurrentApplicationUserID;
 				$INSERTColumnSQL[] = "'" . date("Y-m-d H:i:s") . "'";
 
-				$UPDATEColumnSQL[] = "UserIDUpdated = " . ($_SESSION["User"]->ID() ? $_SESSION["User"]->ID() : "NULL") . "";
+				$UPDATEColumnSQL[] = "UserIDUpdated = {$CurrentApplicationUserID}";
 				$UPDATEColumnSQL[] = "TimeUpdated = '" . date("Y-m-d H:i:s") . "'";
 			}
 
