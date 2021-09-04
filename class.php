@@ -746,10 +746,16 @@ class Terminal{
 
             foreach($this->HTML_Head_JavaScript as $Item)$HTML_Head_JavaScript[] = "<script" . ($Item["URL"] ? " src=\"{$Item["URL"]}\"" : null) . "></script>";
 
+            #region Generate FavIco URL
+            $FavIconFile = "{$this->Property["Icon"]}.ico"; // FavIco file name
+            $FavIconURL = "{$this->Property["Environment"]->ImageURL()}{$FavIconFile}"; // Global FavIco
+            if(file_exists("{$this->Property["Environment"]->DomainPath()}" . ($FileToCheck = "image/{$FavIconFile}") . ""))$FavIconURL = "{$this->Property["Environment"]->DomainURL()}{$FileToCheck}"; // Domain specific FavIco
+            #endregion Generate FavIco URL
+
             print "<!DOCTYPE html><html lang=\"{$this->Property["Language"]->HTMLCode()}\"><head>
 				" . implode(null, $HTML_Head_META) . "
 				<title>{$this->Property["Title"]}</title>
-				<link rel=\"shortcut icon\" href=\"{$this->Property["Environment"]->ImageURL()}{$this->Property["Icon"]}.ico\">
+				<link rel=\"shortcut icon\" href=\"{$FavIconURL}\">
                 " . (isset($HTML_Head_Link) ? implode(null, $HTML_Head_Link) : null) . "
                 " . (isset($HTML_Head_JavaScript) ? implode(null, $HTML_Head_JavaScript) : null) . "
             {$this->Property["HTMLHeadCode"]}</head><body id=\"DocumentBody\"" . (isset($_POST["_NoHeader"]) && isset($_POST["_NoFooter"]) ? " class=\"DocumentBodyContentView\"" : null) . ">";
