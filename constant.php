@@ -206,5 +206,12 @@ const LOG_DATA_TYPE_JSON = "JSON";
 const LOG_DATA_TYPE_OBJECT = "OBJECT";
 const LOG_DATA_TYPE_NUMERIC = "NUMERIC";
 #endregion Log
+
+#region Operating system
+const OS_LINUX = "LINUX";
+const OS_MAC = "MAC";
+const OS_OTHER = "OTHER";
+const OS_WINDOWS = "WINDOWS";
+#endregion Operating system
 #endregion Data
 ?>

@@ -57,6 +57,7 @@ class Environment{
 		"Client"				=>	null,
         "OSProcess"             =>  null, 
         "CLI"					=>  false, 
+        "OperatingSystem"		=>  OS_OTHER, 
         #endregion Read only
     ];
 
@@ -69,8 +70,20 @@ class Environment{
 		// Check if already instantiated and throw error if tried again
 		if($this::$AlreadyInstantiated)trigger_error("Instantiation is prohibited for " . __CLASS__ .  " object.");
 		$this::$AlreadyInstantiated = true;
-
-        ini_set("memory_limit", "{$this->Property["MemoryLimit"]}M"); // Set PHP memory limit before everything
+		
+        #region Detect Operating system
+		if(\PHP_OS_FAMILY === "Windows"){ // Command for Windows
+            $this->Property["OperatingSystem"] = OS_WINDOWS;
+        }
+        elseif(\PHP_OS_FAMILY === "Linux"){ // Command for Linux
+            $this->Property["OperatingSystem"] = OS_LINUX;
+        }
+        else{ // Unknown OS
+            $this->Property["OperatingSystem"] = OS_OTHER;
+        }
+		#endregion Detect Operating system
+		
+		ini_set("memory_limit", "{$this->Property["MemoryLimit"]}M"); // Set PHP memory limit before everything
 
         $this->Property["OSProcess"] = $Utility->OSProcess(); // Get own process information
         $this->Property["CLI"] = php_sapi_name() == "cli" ? true : false; // Detect if ran from command line interface
@@ -251,6 +264,26 @@ class Environment{
 		}
 
         return $DefaultValue;
+    }
+
+    public function ShellCommand(
+		string $Command, // Command to execute
+		bool $NoWait = false // Should wait for the command execution to finish; Does not work for Windows
+	){
+		if($this->Property["OperatingSystem"] == \sPHP\OS_WINDOWS){
+			$ExecStatus = exec($Command, $ExecInformation, $ExecReturn);
+		}
+		elseif($this->Property["OperatingSystem"] == \sPHP\OS_LINUX){
+			$ExecStatus = exec($Command . ($NoWait ? " > /dev/null &" : null), $ExecInformation, $ExecReturn);
+		}
+		else{
+			$ExecStatus = false;
+		}
+
+		return $ExecStatus === false ? false : [
+			"Information" => is_array($ExecInformation) ? $ExecInformation : [], 
+			"ReturnCode" => $ExecReturn, 
+		];
     }
     #endregion Method
 
@@ -642,6 +675,10 @@ class Environment{
         $Result = $this->Property[__FUNCTION__];
 
         return $Result;
+    }
+
+    public function OperatingSystem(){
+        return $this->Property[__FUNCTION__];
     }
     #endregion Property
 
