@@ -692,7 +692,12 @@ class Terminal{
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
 
-        $this->Property["Manifest"] = "{$Environment->URL()}manifest/{$_SERVER["SERVER_NAME"]}.webmanifest";
+        #region Generate WebManifest URL
+        $WebManifestFile = "manifest.webmanifest"; // WebManifest file name
+        $WebManifestURL = "{$this->Property["Environment"]->URL()}{$WebManifestFile}"; // Global WebManifest
+        if(file_exists("{$this->Property["Environment"]->DomainPath()}" . ($FileToCheck = "{$WebManifestFile}") . ""))$WebManifestURL = "{$this->Property["Environment"]->DomainURL()}{$FileToCheck}"; // Domain specific WebManifest
+        $this->Property["Manifest"] = $WebManifestURL;
+        #endregion Generate WebManifest URL
 
         return true;
     }
