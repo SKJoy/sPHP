@@ -199,7 +199,7 @@ class Button{
 
             $this->Property[__FUNCTION__] = "<button" . ($this->Property["ID"] ? " id=\"{$this->Property["ID"]}\"" : null) . " type=\"" . strtolower($this->Property["Type"]) . "\" name=\"{$this->Property["Name"]}\" value=\"{$this->Property["Value"]}\"" . ($this->Property["Tooltip"] ? " title=\"{$this->Property["Tooltip"]}\"" : null) . " class=\"{$this->Property["CSSSelector"]}\" style=\"" . implode(" ", array_filter([
 				$this->Property["Width"] ? "width: {$this->Property["Width"]}" . (strpos($this->Property["Width"], "%") === false ? "px" : null) . ";" : null,
-			])) . "\"" . (isset($EventHandler) ? "  " : null) . ">" . implode(" ", array_filter([
+			])) . "\"" . (isset($EventHandler) ? " " . implode(" ", $EventHandler) . "" : null) . ">" . implode(" ", array_filter([
                 $this->Property["Icon"] ? "<img src=\"{$this->Property["Icon"]}\" alt=\"{$this->Property["Caption"]}\" class=\"Icon\">" : null, 
                 $this->Property["Caption"] ? "<span class=\"Caption\">{$this->Property["Caption"]}</span>" : null, 
             ])) . "</button>";
