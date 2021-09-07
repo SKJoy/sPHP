@@ -1099,6 +1099,7 @@ class Terminal{
 
 			// We should not send any return value here because we are managing the output/buffering by ourselves
 			//return null;
+
 			return $Content; // This actually turned out to be compatible with both custom output buffering and error output!
 			// WARNING!!! Fatal error is not shown if we don't return any output here!
 		}
@@ -1650,10 +1651,12 @@ class Application{
 		#endregion Update traffic log with additional information upon each request
 
         #region Update WebManifest
-        $WebManifestFile = "{$this->Property["Terminal"]->Environment()->Path()}manifest/{$_SERVER["SERVER_NAME"]}.webmanifest";
+        $WebManifestFileName = "manifest.webmanifest";
+        $WebManifestFile = file_exists("{$this->Property["Environment"]->DomainPath()}{$WebManifestFileName}") ? "{$this->Property["Environment"]->DomainPath()}{$WebManifestFileName}" : "{$this->Property["Terminal"]->Environment()->Path()}{$WebManifestFileName}";
 
         if(!file_exists($WebManifestFile) || time() - filemtime($WebManifestFile) > 24 * 60 * 60){ // File does not exist or expired
-			$WebManifestLogoURL = "{$this->Property["Terminal"]->Environment()->ImageURL()}" . strtolower($_SERVER["SERVER_NAME"]) . "/logo.png";
+            $WebManifestLogoFile = "image/logo.png";
+			$WebManifestLogoURL = file_exists("{$this->Property["Terminal"]->Environment()->DomainPath()}{$WebManifestLogoFile}") ? "{$this->Property["Terminal"]->Environment()->DomainURL()}{$WebManifestLogoFile}" : "{$this->Property["Terminal"]->Environment()->ImageURL()}{$WebManifestLogoFile}";
 
             file_put_contents($WebManifestFile, json_encode([
                 "background_color" => $Configuration["BackgroundColor"],
