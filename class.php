@@ -1652,7 +1652,7 @@ class Application{
 
         #region Update WebManifest
         $WebManifestFileName = "manifest.webmanifest";
-        $WebManifestFile = file_exists("{$this->Property["Environment"]->DomainPath()}{$WebManifestFileName}") ? "{$this->Property["Environment"]->DomainPath()}{$WebManifestFileName}" : "{$this->Property["Terminal"]->Environment()->Path()}{$WebManifestFileName}";
+        $WebManifestFile = file_exists("{$this->Property["Terminal"]->Environment()->DomainPath()}{$WebManifestFileName}") ? "{$this->Property["Terminal"]->Environment()->DomainPath()}{$WebManifestFileName}" : "{$this->Property["Terminal"]->Environment()->Path()}{$WebManifestFileName}";
 
         if(!file_exists($WebManifestFile) || time() - filemtime($WebManifestFile) > 24 * 60 * 60){ // File does not exist or expired
             $WebManifestLogoFile = "image/logo.png";
