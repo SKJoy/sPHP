@@ -1651,11 +1651,11 @@ class Application{
 		#endregion Update traffic log with additional information upon each request
 
         #region Update WebManifest
+        $WebManifestLogoFile = "image/logo.png";
         $WebManifestFileName = "manifest.webmanifest";
-        $WebManifestFile = file_exists("{$this->Property["Terminal"]->Environment()->DomainPath()}{$WebManifestFileName}") ? "{$this->Property["Terminal"]->Environment()->DomainPath()}{$WebManifestFileName}" : "{$this->Property["Terminal"]->Environment()->Path()}{$WebManifestFileName}";
+        $WebManifestFile = file_exists("{$this->Property["Terminal"]->Environment()->DomainPath()}{$WebManifestLogoFile}") ? "{$this->Property["Terminal"]->Environment()->DomainPath()}{$WebManifestFileName}" : "{$this->Property["Terminal"]->Environment()->Path()}{$WebManifestFileName}";
 
         if(!file_exists($WebManifestFile) || time() - filemtime($WebManifestFile) > 24 * 60 * 60){ // File does not exist or expired
-            $WebManifestLogoFile = "image/logo.png";
 			$WebManifestLogoURL = file_exists("{$this->Property["Terminal"]->Environment()->DomainPath()}{$WebManifestLogoFile}") ? "{$this->Property["Terminal"]->Environment()->DomainURL()}{$WebManifestLogoFile}" : "{$this->Property["Terminal"]->Environment()->ImageURL()}{$WebManifestLogoFile}";
 
             file_put_contents($WebManifestFile, json_encode([
