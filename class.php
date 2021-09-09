@@ -740,21 +740,19 @@ class Terminal{
     }
 
     public function __destruct(){
-        #region Output compression
-        ob_end_clean(); // Empty and close output buffer to compress the output
+        ob_end_clean(); // Close (erase/empty) output buffer and start sending to standard output
 
         if(!$this->Property["Environment"]->Utility()->Debug()->Enabled()){ // Compress output only if not in debug mode
             ini_set("zlib.output_handler", ""); // Must be set to empty to allow the compression work
             ini_set("zlib.output_compression", 131072); // Default is 4096 (4 KB)
             ini_set("zlib.output_compression_level", 9); // 0 to 9
         }
-        #endregion Output compression
 
         #region Header
         #region sPHP custom header
         header("XX-Powered-By: {$this->Property["Environment"]->Name()}/{$this->Property["Environment"]->Version()->Full()}");
         //header("XX-sPHP-Developer: Binary Men");
-        //header("XX-sPHP-Developer-URL: http://Binary.Men");
+        //header("XX-sPHP-Developer-URL: http://sPHP.Info");
         #endregion sPHP custom header
         
         //header_remove("Pragma");
