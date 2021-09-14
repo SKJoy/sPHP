@@ -21,7 +21,8 @@ curl_setopt($cURL, CURLOPT_RETURNTRANSFER, TRUE); // Return the response as a st
 $NotificationRecordset = $Table["{$Entity}"]->Get("
 		" . ($Configuration["SendNotification"] ? "TRUE" : "FALSE") . " # Configuration: SendNotification
 	AND	N.{$Entity}SentTime IS NULL
-	AND	N.TimeInserted > DATE_ADD(NOW(), INTERVAL -1 DAY)
+	#AND	N.TimeInserted > DATE_ADD(NOW(), INTERVAL -2 HOUR) # Ignore aged or expired, we should take this value from configuration, updated by below
+	AND	N.TimeInserted > DATE_ADD(NOW(), INTERVAL -{$Configuration["NotificationAgeHourToIgnore"]} HOUR) # Ignore aged or expired
 	AND	NT.{$Entity}TypeIdentifier IN ('" . NOTIFICATION_TYPE_MOBILE_SMS . "', '" . NOTIFICATION_TYPE_EMAIL . "') # Do not include NOTIFICATION_TYPE_APP here; Use firebase-push.php on application layer
 	AND	N.{$Entity}Attempt < 3
 	AND	N.{$Entity}IsActive = 1
