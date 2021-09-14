@@ -76,7 +76,7 @@ class Database{
 			}
 			catch(\Throwable $Exception){ // Connection error
 				$this->LogError( // Log and show error message but don't trigger any error so the User can use Custom settings to update database connection
-					"Connection failed", // Error message
+					"Connection failed: {$Exception->getMessage()}", // Error message
 					null, // We don't have any SQL to log
 					[ // Parameters to log
 						//$Key = "Host" => $this->Property["{$Key}"], 
