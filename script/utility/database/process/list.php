@@ -65,7 +65,7 @@ namespace sPHP;
 							'<progress value="', ProcessProgressPercentile, '" max="100" class="ProgressBar">', ProcessProgressPercentile, '%</progress>', 
 							'<span class="Serial">', (ProcessIndex + 1), '</span>', 
 							'<span class="ID">', Process.Id, '</span>', 
-							'<span class="User">', Process.User, '</span>', 
+							'<span class="User">', Process.User, '<span class="Host">', Process.Host ? Process.Host.substring(0, Process.Host.indexOf(':')) : '', '</span></span>', 
 							'<span class="Duration">', Process.Time, '</span>', 
 							'<span class="Command">', Process.Command, '</span>', 
 							'<span class="Progress">', parseFloat(Process.Progress).toFixed(2), '</span>', 
