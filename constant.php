@@ -205,7 +205,7 @@ const LOG_DATA_TYPE_TEXT = "TEXT";
 const LOG_DATA_TYPE_JSON = "JSON";
 const LOG_DATA_TYPE_OBJECT = "OBJECT";
 const LOG_DATA_TYPE_NUMERIC = "NUMERIC";
-#endregion Log
+#endregion Data
 
 #region Operating system
 const OS_LINUX = "LINUX";
@@ -213,5 +213,9 @@ const OS_MAC = "MAC";
 const OS_OTHER = "OTHER";
 const OS_WINDOWS = "WINDOWS";
 #endregion Operating system
-#endregion Data
+#endregion Log
+
+const IFRAME_LOAD_ALLOW = "ALLOW";
+const IFRAME_LOAD_DENY = "DENY";
+const IFRAME_LOAD_SAMEORIGIN = "SAMEORIGIN";
 ?>

@@ -701,6 +701,7 @@ class Terminal{
         "BackgroundColor"   =>  "Black",
         "ThemeColor"        =>  "Grey",
         "Manifest"          =>  null,
+        "IFrameLoad"		=>  IFRAME_LOAD_SAMEORIGIN,
     ];
 
     #region Variable
@@ -755,11 +756,16 @@ class Terminal{
         //header("XX-sPHP-Developer-URL: http://sPHP.Info");
         #endregion sPHP custom header
         
-        //header_remove("Pragma");
-        //header_remove("Expires");
-        
 		header("Content-Type: " . EXTENSION_MIMETYPE[strtolower($this->Property["DocumentType"])] . (!is_null($this->Property["CharacterSet"]) ? "; charset={$this->Property["CharacterSet"]}" : null));
-		//header("Server: UNKNOWN"); // Security warning: Server header should contain server name only; So, detect the server name and put only the name here
+        header("X-Frame-Options: {$this->Property["IFrameLoad"]}");
+		header("Server: UNKNOWN"); // Security warning: Server header should contain server name only; So, detect the server name and put only the name here
+        
+		#region Remove depricated/vulnerable headers
+        header_remove("X-Powered-By");
+        header_remove("Server"); // Some servers may enforce retaining/sending this (e.g: LightSpeed)
+        header_remove("Pragma");
+        header_remove("Expires");
+		#endregion Remove depricated/vulnerable headers
         #endregion Header
 
         if($this->Property["DocumentType"] == DOCUMENT_TYPE_HTML && !isset($_POST["_MainContentOnly"])){ // Full HTML document
@@ -1077,6 +1083,19 @@ class Terminal{
     }
 
     public function Manifest($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+			$Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function IFrameLoad($Value = null){
         if(is_null($Value)){
             $Result = $this->Property[__FUNCTION__];
         }
@@ -1488,6 +1507,7 @@ class Application{
         // Other static assignments from the configuration
         $this->Property["Terminal"]->META("author", $Configuration["CompanyName"]);
         $this->Property["Terminal"]->Icon($Configuration["Icon"]);
+        $this->Property["Terminal"]->IFrameLoad($Configuration["IFrameLoad"]);
 
         // Set indirect properties by calling to execute inner operations inside the set method
         $this->Language(new Language($Configuration["LanguageName"], $Configuration["LanguageCode"], $Configuration["LanguageRegionCode"], $Configuration["LanguageNativeName"], $Configuration["LanguageNativelyName"]));
