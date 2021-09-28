@@ -385,9 +385,11 @@ class Datagrid{
             $URL = "{$this->Property["URL"]}" . (strpos($this->Property["URL"], "?") === false ? "?" : "&") . "";
 			$ParameterPrefix = $this->Property["ID"] ? "Datagrid_{$this->Property["ID"]}_" : null;
 
-			\sPHP\SetVariable("{$ParameterPrefix}Page", 1);
 			\sPHP\SetVariable("{$ParameterPrefix}OrderBy", $Field[0]->Name());
 			\sPHP\SetVariable("{$ParameterPrefix}Order", "ASC");
+
+            $PagePOSTVariable = ($this->Property["ID"] ? "Paginator_{$this->Property["ID"]}_" : null) . "Page";
+			\sPHP\SetVariable($PagePOSTVariable, 1);
 
 			#region Column title
 			if($this->Property["Serial"])$ColumnTitleHTML[] = "<th class=\"Serial\">" . ($this->Property["Selectable"] ? "<label>{$this->Property["SerialCaption"]}<input id=\"{$ParameterPrefix}SelectToggle\" type=\"checkbox\" onclick=\"sJS.ToggleCheckBoxes('{$this->Property["DataIDColumn"]}', this.checked, null);\"></label>" : "{$this->Property["SerialCaption"]}") . "</th>";
@@ -408,7 +410,7 @@ class Datagrid{
 			if(count($this->Property["Action"]))$ColumnTitleHTML[] = "<th></th>";
 			#endregion Column title
 
-            $Page = intval($_POST["{$ParameterPrefix}Page"]);
+            $Page = intval($_POST[$PagePOSTVariable]);
             if($Page < 1)$Page = 1;
 
             $RowPerPage = intval($this->Property["RowPerPage"]);
