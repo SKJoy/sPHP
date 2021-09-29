@@ -400,8 +400,8 @@ class Cron{
 
 	#region Private function
 	private function SaveStatusFile($Status){
+		if(is_array($Status))$Status = json_decode(json_encode($Status)); // Convert to JSON object if an Array
 		$Status->Time->Updated = date("Y-m-d H:i:s"); // Update status file update time
-
 		file_put_contents($this->Property["StatusFile"], json_encode($Status));
 
 		return true;
