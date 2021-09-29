@@ -69,7 +69,7 @@ class Cron{
 				"Begin"					=>	null,
 				"End"					=>	null,
 				"Duration"				=>	null,
-				"Update"				=>	date("Y-m-d H:i:s"), 
+				"Updated"				=>	date("Y-m-d H:i:s"), 
 			],
 			"Load" => [
 				"Memory"				=>	null,
