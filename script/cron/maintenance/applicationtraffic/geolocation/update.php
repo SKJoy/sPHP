@@ -16,6 +16,10 @@ $SQL = [];
 
 foreach($Table[$Entity]->Get("ATr.{$Entity}Latitude IS NULL", "ATr.{$Entity}Time DESC", 1, $RecordCount) as $Record){
 	if($GeoData = $Utility->IP2Geo($Record["{$Entity}IP"])){
+		// One incedent happened where IP2Geo() succeeded with NULL latitude & longitude!
+		$GeoData->location->latitude = floatval($GeoData->location->latitude);
+		$GeoData->location->longitude = floatval($GeoData->location->longitude);
+
 		$Metro = $GeoData->location->metroCode ? "'{$Database->Escape($GeoData->location->metroCode)}'" : "NULL";
 		$City = isset($GeoData->city->names["en"]) && $GeoData->city->names["en"] ? "'{$Database->Escape($GeoData->city->names["en"])}'" : "NULL";
 		$PostCode = $GeoData->postal->code ? "'{$Database->Escape($GeoData->postal->code)}'" : "NULL";
