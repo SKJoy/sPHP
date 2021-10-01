@@ -87,35 +87,42 @@ class EntityManagement{
     }
 
 	public function LoadExistingData(){
-		if($this->Property["EntityID"]){ // Existing record
-			foreach($this->Property["Table"]->Get("{$this->Property["Table"]->Alias()}.{$this->Property["Table"]->Structure()["Primary"][0]} = {$this->Property["EntityID"]}")[0] as $Key=>$Value)SetVariable($Key, $Value); // Load existing data into the input form
+		if($this->Property["EntityID"]){ // Existing record ID
+            $PrimaryKey = $this->Property["Table"]->Structure()["Primary"][0];
+            $Record = $this->Property["Table"]->Get("{$this->Property["Table"]->Alias()}.{$PrimaryKey} = {$this->Property["EntityID"]}");
 
-			// Load option data from intermediate table
-			foreach(ListToArray($this->Property["IntermediateEntity"]) as $OptionEntity){
-				if(in_array("{$this->Property["Table"]->Prefix()}{$this->Property["LowercaseEntityName"]}" . strtolower($OptionEntity) . "", $this->Property["Table"]->Database()->Table())){
-					$IntermediateTable = new Database\Table(
-						"{$this->Property["Table"]->EntityName()}{$OptionEntity}",
-						"_IE",
-						null,
-						null,
-						$this->Property["Table"]->SQLSELECTPath(),
-						$this->Property["Table"]->Database(),
-						$this->Property["Table"]->Prefix()
-					);
+            if(isset($Record[0])){ // Existing record found
+                foreach($Record[0] as $Key => $Value)SetVariable($Key, $Value); // Load existing data into the input form
+                
+                foreach(ListToArray($this->Property["IntermediateEntity"]) as $OptionEntity){ // Load option data from intermediate table
+                    if(in_array("{$this->Property["Table"]->Prefix()}{$this->Property["LowercaseEntityName"]}" . strtolower($OptionEntity) . "", $this->Property["Table"]->Database()->Table())){
+                        $IntermediateTable = new Database\Table(
+                            "{$this->Property["Table"]->EntityName()}{$OptionEntity}",
+                            "_IE",
+                            null,
+                            null,
+                            $this->Property["Table"]->SQLSELECTPath(),
+                            $this->Property["Table"]->Database(),
+                            $this->Property["Table"]->Prefix()
+                        );
 
-					$OptionRecordset = $IntermediateTable->Get("{$IntermediateTable->Alias()}.{$this->Property["Table"]->Structure()["Primary"][0]} = {$this->Property["EntityID"]} AND {$this->Property["Table"]->EntityName()}{$OptionEntity}IsActive = 1", null, null, null, null, null, null);
-					if(is_array($OptionRecordset))foreach($OptionRecordset as $Option)$_POST["{$OptionEntity}ID_{$Option["{$OptionEntity}ID"]}"] = $Option["{$OptionEntity}ID"];
-				}
-			}
+                        $OptionRecordset = $IntermediateTable->Get("{$IntermediateTable->Alias()}.{$this->Property["Table"]->Structure()["Primary"][0]} = {$this->Property["EntityID"]} AND {$this->Property["Table"]->EntityName()}{$OptionEntity}IsActive = 1", null, null, null, null, null, null);
+                        if(is_array($OptionRecordset))foreach($OptionRecordset as $Option)$_POST["{$OptionEntity}ID_{$Option["{$OptionEntity}ID"]}"] = $Option["{$OptionEntity}ID"];
+                    }
+                }
 
-			$Result = true;
+                $Result = true;
+            }
+            else{ // Existing record not found
+                $Result = false;
+            }
 		}
-		else{
+		else{ // No existing record ID specified
 			$Result = false;
 		}
-        //var_dump(ListToArray($this->Property["DefaultFromSearchColumn"]), $this->Property["SearchInputPrefix"], );
+
 		foreach(ListToArray($this->Property["DefaultFromSearchColumn"]) as $Column)SetVariable($Column, SetVariable("{$this->Property["SearchInputPrefix"]}{$Column}"));
-        //var_dump($_POST);
+
 		return $Result;
 	}
 
