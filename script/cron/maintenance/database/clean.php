@@ -27,7 +27,7 @@ $Recordset = $Database->Query("
 	# Orphan
 		DELETE UUG FROM	sphp_userusergroup AS UUG LEFT JOIN sphp_user AS U ON U.UserID = UUG.UserID LEFT JOIN sphp_usergroup AS UG ON UG.UserGroupID = UUG.UserGroupID WHERE U.UserID IS NULL OR UG.UserGroupID IS NULL;
 
-	# Application traffic
+	# sPHP: Cron: Application traffic: Clean
 		DELETE FROM		sphp_applicationtraffic
 		WHERE			ApplicationTrafficTime < @TimeToKeepFrom
 			OR			ApplicationTrafficScript LIKE 'cron/%'
@@ -65,14 +65,14 @@ if(isset($sPHPCronJob)){ // Resturn result if ran through sPHP Cron object
 	if($CronJobResult["Error"]["Code"] == 0){
 		$CronJobResult["Status"] = [
 			"Keep from: <span class=\"Important\">{$TimeToKeepFromCaption}</span>", 
-			"History days: {$ProcessStatus["HistoryDaysToKeep"]}", 
+			"History: {$ProcessStatus["HistoryDaysToKeep"]} days", 
 		];
 	}
 }
 else{ // Output only if not an sPHP Cron Job (service, background process)
 	if($CronJobResult["Error"]["Code"] == 0){
 		$HTML[] = "<li>Keep from: {$TimeToKeepFromCaption}</li>";
-		$HTML[] = "<li>History days: {$ProcessStatus["HistoryDaysToKeep"]} Sec</li>";
+		$HTML[] = "<li>History: {$ProcessStatus["HistoryDaysToKeep"]} days</li>";
 	}
 	else{
 		$HTML[] = "<li>ERROR: {$CronJobResult["Error"]["Message"]}</li>";
