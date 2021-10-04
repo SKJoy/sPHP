@@ -1669,7 +1669,7 @@ class Application{
 		#endregion Update traffic log with additional information upon each request
 
         #region Update WebManifest
-        $WebManifestLogoFile = "image/logo.png";
+        $WebManifestLogoFile = "image/logo-webapp.png";
         $WebManifestFileName = "manifest.webmanifest";
         $WebManifestFile = file_exists("{$this->Property["Terminal"]->Environment()->DomainPath()}{$WebManifestLogoFile}") ? "{$this->Property["Terminal"]->Environment()->DomainPath()}{$WebManifestFileName}" : "{$this->Property["Terminal"]->Environment()->Path()}{$WebManifestFileName}";
 
@@ -1988,8 +1988,11 @@ class Application{
         else{
             $this->Property[__FUNCTION__] = $Value;
 
+            $LogoFile = "image/logo.png";
+            $LogoURL = file_exists("{$this->Property["Terminal"]->Environment()->DomainPath()}{$LogoFile}") ? "{$this->Property["Terminal"]->Environment()->DomainURL()}{$LogoFile}" : "{$this->Property["Terminal"]->Environment()->ImageURL()}{$LogoFile}";
+
             $this->Property["OpenGraph"]->URL($this->Property[__FUNCTION__]->Environment()->URL());
-            $this->Property["OpenGraph"]->Image("{$this->Property[__FUNCTION__]->Environment()->ImageURL()}logo.png");
+            $this->Property["OpenGraph"]->Image($LogoURL);
 
             $Result = true;
         }
