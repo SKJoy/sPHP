@@ -21,7 +21,7 @@ spl_autoload_register(function($Class){
 			if(file_exists($ApplicationClassFileNested = pathinfo($_SERVER["SCRIPT_FILENAME"])["dirname"] . "/library/object/" . strtolower(str_replace("\\", "/", $Class)) . ".php")){
 				require $ApplicationClassFileNested; // Load class script from application with namespace nested path
 			}
-			else{ // Class script not found anywhere
+			else{ // Class script not found anywhere				
 				trigger_error("Script for Class '{$Class}' not found!", E_USER_ERROR);
 			}
 		}
