@@ -2,6 +2,7 @@
 namespace sPHP;
 
 $EntityName = "User";
+$EntityAlias = $TBL["{$EntityName}"]->Alias();
 $LowercaseEntityName = strtolower($EntityName);
 
 #region Make sure arguments are available for processing
@@ -35,23 +36,19 @@ if($Form->Verify($APP->EncryptionKey())){
 	else{ // Dynamic system with a database back end
 		if(count($UserRecord = $TBL["{$EntityName}"]->Get($SQL_WHERE = "
 				(
-					{$TBL["{$EntityName}"]->Alias()}.{$EntityName}Email = '{$DTB->Escape($UserEmail)}' OR	
-					{$TBL["{$EntityName}"]->Alias()}.{$EntityName}SignInName = '{$DTB->Escape($UserEmail)}'
+						{$EntityAlias}.{$EntityName}Email = '{$DTB->Escape($UserEmail)}'
+					OR	{$EntityAlias}.{$EntityName}SignInName = '{$DTB->Escape($UserEmail)}'
 				)
-			AND	{$TBL["{$EntityName}"]->Alias()}.{$EntityName}PasswordHash = '{$UserPasswordHash}'
-			AND	{$TBL["{$EntityName}"]->Alias()}.{$EntityName}IsActive = 1
-			AND	" . ($CFG["AdministratorAccessOnly"] ? "(
-					SELECT			UG.UserGroupIdentifier
-					FROM			sphp_userusergroup AS UUG
-						LEFT JOIN	sphp_usergroup AS UG ON UG.UserGroupID = UUG.UserGroupID
-						LEFT JOIN	sphp_user AS U2 ON U2.UserID = UUG.UserID
-					WHERE			(
-										U2.UserEmail = '{$DTB->Escape($UserEmail)}' OR 
-										U2.UserSignInName = '{$DTB->Escape($UserEmail)}')
-						AND			U2.UserPasswordHash = '{$UserPasswordHash}'
-					ORDER BY		UG.UserGroupWeight DESC
-					LIMIT			1
-				) = 'ADMINISTRATOR'" : "TRUE") . " # AdministratorAccessOnly = " . ($CFG["AdministratorAccessOnly"] ? "TRUE" : "FALSE") . "
+			AND	{$EntityAlias}.{$EntityName}PasswordHash = MD5(CONCAT('{$DTB->Escape($UserPassword)}', IF(U.{$EntityName}PasswordHashSalt IS NULL, '', U.{$EntityName}PasswordHashSalt)))
+			AND	{$EntityAlias}.{$EntityName}IsActive = 1
+			AND	" . ($CFG["AdministratorAccessOnly"] ? "{$EntityAlias}.{$EntityName}ID IN ( # Administrator access only
+					SELECT			{$EntityAlias}{$EntityAlias}G.{$EntityName}ID 
+					FROM			sphp_userusergroup AS {$EntityAlias}{$EntityAlias}G 
+						LEFT JOIN	sphp_usergroup AS {$EntityAlias}G ON {$EntityAlias}G.{$EntityName}GroupID = {$EntityAlias}{$EntityAlias}G.{$EntityName}GroupID
+					WHERE			{$EntityAlias}G.{$EntityName}GroupIdentifier = 'ADMINISTRATOR' 
+						AND			{$EntityAlias}{$EntityAlias}G.{$EntityName}ID = {$EntityAlias}.{$EntityName}ID
+				)" : "TRUE"
+			) . "
 		", null, null, null, null, null, null))){ //DebugDump($SQL_WHERE);
 			$Result = true;
 
