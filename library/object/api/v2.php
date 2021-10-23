@@ -27,8 +27,9 @@ class V2 extends \sPHP\Basic{
 				"Error" => [], 
 				"Documentation" => [
 					"Description" => null, 
+					"Method" => "Argument/GET/POST", 
 					"Argument" => [], 
-					"Note" => null, 
+					"Note" => [], 
 				], 
 				"Response" => [], 
 				"Diagnostics" => [
@@ -61,9 +62,12 @@ class V2 extends \sPHP\Basic{
 	}
 	#endregion System
 
-	public function Result(){
-		return $this->OutputFormat == $this::OUTPUT_FORMAT_JSON ? json_encode($this->Response) : (
-			$this->OutputFormat == $this::OUTPUT_FORMAT_OBJECT ? json_decode(json_encode($this->Response)) : $this->Response
+	public function Output($Response = null){
+		if(is_null($Response))$Response = $this->Response;
+
+		return $this->OutputFormat == $this::OUTPUT_FORMAT_JSON ? json_encode($Response) : (
+			$this->OutputFormat == $this::OUTPUT_FORMAT_OBJECT ? json_decode(json_encode($Response)) : 
+				$Response
 		);
 	}
 	#endregion Method

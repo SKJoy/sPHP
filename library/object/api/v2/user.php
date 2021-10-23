@@ -107,9 +107,7 @@ class User extends \sPHP\API\V2{
 		$Response["Diagnostics"]["Time"]["End"] = date("r");
 		$Response["Diagnostics"]["Time"]["DurationSecond"] = strtotime($Response["Diagnostics"]["Time"]["Begin"]) - strtotime($Response["Diagnostics"]["Time"]["End"]);
 		
-		$this->Response = $Response;
-
-		return $this->Result();
+		return $this->Output($Response);
 	}
 
 	public function SignOut(){
@@ -125,14 +123,20 @@ class User extends \sPHP\API\V2{
 		$Response["Diagnostics"]["Time"]["End"] = date("r");
 		$Response["Diagnostics"]["Time"]["DurationSecond"] = strtotime($Response["Diagnostics"]["Time"]["Begin"]) - strtotime($Response["Diagnostics"]["Time"]["End"]);
 		
-		$this->Response = $Response;
-
-		return $this->Result();
+		return $this->Output($Response);
 	}
 
-	public function Profile($Data = null){
+	public function Profile(?array $Data = null){
+		#region Validate arguments
+		if(is_array($Data)){
+			$Data = array_filter($Data);
+			if(!count($Data))$Data = null;
+		}
+		#endregion Validate arguments
+
 		$Response = $this->Response;
 		$Response["Documentation"]["Description"] = "Get or update user profile Data";
+		$Response["Documentation"]["Method"] = "Argument/POST";
 		$Response["Documentation"]["Note"] = "Available for authenticated (not GUEST) user only";
 
 		$Response["Documentation"]["Argument"] = [
@@ -148,16 +152,19 @@ class User extends \sPHP\API\V2{
 	
 				if(count($Record)){
 					$Record = $Record[0];
+					$UserGroupIdentifierHighest = explode("; ", $Record["{$this->Entity}GroupIdentifier"])[0];
 	
 					$Response["Response"] = [
-						"ID"				=> $Record["{$this->Entity}ID"], 
-						"Email"				=> $Record["{$this->Entity}Email"], 
-						"SignInName"		=> $Record["{$this->Entity}SignInName"], 
-						"NameFirst"			=> $Record["{$this->Entity}NameFirst"], 
-						"NameMiddle"		=> $Record["{$this->Entity}NameMiddle"], 
-						"NameLast"			=> $Record["{$this->Entity}NameLast"], 
-						"Picture"			=> $Record["{$this->Entity}Picture"], 
-						"PictureThumbnail"	=> $Record["{$this->Entity}PictureThumbnail"], 
+						"ID"						=> $Record["{$this->Entity}ID"], 
+						"Email"						=> $Record["{$this->Entity}Email"], 
+						"SignInName"				=> $Record["{$this->Entity}SignInName"], 
+						"NameFirst"					=> $Record["{$this->Entity}NameFirst"], 
+						"NameMiddle"				=> $Record["{$this->Entity}NameMiddle"], 
+						"NameLast"					=> $Record["{$this->Entity}NameLast"], 
+						"Picture"					=> $Record["{$this->Entity}Picture"], 
+						"PictureThumbnail"			=> $Record["{$this->Entity}PictureThumbnail"], 
+						"GroupName"					=> $Record["{$this->Entity}GroupName"], 
+						"GroupIdentifierHighest"	=> $UserGroupIdentifierHighest, 
 					];
 				}
 				else{
@@ -181,13 +188,16 @@ class User extends \sPHP\API\V2{
 			
 						if(count($Record)){
 							$Record = $Record[0];
+							$UserGroupIdentifierHighest = explode("; ", $Record["{$this->Entity}GroupIdentifier"])[0];
 			
 							$Response["Response"] = [
-								"ID"				=> $Record["{$this->Entity}ID"], 
-								"Email"				=> $Record["{$this->Entity}Email"], 
-								"SignInName"		=> $Record["{$this->Entity}SignInName"], 
-								"Picture"			=> $Record["{$this->Entity}Picture"], 
-								"PictureThumbnail"	=> $Record["{$this->Entity}PictureThumbnail"], 
+								"ID"						=> $Record["{$this->Entity}ID"], 
+								"Email"						=> $Record["{$this->Entity}Email"], 
+								"SignInName"				=> $Record["{$this->Entity}SignInName"], 
+								"Picture"					=> $Record["{$this->Entity}Picture"], 
+								"PictureThumbnail"			=> $Record["{$this->Entity}PictureThumbnail"], 
+								"GroupName"					=> $Record["{$this->Entity}GroupName"], 
+								"GroupIdentifierHighest"	=> $UserGroupIdentifierHighest, 
 							];
 						}
 						else{
@@ -207,9 +217,7 @@ class User extends \sPHP\API\V2{
 		$Response["Diagnostics"]["Time"]["End"] = date("r");
 		$Response["Diagnostics"]["Time"]["DurationSecond"] = strtotime($Response["Diagnostics"]["Time"]["Begin"]) - strtotime($Response["Diagnostics"]["Time"]["End"]);
 		
-		$this->Response = $Response;
-
-		return $this->Result();
+		return $this->Output($Response);
 	}
 
 	public function SetPassword(string $Password){
@@ -245,9 +253,82 @@ class User extends \sPHP\API\V2{
 		$Response["Diagnostics"]["Time"]["End"] = date("r");
 		$Response["Diagnostics"]["Time"]["DurationSecond"] = strtotime($Response["Diagnostics"]["Time"]["Begin"]) - strtotime($Response["Diagnostics"]["Time"]["End"]);
 		
-		$this->Response = $Response;
+		return $this->Output($Response);
+	}
 
-		return $this->Result();
+	public function Impersonate(string $Email){
+		$Response = $this->Response;		
+		$Response["Documentation"]["Description"] = "Switch session to another user";
+		$Response["Documentation"]["Note"][] = "Available for authenticated (not GUEST) user only";
+		$Response["Documentation"]["Note"][] = "Current user can impersonate another user with lower group weight only";
+
+		$Response["Documentation"]["Argument"] = [
+			"Email" => ["Type" => "String", "Required" => true, "Default" => null, "Description" => "Ideintifies the user to impersonate matching either the email or sign in name", "Sample" => "Jane.Doe@Where.How", ], 
+		];
+
+		if(\sPHP::$Session->IsGuest()){
+			$Response["Error"][] = $this::ERROR_UNAUTHORIZED;
+		}
+		else{
+			if($Email){
+				$Recordset = \sPHP::$Table[$this->Entity]->Get("(U.{$this->Entity}Email = '" . \sPHP::$Database->Escape($Email) . "' OR U.{$this->Entity}SignInName = '" . \sPHP::$Database->Escape($Email) . "') AND U.{$this->Entity}IsActive = 1");
+
+				if(count($Recordset)){
+					$Record = $Recordset[0];
+					$MaximumUserGroupWeight = max(explode("; ", $Record["{$this->Entity}GroupWeight"]));
+
+					if(\sPHP::$User->UserGroupMaximumWeight() > $MaximumUserGroupWeight){
+						$UserGroupIdentifierHighest = explode("; ", $Record["{$this->Entity}GroupIdentifier"])[0];
+	
+						\sPHP::$Session->Impersonate(new User(
+							$Record["{$this->Entity}Email"],
+							$Record["{$this->Entity}PasswordHash"],
+							$Record["{$this->Entity}Name"],
+							$Record["{$this->Entity}Phone"],
+							null,
+							$Record["{$this->Entity}URL"],
+							$Record["{$this->Entity}Picture"],
+							$Record["{$this->Entity}PictureThumbnail"],
+							$Record["{$this->Entity}ID"],
+							$Record["{$this->Entity}GroupIdentifier"],
+							$Record["{$this->Entity}GroupWeight"],
+							$MaximumUserGroupWeight,
+							$Record["{$this->Entity}GroupName"],
+							$UserGroupIdentifierHighest
+						));
+
+						$this->ID = intval(\sPHP::$User->ID());
+		
+						$Response["Response"] = [
+							"ID"						=> $Record["{$this->Entity}ID"], 
+							"Email"						=> $Record["{$this->Entity}Email"], 
+							"SignInName"				=> $Record["{$this->Entity}SignInName"], 
+							"NameFirst"					=> $Record["{$this->Entity}NameFirst"], 
+							"NameMiddle"				=> $Record["{$this->Entity}NameMiddle"], 
+							"NameLast"					=> $Record["{$this->Entity}NameLast"], 
+							"Picture"					=> $Record["{$this->Entity}Picture"], 
+							"PictureThumbnail"			=> $Record["{$this->Entity}PictureThumbnail"], 
+							"GroupName"					=> $Record["{$this->Entity}GroupName"], 
+							"GroupIdentifierHighest"	=> $UserGroupIdentifierHighest, 
+						];
+					}
+					else{
+						$Response["Error"][] = $this::ERROR_ACCESS_DENIED;
+					}
+				}
+				else{
+					$Response["Error"][] = $this::ERROR_SUBJECT_NOT_FOUND;
+				}
+			}
+			else{
+				$Response["Error"][] = $this::ERROR_REQUIRED_EMAIL;
+			}
+		}
+
+		$Response["Diagnostics"]["Time"]["End"] = date("r");
+		$Response["Diagnostics"]["Time"]["DurationSecond"] = strtotime($Response["Diagnostics"]["Time"]["Begin"]) - strtotime($Response["Diagnostics"]["Time"]["End"]);
+		
+		return $this->Output($Response);
 	}
 	#endregion Method
 
