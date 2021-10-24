@@ -4,17 +4,17 @@ namespace sPHP\API;
 class V2 extends \sPHP\Basic{
 	#region Public constant
 	#region Error
-	public const ERROR_ACCESS_DENIED = ["Code" => 99999, "Description" => "Access denied", ];
-	public const ERROR_UNAUTHORIZED = ["Code" => 99998, "Description" => "Unauthorized", ];
-	public const ERROR_INSUFFICIENT_DATA = ["Code" => 89999, "Description" => "Insufficient data", ];
-	public const ERROR_SUBJECT_NOT_FOUND = ["Code" => 89998, "Description" => "Subject not found", ];
-	public const ERROR_REQUIRED_EMAIL = ["Code" => 79999, "Description" => "Email address is required", ];
-	public const ERROR_REQUIRED_PASSWORD = ["Code" => 79999, "Description" => "Password is required", ];
+	public const ERROR_ACCESS_DENIED =		["Code" => 99999, "Description" => "Access denied", ];
+	public const ERROR_UNAUTHORIZED =		["Code" => 99998, "Description" => "Unauthorized", ];
+	public const ERROR_INSUFFICIENT_DATA =	["Code" => 89999, "Description" => "Insufficient data", ];
+	public const ERROR_SUBJECT_NOT_FOUND =	["Code" => 89998, "Description" => "Subject not found", ];
+	public const ERROR_REQUIRED_EMAIL =		["Code" => 79999, "Description" => "Email address is required", ];
+	public const ERROR_REQUIRED_PASSWORD =	["Code" => 79999, "Description" => "Password is required", ];
 	#endregion Error
 
-	public const OUTPUT_FORMAT_ARRAY = "ARRAY";
-	public const OUTPUT_FORMAT_JSON = "JSON";
-	public const OUTPUT_FORMAT_OBJECT = "OBJECT";
+	public const OUTPUT_FORMAT_ARRAY =	"ARRAY";
+	public const OUTPUT_FORMAT_JSON =	"JSON";
+	public const OUTPUT_FORMAT_OBJECT =	"OBJECT";
 	#endregion Public constant
 
 	#region Method
@@ -50,10 +50,12 @@ class V2 extends \sPHP\Basic{
 			], 
 		]);
 
+		//parent::SetReadOnlyProperty("FirstName, MiddleName, LastName"); //? Set properties that cannot be set/changed outside the class
+
 		#region Property dependancy
-		//* Add properties that will reset other properties when set/changed
-		//parent::AddPropertyDependancy("FirstName", ["Name", "Caption", ]); //? Name & Caption will be reset when FirstName changes
-		//parent::AddPropertyDependancy("LastName", ["Name", "Caption", ]); //? Keep adding dependant properties as array elements
+		//? Add properties that will reset other properties when set/changed
+		//parent::AddPropertyDependancy("FirstName", ["Name", "Caption", ]); //* Name & Caption will be reset when FirstName changes
+		//parent::AddPropertyDependancy("LastName", ["Name", "Caption", ]); //* Keep adding dependant properties as array elements
 		#endregion Property dependancy
 	}
 	

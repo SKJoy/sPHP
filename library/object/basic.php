@@ -3,13 +3,15 @@ namespace sPHP;
 
 class Basic{
 	#region Property
-	protected $Property = [];
-	protected $PropertyDependancy = [];
+	protected $Property = []; //* Internal property storage
+	protected $ReadOnlyProperty = []; //* Properties that cannot be set from outside the class
+	protected $PropertyDependancy = []; //* Properties that affect/reset other properties when set/changed
 	protected $Debug = false; //? Set to TRUE for testing execution flow
 	#endregion Property
 
 	#region Method
-	public function __construct(){ //* Arguments must be passed as an associative single array in order to determine property name
+	#region System
+	public function __construct(){ //? Pass arguments as associative array from child class in order to determine property name
 		$Argument = func_get_args();
 		$Argument = count($Argument) ? $Argument[0] : [];
 
@@ -27,18 +29,23 @@ class Basic{
 	}
 
 	public function __set($Property, $Value){ $this->DebugLogCall("{$Property}: " . json_encode($Value));
-		if(isset($this->PropertyDependancy[$Property])){ // Reset dependant property value that depend on property to be set
-			foreach($this->PropertyDependancy[$Property] as $DependantProperty){ $this->DebugLogCall($DependantProperty);
-				$this->Property[$DependantProperty] = null;
+		if(in_array($Property, $this->ReadOnlyProperty)){ // Property is read only, cannot be set outside the class
+			$Result = false;
+		}
+		else{ // Regular property
+			if(isset($this->PropertyDependancy[$Property])){ // Reset dependant property value that depend on property to be set
+				foreach($this->PropertyDependancy[$Property] as $DependantProperty){ $this->DebugLogCall($DependantProperty);
+					$this->Property[$DependantProperty] = null;
+				}
 			}
-		}
-		
-		if(method_exists($this, $Property)){ // Set property value through class method
-			$Result = $this->$Property($Value);
-		}
-		else{
-			$this->Property[$Property] = $Value; // Set property value through internal property storage
-			$Result = true;
+			
+			if(method_exists($this, $Property)){ // Set property value through class method
+				$Result = $this->$Property($Value);
+			}
+			else{
+				$this->Property[$Property] = $Value; // Set property value through internal property storage
+				$Result = true;
+			}
 		}
 
 		return $Result;
@@ -67,13 +74,59 @@ class Basic{
 		
 		return $Result;
 	}
+	#endregion System
+
+	/*
+		Globally callable static function for debug log output
+			Argument:	$FunctionComment: Optional comment with the log output
+							Example: String: This is just a comment for this debug log output
+		Usage: sPHP\Basic:DebugLog("Some comment goes here");
+	*/static function DebugLog(?string $FunctionComment = null){
+		$Caller = isset(debug_backtrace()[3]) ? debug_backtrace()[2] : false; //var_dump($Call);
+		if($Caller)print "" . (isset($Caller["file"]) ? "{$Caller["file"]}:{$Caller["line"]} ▶ " : null) . "{$Caller["class"]}{$Caller["type"]}{$Caller["function"]}() ▷ ";
+
+		$Call = debug_backtrace()[2]; //var_dump($Call);
+		print "{$Call["file"]}:{$Call["line"]} ▶ {$Call["class"]}{$Call["type"]}{$Call["function"]}({$FunctionComment})";
+		
+		print PHP_EOL;
+		$Result = true;
+
+		return $Result;
+	}
 	#endregion Method
 
 	#region Property
 	#endregion Property
 
 	#region Function
-	protected function AddPropertyDependancy(string $Property, array $Dependancy){
+	/*
+		Specify properties that are read only from outside the class. 
+		Possible case is FullName cannot be set directly but generated when FirtName & LastName are set.
+			Argument:	$Property: COMMA delimitted string of property name list, or an array of property names
+							Example:	String: FirstName, LastName, MiddleName
+										Array: ["FirstName", "LastName", "MiddleName", ]
+	*/protected function SetReadOnlyProperty($Proeprty){
+		if(!is_array($Proeprty))$Proeprty = array_filter(explode(",", str_replace(" ", null, $Proeprty)));
+
+		if(count($Proeprty)){			
+			$this->ReadOnlyProperty = $Proeprty;
+			$Result = true;
+		}
+		else{
+			$Result = false;
+		}
+
+		return $Result;
+	}
+
+	/*
+		Specify properties that affect/reset other properties when set/changed. 
+		When the property is set/changed, the dependant properties are reset to NULL.
+			Argument:	$Property: Name of the property
+							Example: String: FirstName
+						$Dependancy: Array of proerties that get affected/reset
+							Example: Array: ["LastName", "MiddleName", ]
+	*/protected function AddPropertyDependancy(string $Property, array $Dependancy){
 		if(count($Dependancy)){
 			$this->PropertyDependancy[$Property] = $Dependancy;
 			$Result = true;
@@ -85,6 +138,7 @@ class Basic{
 		return $Result;
 	}
 
+	// Just a wrapper function for DebugLog() to output only when $this->Debug is TRUE to use internally
 	protected function DebugLogCall(?string $FunctionComment = null){
 		if($this->Debug){			
 			$Result = self::DebugLog($FunctionComment);
@@ -92,20 +146,6 @@ class Basic{
 		else{
 			$Result = false;
 		}
-
-		return $Result;
-	}
-
-	//? Globally callable static function for debug log output; Sample: sphp\Stem:DebugLog("Some comment goes here");
-	static function DebugLog(?string $FunctionComment = null){
-		$Caller = isset(debug_backtrace()[3]) ? debug_backtrace()[2] : false; //var_dump($Call);
-		if($Caller)print "" . (isset($Caller["file"]) ? "{$Caller["file"]}:{$Caller["line"]} ▶ " : null) . "{$Caller["class"]}{$Caller["type"]}{$Caller["function"]}() ▷ ";
-
-		$Call = debug_backtrace()[2]; //var_dump($Call);
-		print "{$Call["file"]}:{$Call["line"]} ▶ {$Call["class"]}{$Call["type"]}{$Call["function"]}({$FunctionComment})";
-		
-		print PHP_EOL;
-		$Result = true;
 
 		return $Result;
 	}
