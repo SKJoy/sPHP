@@ -1,13 +1,7 @@
 <?php
 namespace sPHP;
 
-$Data = [ // Construct Data argument from POST arguments
-	($Argument = "Email") => SetVariable($Argument), 
-	($Argument = "NameFirst") => SetVariable($Argument), 
-	($Argument = "NameMiddle") => SetVariable($Argument), 
-	($Argument = "NameLast") => SetVariable($Argument), 
-];
-
+foreach(array_filter(explode(",", str_replace(" ", null, "Email, NameFirst, NameMiddle, NameLast"))) as $Argument)$Data[$Argument] = SetVariable($Argument);
 print $API->Profile($Data);
 
 
