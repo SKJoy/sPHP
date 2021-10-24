@@ -83,8 +83,8 @@ class Environment{
         $this->Property["Version"] = new Version(10);
 
 		#region Development environment
-		$DevelopmentVersionMode = file_exists($DevelopmentVersionFile = __DIR__ . "/../sphp_version.txt"); // Check if development version to use
-		$VersionFile = __DIR__ . "/sphp_version.txt";
+		$DevelopmentVersionMode = file_exists($DevelopmentVersionFile = __DIR__ . "/../../../../sphp_version.txt"); // Check if development version to use
+		$VersionFile = __DIR__ . "/../../../sphp_version.txt";
 		if($DevelopmentVersionMode)copy($DevelopmentVersionFile, $VersionFile); // Switch version file to development
 		$this->Property["Version"]->File($VersionFile, $DevelopmentVersionMode); // Load version, increse counter only if development version
 		if($DevelopmentVersionMode)copy($VersionFile, $DevelopmentVersionFile); // Put version file back as development version file
@@ -166,7 +166,7 @@ class Environment{
         $this->Property["SQLSELECTPath"] = "{$this->Property["SQLPath"]}select/";
         $this->Property["TempPath"] = "{$this->Property["Path"]}temp/";
         $this->Property["DomainPath"] = "{$this->Property["Path"]}domain/" . strtolower($_SERVER["SERVER_NAME"]) . DIRECTORY_SEPARATOR;
-		$this->Property["SystemPath"] = realpath(__DIR__) . DIRECTORY_SEPARATOR;
+		$this->Property["SystemPath"] = realpath(__DIR__ . "/../../..") . DIRECTORY_SEPARATOR;
 		$this->Property["SystemScriptPath"] = "{$this->Property["SystemPath"]}script/";
         $this->Property["LogPath"] = "{$this->Property["Path"]}log/";
         $this->Property["MailLogPath"] = "{$this->Property["LogPath"]}mail/";

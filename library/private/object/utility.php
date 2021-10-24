@@ -121,7 +121,7 @@ class Utility{
 		//var_dump("" . __CLASS__ . "->" . __FUNCTION__ . "('{$IP}')");
 		if($this->MaxMindGeoIP2Reader === false){ // Load MaxMindGeoIP2Reader if not already loaded
 			#region Extract MaxMind GeoLite2 City database if not exists
-			$GeoLite2CityDatabasePath = __DIR__ . "/library/3rdparty/maxmind/";
+			$GeoLite2CityDatabasePath = __DIR__ . "/../../../library/3rdparty/maxmind/";
 			$GeoLite2CityDatabase = "{$GeoLite2CityDatabasePath}GeoLite2-City.mmdb";
 
 			if(!file_exists($GeoLite2CityDatabase)){
@@ -142,7 +142,7 @@ class Utility{
 			}
 			#endregion Extract MaxMind GeoLite2 City database if not exists
 
-			require __DIR__ . "/library/3rdparty/maxmind/geoip2.phar";
+			require __DIR__ . "/../../../library/3rdparty/maxmind/geoip2.phar";
 			$this->MaxMindGeoIP2Reader = new \GeoIp2\Database\Reader($GeoLite2CityDatabase);
 		}
 
