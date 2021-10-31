@@ -265,7 +265,7 @@ class Application{
         $WebManifestFile = file_exists("{$this->Property["Terminal"]->Environment()->DomainPath()}{$WebManifestLogoFile}") ? "{$this->Property["Terminal"]->Environment()->DomainPath()}{$WebManifestFileName}" : "{$this->Property["Terminal"]->Environment()->Path()}{$WebManifestFileName}";
 
         if(!file_exists($WebManifestFile) || time() - filemtime($WebManifestFile) > 24 * 60 * 60){ // File does not exist or expired
-			$WebManifestLogoURL = file_exists("{$this->Property["Terminal"]->Environment()->DomainPath()}{$WebManifestLogoFile}") ? "{$this->Property["Terminal"]->Environment()->DomainURL()}{$WebManifestLogoFile}" : "{$this->Property["Terminal"]->Environment()->ImageURL()}{$WebManifestLogoFile}";
+			$WebManifestLogoURL = file_exists("{$this->Property["Terminal"]->Environment()->DomainPath()}{$WebManifestLogoFile}") ? "{$this->Property["Terminal"]->Environment()->DomainURL()}{$WebManifestLogoFile}" : "{$this->Property["Terminal"]->Environment()->HTTPSURL()}{$WebManifestLogoFile}";
 
             file_put_contents($WebManifestFile, json_encode([
                 "background_color" => $Configuration["BackgroundColor"],
