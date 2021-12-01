@@ -106,8 +106,10 @@ const DOCUMENT_TYPE_TXT = "TXT";
 const DOCUMENT_TYPE_XML = "XML";
 #endregion Document type
 
+#region Character set
 const CHARACTER_SET_UTF8 = "UTF-8";
 const CHARACTER_SET_NONE = null;
+#endregion Character set
 
 const HTTP_STATUS_CODE_OK = 200;
 const HTTP_STATUS_CODE_FORBIDDEN = 403;

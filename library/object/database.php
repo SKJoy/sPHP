@@ -11,7 +11,7 @@ class Database{
 		"ODBCDriver"				=>	null,
 		"TablePrefix"				=>	null,
 		"Timezone"					=>	"+00:00", // Using named time zone is unstable in some cases
-		"Encoding"					=>	"UTF8MB4",
+		"Encoding"					=>	"utf8mb4", //! Do not use utf8 as MySQL/MariaDB has dropped support for that
 		"Strict"					=>	true,
 		"Verbose"					=>	false,
 		"Transactional"				=>	false,
@@ -52,17 +52,17 @@ class Database{
 		
 		if($this->Property["Type"] == DATABASE_TYPE_MYSQL){
 			try{
-				$this->Property["Connection"] = new \PDO("mysql:host={$this->Property["Host"]};dbname={$this->Property["Name"]};charset=" . strtolower(str_replace("-", null, $this->Property["Encoding"])) . "", $this->Property["User"], $this->Property["Password"], array_filter([
+				$this->Property["Connection"] = new \PDO("mysql:host={$this->Property["Host"]};dbname={$this->Property["Name"]};charset={$this->Property["Encoding"]}", $this->Property["User"], $this->Property["Password"], array_filter([
     				\PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-					//\PDO::ATTR_EMULATE_PREPARES => false, // This triggers false error with SET XXXX statements
+					//\PDO::ATTR_EMULATE_PREPARES => false, //! This triggers false error with SET XXXX statements
 					\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,					
-					//\PDO::ATTR_TIMEOUT => 300, // Not reliable; policy deffers for MySQL/MySQLND & underlying PHP compilation
+					//\PDO::ATTR_TIMEOUT => 300, //! Not reliable; policy deffers for MySQL/MySQLND & underlying PHP compilation
 					\PDO::MYSQL_ATTR_COMPRESS  => !in_array(strtoupper($this->Property["Host"]), ["LOCALHOST", "127.0.0.1", "::1", $_SERVER["LOCAL_ADDR"], ]), // Compress connection content for remote hosts
 					\PDO::MYSQL_ATTR_INIT_COMMAND => "SET time_zone = '{$this->Property["Timezone"]}'",
-					//\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY  => true, // Default is TRUE
+					\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY  => true, 
 				]));
 
-				// Following does not work with PDO::ATTR_EMULATE_PREPARES = false; neither could be appended with MYSQL_ATTR_INIT_COMMAND
+				//! Following does not work with PDO::ATTR_EMULATE_PREPARES = false; neither could be appended with MYSQL_ATTR_INIT_COMMAND
 				if($this->Property["Strict"])$this->Query("SET sql_mode = 'STRICT_ALL_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO'", null, null, null, true);
 
 				if($this->Property["Transactional"])$this->Property["Connection"]->beginTransaction(); // Encapsulate execution within transaction
@@ -357,7 +357,8 @@ class Database{
     }
 
     public function Encoding($Value = null){ //DebugDump($Value);
-		if($Value == "UTF-8")$Value = "UTF-8-MB4"; // Fix for MySQL UTF8 alias
+		$Value = strtolower(str_replace("-", null, $Value)); // Adapt to MySQL syntax
+		if($Value == "utf8")$Value = "utf8mb4"; // Fix for MySQL utf8 alias
 
         if(is_null($Value)){
             $Result = $this->Property[__FUNCTION__];
