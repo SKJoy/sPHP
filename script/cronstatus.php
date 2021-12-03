@@ -178,7 +178,7 @@ foreach(isset($CronNameFromApplicationScript) && is_array($CronNameFromApplicati
 	var elmCronUpdateIndicator = document.getElementById('CronUpdateIndicator');
 
 	Cron.forEach(function(Cron, CronIndex){ //console.log('Cron = ' + Cron + '; CronIndex = ' + CronIndex + ';');
-		var StatusFile = CronStatusPath + Cron + '/status.json'; //console.log('StatusFile = ' + StatusFile + ';');
+		var StatusFile = CronStatusPath + Cron + '/status.json?Refresher=' + Math.random(); //console.log('StatusFile = ' + StatusFile + ';');
 
 		sJS.HTTP.GetAtInterval(
 			UpdateInterval, // Milisecond in positive integer
