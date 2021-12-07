@@ -672,6 +672,80 @@ class Environment{
     public function OperatingSystem(){
         return $this->Property[__FUNCTION__];
     }
+
+    function OSProcesses(?string $SortOn = null, ?string $CommandFilter = null, ?string $CommandFilterLeft = null){
+        if(PHP_OS_FAMILY === "Windows"){ // Command for Windows
+            $ExecStatus = false;
+        }
+        elseif(PHP_OS_FAMILY === "Linux"){ // Command for Linux
+            try{
+                $ExecStatus = @exec("ps -aux", $ExecInformation, $ExecReturn);
+            }
+            catch(\Exception $Error){
+                $ExecStatus = false;
+            }
+        }
+        else{ // Unknown OS
+            $ExecStatus = false;
+        }
+        
+        if($ExecStatus !== false && is_array($ExecInformation) && count($ExecInformation) > 1){
+            //DebugDump($ExecInformation[0]); // Header
+            //DebugDump($ExecInformation[1]); // First data
+            $Process = [];
+            $SelfProcessID = getmypid();
+    
+            if(PHP_OS_FAMILY === "Windows"){
+                $Result = false;
+            }
+            elseif(PHP_OS_FAMILY === "Linux"){
+                array_shift($ExecInformation); // Remove header row
+                $Field = array_filter(explode(",", str_replace(" ", null, "User, ID, CPU, Memory, VSZ, RSS, TTY, Stat, Start, Time, Command")));
+                $LastFieldIndex = count($Field) - 1;
+            
+                foreach($ExecInformation as $ProcessData){
+                    $ProcessData = array_values(array_filter(explode(" ", $ProcessData)));
+                    $ProcessCommand = [];
+                    for($ElementCounter = $LastFieldIndex; $ElementCounter < count($ProcessData); $ElementCounter++)$ProcessCommand[] = $ProcessData[$ElementCounter];
+                    $ProcessData[$LastFieldIndex] = implode(" ", $ProcessCommand);
+                    //DebugDump($ProcessData);
+            
+                    if($ProcessData[1] != $SelfProcessID){
+                        if(
+                                (!$CommandFilter || strpos($ProcessData[$LastFieldIndex], $CommandFilter) !== false)
+                            &&	(!$CommandFilterLeft || substr($ProcessData[$LastFieldIndex], 0, strlen($CommandFilterLeft)) == $CommandFilterLeft)
+                        ){
+                            for($FieldCounter = 0; $FieldCounter <= $LastFieldIndex; $FieldCounter++){						
+                                $ThisProcess[$Field[$FieldCounter]] = $ProcessData[$FieldCounter];
+                            }
+    
+                            $Process[] = $ThisProcess;
+                        }
+                    }
+                }
+    
+                $Result = true;
+            }
+            else{
+                $Result = false;
+            } //DebugDump($Process);
+            
+            if($Result && $SortOn){ // Sort on argument field
+                $Sorted = [];
+                foreach($Process as $ThisProcess)$Sorted[$ThisProcess[$SortOn]] = $ThisProcess;
+                ksort($Sorted);
+                $Result = $Sorted;
+            }
+            else{
+                $Result = $Process;
+            }
+        }
+        else{
+            $Result = false;
+        }
+    
+        return $Result;
+    }
     #endregion Property
 
     #region Function
