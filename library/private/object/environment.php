@@ -705,21 +705,22 @@ class Environment{
             
                 foreach($ExecInformation as $ProcessData){
                     $ProcessData = array_values(array_filter(explode(" ", $ProcessData)));
-                    $ProcessCommand = [];
-                    for($ElementCounter = $LastFieldIndex; $ElementCounter < count($ProcessData); $ElementCounter++)$ProcessCommand[] = $ProcessData[$ElementCounter];
-                    $ProcessData[$LastFieldIndex] = implode(" ", $ProcessCommand);
-                    //DebugDump($ProcessData);
-            
-                    if($ProcessData[1] != $SelfProcessID){
-                        if(
-                                (!$CommandFilter || strpos($ProcessData[$LastFieldIndex], $CommandFilter) !== false)
-                            &&	(!$CommandFilterLeft || substr($ProcessData[$LastFieldIndex], 0, strlen($CommandFilterLeft)) == $CommandFilterLeft)
-                        ){
-                            for($FieldCounter = 0; $FieldCounter <= $LastFieldIndex; $FieldCounter++){						
-                                $ThisProcess[$Field[$FieldCounter]] = $ProcessData[$FieldCounter];
+                    $ProcessDataPartCount = count($ProcessData);
+
+                    if($ProcessDataPartCount >= ($LastFieldIndex + 1)){ // Process parts contain at least all fields
+                        $ProcessCommand = [];
+                        for($ElementCounter = $LastFieldIndex; $ElementCounter < $ProcessDataPartCount; $ElementCounter++)$ProcessCommand[] = $ProcessData[$ElementCounter];
+                        $ProcessData[$LastFieldIndex] = implode(" ", $ProcessCommand);
+                        //DebugDump($ProcessData);
+                
+                        if($ProcessData[1] != $SelfProcessID){
+                            if(
+                                    (!$CommandFilter || strpos($ProcessData[$LastFieldIndex], $CommandFilter) !== false)
+                                &&	(!$CommandFilterLeft || substr($ProcessData[$LastFieldIndex], 0, strlen($CommandFilterLeft)) == $CommandFilterLeft)
+                            ){
+                                for($FieldCounter = 0; $FieldCounter <= $LastFieldIndex; $FieldCounter++)$ThisProcess[$Field[$FieldCounter]] = $ProcessData[$FieldCounter];
+                                $Process[] = $ThisProcess;
                             }
-    
-                            $Process[] = $ThisProcess;
                         }
                     }
                 }
