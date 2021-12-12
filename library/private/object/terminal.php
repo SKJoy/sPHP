@@ -17,6 +17,7 @@ class Terminal{
         "ThemeColor"        =>  "Grey",
         "Manifest"          =>  null,
         "IFrameLoad"		=>  IFRAME_LOAD_SAMEORIGIN,
+        "IP"		        =>  null,
     ];
 
     #region Variable
@@ -41,6 +42,7 @@ class Terminal{
 
         $this->Property["DocumentType"] = $Environment->CLI() ? DOCUMENT_TYPE_TXT : DOCUMENT_TYPE_HTML;
         $this->Property["Language"] = new Language();
+        $this->Property["IP"] = isset($_SERVER["HTTP_X_REAL_IP"]) ? $_SERVER["HTTP_X_REAL_IP"] : $_SERVER["REMOTE_ADDR"]; // https://gtranslate.io/forum/http-real-http-forwarded-for-t2980.html
 
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
@@ -411,6 +413,19 @@ class Terminal{
     }
 
     public function IFrameLoad($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+			$Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function IP($Value = null){
         if(is_null($Value)){
             $Result = $this->Property[__FUNCTION__];
         }
