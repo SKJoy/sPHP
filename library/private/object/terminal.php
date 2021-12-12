@@ -425,17 +425,8 @@ class Terminal{
         return $Result;
     }
 
-    public function IP($Value = null){
-        if(is_null($Value)){
-            $Result = $this->Property[__FUNCTION__];
-        }
-        else{
-            $this->Property[__FUNCTION__] = $Value;
-
-			$Result = true;
-        }
-
-        return $Result;
+    public function IP(){
+        return $this->Property[__FUNCTION__];
     }
     #endregion Property
 

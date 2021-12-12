@@ -188,14 +188,14 @@ class Application{
         $this->Property["Session"]->Start(); // Start the session after configuring accordingly. Log User ID updated with Session->User() property method
         if($this->Property["Terminal"]->Environment()->CLI())$this->Property["Session"]->User($this->Property["Administrator"]); // Set session User to Application Administrator for CLI mode
 		
-		#region Create session log upon each session reset
+		#region Log request (traffic)
 		if($Configuration["DatabaseLogTraffic"] && !is_null($this->Property["Database"]->Connection())){
 			$Configuration["DatabaseTable"]["ApplicationTraffic"]->Put([ // Traffic
 				"ApplicationTrafficServer"			=>	$_SERVER["SERVER_NAME"],
 				"ApplicationTrafficHost"			=>	$_SERVER["HTTP_HOST"],
 				"ApplicationTrafficSessionCode"		=>	$this->Property["Session"]->ID(),
 				"ApplicationTrafficTime"			=>	date("Y-m-d H:i:s"),
-				"ApplicationTrafficIP"				=>	$_SERVER["REMOTE_ADDR"],
+				"ApplicationTrafficIP"				=>	$this->Property["Terminal"]->IP(), //$_SERVER["REMOTE_ADDR"]
 				"ApplicationTrafficMethod"			=>	$_SERVER["REQUEST_METHOD"],
 				"ApplicationTrafficProtocol"		=>	explode("/", $_SERVER["SERVER_PROTOCOL"])[0],
 				"ApplicationTrafficURL"				=>	"{$this->Property["Terminal"]->Environment()->URLPath()}",
@@ -209,7 +209,7 @@ class Application{
 
 			$ApplicationTrafficID = $this->Property["Database"]->Query("SELECT @@IDENTITY AS IDValue")[0][0]["IDValue"];
 		}
-		#endregion Create session log upon each session reset
+		#endregion Log request (traffic)
 
         // Following session configuration needs to be set after the session starts
         $this->Language($this->Property["Session"]->Language()); // Set Language from session
