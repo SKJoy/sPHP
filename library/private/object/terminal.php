@@ -42,7 +42,7 @@ class Terminal{
 
         $this->Property["DocumentType"] = $Environment->CLI() ? DOCUMENT_TYPE_TXT : DOCUMENT_TYPE_HTML;
         $this->Property["Language"] = new Language();
-        $this->Property["IP"] = isset($_SERVER["HTTP_X_REAL_IP"]) ? $_SERVER["HTTP_X_REAL_IP"] : $_SERVER["REMOTE_ADDR"]; // https://gtranslate.io/forum/http-real-http-forwarded-for-t2980.html
+        $this->Property["IP"] = isset($_SERVER["HTTP_X_FORWARDED_FOR"]) ? explode(",", $_SERVER["HTTP_X_FORWARDED_FOR"])[0] : $_SERVER["REMOTE_ADDR"]; // https://gtranslate.io/forum/http-real-http-forwarded-for-t2980.html
 
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
