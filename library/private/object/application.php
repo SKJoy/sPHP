@@ -388,18 +388,24 @@ class Application{
 		}
 
 		if(count($SQL_INSERT_VALUE)){
-			$SQL = "INSERT IGNORE INTO sphp_notification (
-				NotificationSignature,
-				NotificationEventTime,
-				NotificationSubject,
-				NotificationMessage,
-				NotificationTypeID,
-				NotificationSourceID,
-				NotificationTo,
-				NotificationFrom,
-				NotificationIsActive,
-				TimeInserted
-			) VALUES " . implode(", ", $SQL_INSERT_VALUE) . ";"; //DebugDump("<pre>{$SQL}</pre>");
+			$SQL = "
+                LOCK TABLES sphp_notification WRITE; # Try to avoid deadlock on a busy database
+
+                INSERT IGNORE INTO sphp_notification (
+                    NotificationSignature,
+                    NotificationEventTime,
+                    NotificationSubject,
+                    NotificationMessage,
+                    NotificationTypeID,
+                    NotificationSourceID,
+                    NotificationTo,
+                    NotificationFrom,
+                    NotificationIsActive,
+                    TimeInserted
+                ) VALUES " . implode(", ", $SQL_INSERT_VALUE) . ";
+
+                UNLOCK TABLES;
+            "; //DebugDump("<pre>{$SQL}</pre>");
             
 			$Recordset = $Database->Query($SQL);
 		}
