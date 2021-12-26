@@ -3,7 +3,7 @@ namespace sPHP;
 
 $CronHTML = [];
 $DateTimeFormat = "{$Configuration["ShortDateFormat"]} {$Configuration["TimeFormat"]}"; //DebugDump($DateTimeFormat);
-$JobDurationWarning = 30;
+$JobDurationWarning = isset($CronJobDurationWarning) ? $CronJobDurationWarning : 30; // N seconds or get from application script
 
 foreach(isset($CronNameFromApplicationScript) && is_array($CronNameFromApplicationScript) ? $CronNameFromApplicationScript : [
 	"Application",
