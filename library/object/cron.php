@@ -9,7 +9,7 @@
 namespace sPHP;
 
 class Cron{
-    private $Property = [
+    private $Property = [ //* Property storage
 		"Path"				=>	null,
         "Name"				=>	"Default", // Process name, should not be duplicated to prevent configuration & status overwrite
         "Job"				=>	[],
@@ -19,6 +19,8 @@ class Cron{
 		"ExitCommand"		=>	"EXIT",
 		"Verbose"			=>	false,
 		"ExitDuration"		=>	24 * 60 * 60, // Automatically exit after this duration, without setting the Exit command so the next call can run, like a service restart scope
+        "OnIterationBegin"	=>	null, // Callback function upon iteration begin before executing jobs; function(Count, Begin, Resource)
+        "OnIterationEnd"	=>	null, // Callback function upon iteration end after executing jobs; function(Count, Begin, End, Duration, Resource)
         "StatusURL"			=>	null,
 		"StatusFile"		=>	null,
 		"CommandFile"		=>	null,
@@ -29,7 +31,7 @@ class Cron{
     #endregion Variable
 
     #region Method
-    public function __construct($Path = null, $Name = null, $Job = null, $Resource = null, $MaximumExecutionTime = null, $ServiceInterval = null, $ExitCommand = null, $Verbose = null){
+    public function __construct($Path = null, $Name = null, $Job = null, $Resource = null, $MaximumExecutionTime = null, $ServiceInterval = null, $ExitCommand = null, $Verbose = null, $ExitDuration = null, $OnIterationBegin = null, $OnIterationEnd = null){
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
 
@@ -81,10 +83,10 @@ class Cron{
 			$CurrentTime = microtime(true);
 			$StatusFileAge = intval($CurrentTime - filemtime($this->Property["StatusFile"]));
 
-			if(
+			if( // Check if we need to execute the Cron or exit
 					$Status->Running // Already running				
 				&&	$StatusFileAge <= $this->Property["MaximumExecutionTime"] // Status file is not aged enough to discard
-			){
+			){ //! Do not execute; already running
 				$Status->Exit->Time = date("r", $CurrentTime);
 				$Status->Exit->Reason = "Previous process running";
 				//$this->SaveStatusFile($Status); // This will fail the file modification time comparison!
@@ -97,8 +99,8 @@ class Cron{
 					Status age: " . SecondToTime($StatusFileAge) . "
 				", "Cron");
 			}
-			else{
-				ignore_user_abort(true); // Continue execution even if client leaves/disconnects/aborts
+			else{ //? Execute the Cron
+				ignore_user_abort(true); //! Continue execution even if client leaves/disconnects/aborts
 
 				$Status->Exit->Time = null;
 				$Status->Exit->Reason = null;
@@ -144,11 +146,11 @@ class Cron{
 
 				$IterationCounter = 0;
 
-				do{
+				do{ //? Loop iterations until exit
 					if(!file_exists($this->Property["CommandFile"]))file_put_contents($this->Property["CommandFile"], null);
 					$Command = file_get_contents($this->Property["CommandFile"]);
 
-					if($Command == $this->Property["ExitCommand"]){
+					if($Command == $this->Property["ExitCommand"]){ //* Exit with command
 						$Status->Exit->Time = date("r", $CurrentTime);
 						$Status->Exit->Reason = "Exit command";
 
@@ -156,8 +158,8 @@ class Cron{
 
 						if($this->Property["Verbose"])print HTML\UI\MessageBox("Exiting the process of '{$this->Property["Name"]}' due to '{$this->Property["ExitCommand"]}' command.", "Cron");
 					}
-					else{
-						set_time_limit($this->Property["MaximumExecutionTime"]); // Limit maximum execution time
+					else{ //? Execute jobs
+						set_time_limit($this->Property["MaximumExecutionTime"]); //* Limit maximum execution time
 
 						$IterationCounter++;
 						$IterationTimeBegin = microtime(true);
@@ -166,11 +168,14 @@ class Cron{
 						$Status->Iteration->Time->Begin = date("r", $IterationTimeBegin);
 						$this->SaveStatusFile($Status);
 
-						foreach($this->Property["Job"] as $JobIndex => $Job){
+						//? Call the callback function upon beginning iteration
+						if($this->Property["OnIterationBegin"])$CallbackFunctionResult = $this->Property["OnIterationBegin"]($Status->Iteration->Count, $Status->Iteration->Time->Begin, $this->Property["Resource"]);
+
+						foreach($this->Property["Job"] as $JobIndex => $Job){ // Loop for each jobs
 							if(
 									!isset($Status->Job->{$Job->Name()}->Time->Begin) // Never ran
 								||	time() - strtotime($Status->Job->{$Job->Name()}->Time->Begin) > $Job->Interval() // Expired
-							){
+							){ //? Execute job
 								if(!$Job->Resource() && $this->Property["Resource"])$Job->Resource($this->Property["Resource"]); // Pass through resource if not already there
 								
 								#region Initiate Job execution start
@@ -198,7 +203,7 @@ class Cron{
 								
 								$this->SaveStatusFile($Status); // Update Cron status
 							}
-							else{
+							else{ //! Skip the job
 								$Status->Job->{$Job->Name()}->Comment = "Skipped within interval";
 							}
 						}
@@ -213,6 +218,9 @@ class Cron{
 						$Status->Load->Memory = memory_get_usage();
 						$Status->Load->System = function_exists("sys_getloadavg") ? sys_getloadavg()[0] : 0;
 						$this->SaveStatusFile($Status);
+
+						//? Call the callback function upon ending iteration
+						if($this->Property["OnIterationEnd"])$CallbackFunctionResult = $this->Property["OnIterationEnd"]($Status->Iteration->Count, $Status->Iteration->Time->Begin, $Status->Iteration->Time->End, $Status->Iteration->Time->Duration, $this->Property["Resource"]);
 
 						$Result = true;
 
@@ -229,7 +237,7 @@ class Cron{
 				$this->SaveStatusFile($Status);
 			}
 		}
-		else{ // Corrupted status JSON file!
+		else{ // Corrupted status JSON file! Clean & exit
 			unlink($this->Property["StatusFile"]); // Wait for next call and create new
 			$Result = false;
 		}
@@ -367,6 +375,32 @@ class Cron{
     }
 
     public function ExitDuration($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+            $Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function OnIterationBegin($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+            $Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function OnIterationEnd($Value = null){
         if(is_null($Value)){
             $Result = $this->Property[__FUNCTION__];
         }
