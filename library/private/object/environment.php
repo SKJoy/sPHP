@@ -736,7 +736,7 @@ class Environment{
                 $Sorted = [];
                 foreach($Process as $ThisProcess)$Sorted[$ThisProcess[$SortOn]] = $ThisProcess;
                 ksort($Sorted);
-                $Result = $Sorted;
+                $Result = array_values($Sorted);
             }
             else{
                 $Result = $Process;
