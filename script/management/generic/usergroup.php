@@ -119,7 +119,7 @@ if(isset($_POST["btnInput"])){ // Input form or INSERT/UPDATE record
 				$AffectedRecord = $Table["{$Entity}"]->Get("{$Entity}ID = " . ($EntityID ? $EntityID : "@@IDENTITY") . "")[0];
 
 				// Insert option data through intermediate table
-				foreach(array_filter(explode(",", str_replace(" ", null, "Category, Event"))) as $OptionEntity)if(isset($Table[$IntermediateEntity = "{$Entity}{$OptionEntity}"])){
+				foreach(array_filter(explode(",", str_replace(" ", "", "Category, Event"))) as $OptionEntity)if(isset($Table[$IntermediateEntity = "{$Entity}{$OptionEntity}"])){
 					$Table[$IntermediateEntity]->Remove("{$Entity}ID = {$AffectedRecord["{$Entity}ID"]}");
 					$OptionData = [];
 					foreach($_POST as $Key=>$OptionID)if(substr($Key, 0, strlen("{$OptionEntity}ID_")) == "{$OptionEntity}ID_")$OptionData[] = ["{$Entity}ID"=>$AffectedRecord["{$Entity}ID"], "{$OptionEntity}ID"=>$OptionID, "{$Entity}{$OptionEntity}IsActive"=>1];
@@ -142,7 +142,7 @@ if(isset($_POST["btnInput"])){ // Input form or INSERT/UPDATE record
 	#endregion CUSTOM: Set default values
 
 	// Load option data from intermediate table
-	foreach(array_filter(explode(",", str_replace(" ", null, "Category, Event"))) as $OptionEntity)if(isset($Table[$IntermediateEntity = "{$Entity}{$OptionEntity}"])){
+	foreach(array_filter(explode(",", str_replace(" ", "", "Category, Event"))) as $OptionEntity)if(isset($Table[$IntermediateEntity = "{$Entity}{$OptionEntity}"])){
 		$OptionRecordset = $Table[$IntermediateEntity]->Get("{$Table[$IntermediateEntity]->Alias()}.{$Entity}ID = {$EntityID} AND {$Entity}{$OptionEntity}IsActive = 1", null, null, null, null, null, false);
 		if(is_array($OptionRecordset))foreach($OptionRecordset as $Option)$_POST["{$OptionEntity}ID_{$Option["{$OptionEntity}ID"]}"] = $Option["{$OptionEntity}ID"];
 	}

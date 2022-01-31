@@ -121,7 +121,7 @@ foreach(isset($CronNameFromApplicationScript) && is_array($CronNameFromApplicati
 							<th>Status</th>
 						</tr>
 					</thead>
-					<tbody>" . implode(null, $JobTableRowHTML) . "</tbody>
+					<tbody>" . implode("", $JobTableRowHTML) . "</tbody>
 				</table>
 			";
 		}
@@ -167,7 +167,7 @@ foreach(isset($CronNameFromApplicationScript) && is_array($CronNameFromApplicati
 
 <h1><img src="<?=$Environment->IconURL()?>cron.png" alt="Cron" class="Icon"> Cron status</h1>
 <img id="CronUpdateIndicator" src="./image/icon/signal.png">
-<?=implode(null, $CronHTML)?>
+<?=implode("", $CronHTML)?>
 
 <script>
 	var DateTimeFormat = '<?=$DateTimeFormat?>'; //console.log('DateTimeFormat = ' + DateTimeFormat + ';');

@@ -262,7 +262,7 @@ class GOOMI{
 		$Result = [
 			"Data" => $CommandData, 
 			"HEX Data" => $CommandDataHEX, 
-			"Command" => strtoupper(implode(null, $CommandDataHEX)), 
+			"Command" => strtoupper(implode("", $CommandDataHEX)), 
 		];
 
 		return $Result;
@@ -645,7 +645,7 @@ class GOOMI{
 			$Result = explode($Separator, $Data);
 		}
 		else{
-			if(!is_array($LengthSeries))$LengthSeries = explode(",", str_replace(" ", null, $LengthSeries));
+			if(!is_array($LengthSeries))$LengthSeries = explode(",", str_replace(" ", "", $LengthSeries));
 
 			$LengthRead = 0;
 

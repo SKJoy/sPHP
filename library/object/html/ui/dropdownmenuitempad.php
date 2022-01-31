@@ -65,7 +65,7 @@ class DropdownMenuItemPad{
 			$HTML[] = "</div>";
 		}
 
-        $Result = $this->Property[__FUNCTION__] = implode(null, $HTML);
+        $Result = $this->Property[__FUNCTION__] = implode("", $HTML);
 
         return $Result;
     }

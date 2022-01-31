@@ -111,7 +111,7 @@ class Field{
 
             $this->Property[__FUNCTION__] = "
                 <nav class=\"sMenu" . ($this->Property["CSSSelector"] ? " {$this->Property["CSSSelector"]}" : null) . "\">
-                    " . implode(null, $ChildHTML) . "
+                    " . implode("", $ChildHTML) . "
                 </nav>
             ";
 		}

@@ -198,7 +198,7 @@ class Pad{
 						" . ($this->Property["Icon"] ? "<img src=\"{$this->Property["Icon"]}\" alt=\"{$this->Property["Caption"]}\" class=\"Icon\">" : null) . "" . ($this->Property["Caption"] ? "<span class=\"Caption\">{$this->Property["Caption"]}</span>" : null) . "
 					</label>
 
-					" . (count($HTML) ? "<div class=\"Option\">" . implode(null, $HTML) . "</div>" : null) . "
+					" . (count($HTML) ? "<div class=\"Option\">" . implode("", $HTML) . "</div>" : null) . "
 				</div>
 			" : "";
 		}

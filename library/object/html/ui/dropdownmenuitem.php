@@ -112,7 +112,7 @@ class DropdownMenuItem{
 			if(!is_null($this->Property["Caption"]))$HTML[] = "<div class=\"Caption\">" . ($this->Property["Icon"] ? "<img src=\"<?=$Environment->IconURL()?>{$this->Property["Icon"]}.png\" alt=\"Item\">" : null) . ($this->Property["URL"] ? "<a href=\"{$this->Property["URL"]}\">{$this->Property["Caption"]}</a>" : $this->Property["Caption"]) . "</div>";
 			if(!is_null($this->Property["Pad"]))$HTML[] = $this->Property["Pad"]->HTML();
 
-			$this->Property[__FUNCTION__] = "<div class=\"Item\">" . implode(null, $HTML) . "</div>";
+			$this->Property[__FUNCTION__] = "<div class=\"Item\">" . implode("", $HTML) . "</div>";
 		}
 
         $Result = $this->Property[__FUNCTION__];

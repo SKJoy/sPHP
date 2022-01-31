@@ -323,7 +323,7 @@ class Table{
     }
 
 	public function Export($Column, $Header = null, $Format = null, $File = null, $WHEREClause = null, $Order = null){
-		if(!is_array($Column))$Column = explode(",", str_replace(" ", null, $Column));
+		if(!is_array($Column))$Column = explode(",", str_replace(" ", "", $Column));
 		if(is_null($Header))$Header = true;
 		if(is_null($Format))$Format = \sPHP\IMPORT_TYPE_CSV;
 
@@ -352,7 +352,7 @@ class Table{
 
 			if(is_null($this->Property["EntityName"])){
 				foreach(explode(" ", $this->Property[__FUNCTION__]) as $Word)$this->Property["EntityName"][] = "" . strtoupper(substr($Word, 0, 1)) . substr($Word, 1) . "";
-				$this->Property["EntityName"] = implode(null, $this->Property["EntityName"]);
+				$this->Property["EntityName"] = implode("", $this->Property["EntityName"]);
 			}
 
 			if(is_null($this->Property["Name"]))$this->Property["Name"] = strtolower($this->Property["EntityName"]);
@@ -360,7 +360,7 @@ class Table{
 
 			if(is_null($this->Property["Alias"])){
 				foreach(explode(" ", $this->Property["FormalName"]) as $Word)$Alias[] = strtoupper(substr($Word, 0, 1));
-				$this->Property["Alias"] = implode(null, $Alias);
+				$this->Property["Alias"] = implode("", $Alias);
 			}
 
 			$this->Property["SELECTStatement"] = null;
@@ -482,7 +482,7 @@ class Table{
 
 				if($this->Property["SQLSELECTPath"]){
 					if(file_exists($SQLFile = "{$this->Property["SQLSELECTPath"]}{$this->Property["Name"]}.sql")){
-						$this->Property[__FUNCTION__] = str_replace(explode(",", str_replace(" ", null, "{PREFIX}, {NAME}, {ALIAS}, {ENTITY}")), [$this->Property["Prefix"], $this->Property["Name"], $this->Property["Alias"], $this->Property["EntityName"]], file_get_contents($SQLFile));
+						$this->Property[__FUNCTION__] = str_replace(explode(",", str_replace(" ", "", "{PREFIX}, {NAME}, {ALIAS}, {ENTITY}")), [$this->Property["Prefix"], $this->Property["Name"], $this->Property["Alias"], $this->Property["EntityName"]], file_get_contents($SQLFile));
 					}
 					else{
 						$SQL = "SELECT			{ALIAS}.*, \n				CONCAT({ALIAS}." . (count($this->Structure()["String"]) ? $this->Structure()["String"][0] : $this->Structure()["Primary"][0]) . ", '') AS {ENTITY}LookupCaption, \n				'' AS _Other\n\nFROM			{PREFIX}{NAME} AS {ALIAS}\n	/*LEFT JOIN		X AS Y ON Y.YID = {ALIAS}.YID*/\n";

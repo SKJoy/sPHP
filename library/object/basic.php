@@ -106,7 +106,7 @@ class Basic{
 							Example:	String: FirstName, LastName, MiddleName
 										Array: ["FirstName", "LastName", "MiddleName", ]
 	*/protected function SetReadOnlyProperty($Proeprty){
-		if(!is_array($Proeprty))$Proeprty = array_filter(explode(",", str_replace(" ", null, $Proeprty)));
+		if(!is_array($Proeprty))$Proeprty = array_filter(explode(",", str_replace(" ", "", $Proeprty)));
 
 		if(count($Proeprty)){			
 			$this->ReadOnlyProperty = $Proeprty;

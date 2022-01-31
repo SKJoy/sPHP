@@ -60,7 +60,7 @@ class cURL{
 
     public function Call(?string $URI = null, ?array $POST = null, ?array $FILE = null, ?string $CookiePath = null, $CookieFile = null, ?string $Method = null, ?bool $SSLVerifyPeer = null, ?bool $SSLVerifyHost = null, ?string $UserAgent = null, ?string $Referer = null, ?bool $FollowRedirection = null){
 		#region Set default argument values in respect with properties
-		foreach(array_filter(explode(",", str_replace(" ", null, "URI, POST, FILE, CookiePath, CookieFile, Method, SSLVerifyPeer, SSLVerifyHost, UserAgent, Referer, FollowRedirection"))) as $Argument)if(is_null($$Argument))$$Argument = $this->Property[$Argument];
+		foreach(array_filter(explode(",", str_replace(" ", "", "URI, POST, FILE, CookiePath, CookieFile, Method, SSLVerifyPeer, SSLVerifyHost, UserAgent, Referer, FollowRedirection"))) as $Argument)if(is_null($$Argument))$$Argument = $this->Property[$Argument];
 		if(!is_array($POST))$POST = []; // In case if this is not array
 		foreach($FILE as $Key => $Value)$POST[$Key] = curl_file_create($Value); // Add FILEs to POST data array
 		#endregion Set default argument values in respect with properties

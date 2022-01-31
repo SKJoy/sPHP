@@ -248,7 +248,7 @@ class Input{
 			$this->Property[__FUNCTION__] = ($this->Property["Type"] == \sPHP\INPUT_TYPE_FILE && $this->Property["DefaultValue"] ? "
 				<div class=\"InputExistingFile\">
 					" . ($this->Property["DefaultValue"] && substr($this->Property["DefaultValue"], strlen($this->Property["DefaultValue"]) - 1, 1) != "/" ? "
-						<a href=\"{$this->Property["DefaultValue"]}\" target=\"_blank\">" . (isset($DefaultValueFileInformation["extension"]) && in_array(strtolower($DefaultValueFileInformation["extension"]), array_filter(explode(",", str_replace(" ", null, "bmp, jpg, jpeg, gif, png, tif, webp, wmf")))) ? "<img src=\"{$this->Property["DefaultValue"]}\" alt=\"Document\">" : "▼ Download existing") . "</a>
+						<a href=\"{$this->Property["DefaultValue"]}\" target=\"_blank\">" . (isset($DefaultValueFileInformation["extension"]) && in_array(strtolower($DefaultValueFileInformation["extension"]), array_filter(explode(",", str_replace(" ", "", "bmp, jpg, jpeg, gif, png, tif, webp, wmf")))) ? "<img src=\"{$this->Property["DefaultValue"]}\" alt=\"Document\">" : "▼ Download existing") . "</a>
 
 						<label>
 							<input type=\"checkbox\" name=\"__DeleteExistingFile_{$this->Property["Name"]}\">

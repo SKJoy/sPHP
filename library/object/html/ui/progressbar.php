@@ -209,13 +209,13 @@ class Progressbar{
 			$this->Property[__FUNCTION__] = "<a id=\"{$this->Property["ID"]}\"" . ($this->Property["URL"] ? " href=\"{$this->Property["URL"]}\"" : null) . " target=\"{$this->Property["Target"]}\" title=\"{$this->Property["Tooltip"]}\" class=\"{$this->Property["CSSSelector"]}\" style=\"{$Style}\"" . (isset($EventHandler) ? " " . implode(" ", $EventHandler) . " " : null) . ">
 				<span id=\"{$this->Property["ID"]}Bar\" class=\"Bar\" style=\"width: " . ($this->Property["Value"] / $this->Property["Maximum"] * 
 				100) . "%\">
-					<span id=\"{$this->Property["ID"]}BarData\" class=\"Data\">" . implode(null, [
+					<span id=\"{$this->Property["ID"]}BarData\" class=\"Data\">" . implode("", [
 						"<span id=\"{$this->Property["ID"]}BarDataPrefix\" class=\"Prefix\">{$this->Property["Prefix"]}</span>", 
 						"<span id=\"{$this->Property["ID"]}BarDataValue\" class=\"Value\">{$this->Property["Value"]}</span>", 
 						"<span id=\"{$this->Property["ID"]}BarDataSuffix\" class=\"Suffix\">{$this->Property["Suffix"]}</span>", 
 					]) . "</span>
 				</span>
-				<span id=\"{$this->Property["ID"]}Data\" class=\"Data\">" . implode(null, [
+				<span id=\"{$this->Property["ID"]}Data\" class=\"Data\">" . implode("", [
 					"<span id=\"{$this->Property["ID"]}DataPrefix\" class=\"Prefix\">{$this->Property["Prefix"]}</span>", 
 					"<span id=\"{$this->Property["ID"]}DataValue\" class=\"Value\">{$this->Property["Value"]}</span>", 
 					"<span id=\"{$this->Property["ID"]}DataSuffix\" class=\"Suffix\">{$this->Property["Suffix"]}</span>", 

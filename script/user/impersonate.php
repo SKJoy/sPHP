@@ -18,7 +18,7 @@ if(isset($_POST["btnSubmit"])){
 else{
 	print HTML\UI\Form(
 		$APP->URL($_POST["_Script"]),
-		implode(null, [
+		implode("", [
 			HTML\UI\Field(HTML\UI\Input("User" . ($Caption = "Email") . "", $CFG["InputWidth"], null, true, null, null, "Required"), "Username / {$Caption}", null, null, $CFG["FieldCaptionWidth"]),
 		]),
 		"Impersonate",

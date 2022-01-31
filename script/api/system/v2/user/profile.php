@@ -1,7 +1,7 @@
 <?php
 namespace sPHP;
 
-foreach(array_filter(explode(",", str_replace(" ", null, "Email, NameFirst, NameMiddle, NameLast"))) as $Argument)$Data[$Argument] = SetVariable($Argument);
+foreach(array_filter(explode(",", str_replace(" ", "", "Email, NameFirst, NameMiddle, NameLast"))) as $Argument)$Data[$Argument] = SetVariable($Argument);
 print $API->Profile($Data);
 
 

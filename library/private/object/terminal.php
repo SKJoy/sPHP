@@ -116,11 +116,11 @@ class Terminal{
             #endregion Generate FavIco URL
 
             print "<!DOCTYPE html><html lang=\"{$this->Property["Language"]->HTMLCode()}\"><head>
-				" . implode(null, $HTML_Head_META) . "
+				" . implode("", $HTML_Head_META) . "
 				<title>{$this->Property["Title"]}</title>
 				<link rel=\"shortcut icon\" href=\"{$FavIconURL}\">
-                " . (isset($HTML_Head_Link) ? implode(null, $HTML_Head_Link) : null) . "
-                " . (isset($HTML_Head_JavaScript) ? implode(null, $HTML_Head_JavaScript) : null) . "
+                " . (isset($HTML_Head_Link) ? implode("", $HTML_Head_Link) : null) . "
+                " . (isset($HTML_Head_JavaScript) ? implode("", $HTML_Head_JavaScript) : null) . "
             {$this->Property["HTMLHeadCode"]}</head><body id=\"DocumentBody\"" . (isset($_POST["_NoHeader"]) && isset($_POST["_NoFooter"]) ? " class=\"DocumentBodyContentView\"" : null) . ">";
         }
 

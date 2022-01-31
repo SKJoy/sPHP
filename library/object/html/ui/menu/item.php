@@ -184,7 +184,7 @@ class Field{
                         </a>
                     </label>
 
-                    <div class=\"Pad\">" . implode(null, $ChildHTML) . "</div>
+                    <div class=\"Pad\">" . implode("", $ChildHTML) . "</div>
                     <div class=\"Notch\"></div>
                 </div>
             ";

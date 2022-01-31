@@ -92,7 +92,7 @@ class Debug{
 			$HTML[] = "<div class=\"DebugRegion\">";
 			if($Name)$HTML[] = "<div class=\"Title\" onclick=\"StopEventFlow(this); ToggleVisibilityByElementID('" . ($DebugRegionContentID = "DebugRegionContent_" . $this->Utility->GUID() . "") . "');\">{$Name}</div><div id=\"{$DebugRegionContentID}\" class=\"Content\">";
 
-			$Result = implode(null, $HTML);
+			$Result = implode("", $HTML);
 
 			if($Show)print $Result;
 		}
@@ -105,7 +105,7 @@ class Debug{
 
 		if($this->Property["Enabled"]){
 			$HTML[] = "</div></div>";
-			if($Show)print implode(null, $HTML);
+			if($Show)print implode("", $HTML);
 
 			$Result = true;
 		}
@@ -129,7 +129,7 @@ class Debug{
 						</tr>
 					</thead>
 
-					<tbody>" . implode(null, $HTML) . "</tbody>
+					<tbody>" . implode("", $HTML) . "</tbody>
 				</table>
 			</div>
 		";
@@ -177,7 +177,7 @@ class Debug{
 							</tr>
 						</thead>
 
-						<tbody>" . implode(null, $HTML) . "</tbody>
+						<tbody>" . implode("", $HTML) . "</tbody>
 					</table>
 				</div>
 			";
@@ -199,7 +199,7 @@ class Debug{
 			$Value = isset($Item) ? "
 				<input type=\"checkbox\" id=\"Toggle_{$ToggleID}\" checked class=\"Toggle\">
 				<label for=\"Toggle_{$ToggleID}\" class=\"ToggleNotch\"></label>
-				<div class=\"Array\">" . implode(null, $Item) . "</div>
+				<div class=\"Array\">" . implode("", $Item) . "</div>
 			" : "<div class=\"Empty\">EMPTY</div>";
 		}
 		elseif(is_object($Value)){
@@ -215,7 +215,7 @@ class Debug{
 				$Value = isset($Item) ? "
 					<input type=\"checkbox\" id=\"Toggle_{$ToggleID}\" checked class=\"Toggle\">
 					<label for=\"Toggle_{$ToggleID}\" class=\"ToggleNotch\"></label>
-					<div class=\"Object\">" . implode(null, $Item) . "</div>
+					<div class=\"Object\">" . implode("", $Item) . "</div>
 				" : "<div class=\"Empty\">EMPTY</div>";
 			}
 			else{
@@ -371,7 +371,7 @@ class Debug{
 							</tr>
 						</thead>
 
-						<tbody>" . (isset($CheckpointHTML) ? implode(null, $CheckpointHTML) : null) . "</tbody>
+						<tbody>" . (isset($CheckpointHTML) ? implode("", $CheckpointHTML) : null) . "</tbody>
 
 						<tfoot>
 							<tr class=\"Checkpoint\">

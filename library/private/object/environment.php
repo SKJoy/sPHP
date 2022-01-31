@@ -701,7 +701,7 @@ class Environment{
             elseif(PHP_OS_FAMILY === "Linux"){
                 //file_put_contents(__DIR__ . "/Debug-Environment-OSProcesses.txt", implode(PHP_EOL, $ExecInformation));
                 array_shift($ExecInformation); // Remove header row
-                $Field = array_filter(explode(",", str_replace(" ", null, "User, ID, CPU, Memory, VSZ, RSS, TTY, Stat, Start, Time, Command")));
+                $Field = array_filter(explode(",", str_replace(" ", "", "User, ID, CPU, Memory, VSZ, RSS, TTY, Stat, Start, Time, Command")));
                 $LastFieldIndex = count($Field) - 1;
             
                 foreach($ExecInformation as $ProcessData){

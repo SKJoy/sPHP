@@ -123,7 +123,7 @@ class Template{
 				$RestContent = substr($RestContent, strpos($RestContent, $OriginalMatch) + strlen($OriginalMatch));
 			}
 
-			$Result = implode(null, isset($PreContent) ? $PreContent : []) . $RestContent; // Store content in memory (per request)
+			$Result = implode("", isset($PreContent) ? $PreContent : []) . $RestContent; // Store content in memory (per request)
 		}
 		else{ // Don't parse, return as is as flat content
 			$Result = $this->Cache[$Name];

@@ -220,7 +220,7 @@ class CheckboxGroup{
 				$OptionHTML[] = $Checkbox->HTML();
 			}
 
-			$this->Property[__FUNCTION__] = "<div id=\"{$this->Property["ID"]}\" class=\"{$this->Property["CSSSelector"]}\">" . implode(null, $OptionHTML) . "</div>";
+			$this->Property[__FUNCTION__] = "<div id=\"{$this->Property["ID"]}\" class=\"{$this->Property["CSSSelector"]}\">" . implode("", $OptionHTML) . "</div>";
 
 			/*
 			foreach($this->Property["Option"] as $Option){
@@ -228,7 +228,7 @@ class CheckboxGroup{
 				$HTML[] = $Option->HTML();
 			}
 
-			$this->Property[__FUNCTION__] = "<div class=\"CheckboxGroup" . ($this->Property["CSSSelector"] ? " {$this->Property["CSSSelector"]}" : null) . "\">" . implode(null, $HTML) . "</div>";
+			$this->Property[__FUNCTION__] = "<div class=\"CheckboxGroup" . ($this->Property["CSSSelector"] ? " {$this->Property["CSSSelector"]}" : null) . "\">" . implode("", $HTML) . "</div>";
 			*/
 		}
 

@@ -215,8 +215,8 @@ class Application{
         $this->Language($this->Property["Session"]->Language()); // Set Language from session
 
 		// Following will always overwrite session's current value in case of TRUE evaluation
-        if($Configuration["ContentEditMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["ContentEditModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["ContentEditModeClient"]))))))$this->Property["Session"]->ContentEditMode(true);
-        if($Configuration["DebugMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", null, strtoupper($Configuration["DebugModeClient"]))))))$this->Property["Session"]->DebugMode(true); 
+        if($Configuration["ContentEditMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", "", strtoupper($Configuration["ContentEditModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", "", strtoupper($Configuration["ContentEditModeClient"]))))))$this->Property["Session"]->ContentEditMode(true);
+        if($Configuration["DebugMode"] || in_array(strtoupper($_SERVER["SERVER_NAME"]), array_filter(explode(",", str_replace(" ", "", strtoupper($Configuration["DebugModeServer"]))))) || in_array(strtoupper($_SERVER["REMOTE_ADDR"]), array_filter(explode(",", str_replace(" ", "", strtoupper($Configuration["DebugModeClient"]))))))$this->Property["Session"]->DebugMode(true); 
 
         #region Include stylesheet
         $Configuration["Stylesheet"][] = "{$this->Property["Terminal"]->Environment()->StyleURL()}language/{$this->Property["Language"]->HTMLCode()}.css";
@@ -348,7 +348,7 @@ class Application{
 
 		foreach($Notification as $ThisNotification){
 			// Make sure all attributes for the notification item is available
-			foreach(explode(",", str_replace(" ", null, "To, Subject, Message, EventTime, Signature, Type, Source, From")) as $Attribute){
+			foreach(explode(",", str_replace(" ", "", "To, Subject, Message, EventTime, Signature, Type, Source, From")) as $Attribute){
 				if(!isset($ThisNotification[$Attribute])){
 					$ThisNotification[$Attribute] = null;
 				}
@@ -369,7 +369,7 @@ class Application{
 				if(!$ThisNotification["Signature"])$ThisNotification["Signature"] = md5($ThisNotification["Message"]);
 
 				if(isset($this->NotificationType[$ThisNotification["Type"]]) && isset($this->NotificationSource[$ThisNotification["Source"]])){
-					foreach(array_filter(explode(",", str_replace(" ", null, $ThisNotification["To"]))) as $To){
+					foreach(array_filter(explode(",", str_replace(" ", "", $ThisNotification["To"]))) as $To){
 						$SQL_INSERT_VALUE[] = "(" . implode(", ", [
 							"'{$Database->Escape($ThisNotification["Signature"])}'",
 							"'{$Database->Escape($ThisNotification["EventTime"])}'",

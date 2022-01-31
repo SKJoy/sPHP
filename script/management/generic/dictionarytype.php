@@ -147,7 +147,7 @@ if(isset($_POST["btnInput"])){
 		}
 
 		// Set defaults for values without input (checkbox)
-		//foreach(explode(",", str_replace(" ", null, "x{$Entity}BeginFlagOriginEntry, x{$Entity}BeginFlagLoadBegin")) as $Field)SetVariable($Field, 0);
+		//foreach(explode(",", str_replace(" ", "", "x{$Entity}BeginFlagOriginEntry, x{$Entity}BeginFlagLoadBegin")) as $Field)SetVariable($Field, 0);
 		#endregion Custom code
 		
 		if($AffectedRecord = $EM->Input()){ 

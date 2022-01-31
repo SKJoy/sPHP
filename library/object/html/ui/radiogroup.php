@@ -101,7 +101,7 @@ class RadioGroup{
 				$HTML[] = $Option->HTML();
 			}
 
-			$this->Property[__FUNCTION__] = "<div class=\"RadioGroup" . ($this->Property["CSSSelector"] ? " {$this->Property["CSSSelector"]}" : null) . "\">" . implode(null, $HTML) . "</div>";
+			$this->Property[__FUNCTION__] = "<div class=\"RadioGroup" . ($this->Property["CSSSelector"] ? " {$this->Property["CSSSelector"]}" : null) . "\">" . implode("", $HTML) . "</div>";
 		}
 
 		$Result = $this->Property[__FUNCTION__];

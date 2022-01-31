@@ -20,7 +20,7 @@ class Test{
 	#region Method
 	public function __construct(?string $FirstName = null, ?string $LastName = null){ //var_dump("CONSTRUCT: Instantiating object");
 		// Formalize read only property list
-		$this->ReadOnlyPropertyList = explode(",", str_replace(" ", null, $this->ReadOnlyPropertyList));
+		$this->ReadOnlyPropertyList = explode(",", str_replace(" ", "", $this->ReadOnlyPropertyList));
 
 		// Set property through argument passed
 		foreach(get_defined_vars() as $Name => $Value)if(!is_null($Value))$this->$Name = $Value;
@@ -56,7 +56,7 @@ class Test{
 			}
 
 			// Condition pattern
-			if(in_array($Name, explode(",", str_replace(" ", null, "FirstName, LastName"))))foreach(explode(",", str_replace(" ", null, "Name, HTML")) as $ReadOnlyProperty)unset($this->Property[$ReadOnlyProperty]);
+			if(in_array($Name, explode(",", str_replace(" ", "", "FirstName, LastName"))))foreach(explode(",", str_replace(" ", "", "Name, HTML")) as $ReadOnlyProperty)unset($this->Property[$ReadOnlyProperty]);
 			#endregion Custom code depending on property to set
 		}
 	}
@@ -64,7 +64,7 @@ class Test{
 
 	#region Function
 	private Function ClearOutput(){
-		foreach(explode(",", str_replace(" ", null, "Name, HTML")) as $ReadOnlyProperty)unset($this->Property[$ReadOnlyProperty]);
+		foreach(explode(",", str_replace(" ", "", "Name, HTML")) as $ReadOnlyProperty)unset($this->Property[$ReadOnlyProperty]);
 	}
 	#endregion Function
 }

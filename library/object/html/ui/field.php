@@ -305,7 +305,7 @@ class Field{
 					])) . "\">" . ($this->Property["ContentName"] ? $Content->Value()["Caption"] : $this->Property["Caption"]) . "</div>" : null) . "
 					<div class=\"Content\" style=\"" . implode(" ", array_filter([
 						$this->Property["ContentWidth"] ? "width: {$this->Property["ContentWidth"]}" . (strpos($this->Property["ContentWidth"], "%") === false ? "px" : null) . ";" : null,
-					])) . "\">" . (is_array($this->Property["Content"]) ? implode(null, $this->Property["Content"]) : $this->Property["Content"]) . "</div>
+					])) . "\">" . (is_array($this->Property["Content"]) ? implode("", $this->Property["Content"]) : $this->Property["Content"]) . "</div>
 					" . ($this->Property["Suffix"] ? "<div class=\"Suffix\">{$this->Property["Suffix"]}</div>" : null) . "
 				</div>
 

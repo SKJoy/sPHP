@@ -81,7 +81,7 @@ class DropdownMenu{
 			$HTML[] = "</nav>";
 		}
 
-        $Result = $this->Property[__FUNCTION__] = implode(null, $HTML);
+        $Result = $this->Property[__FUNCTION__] = implode("", $HTML);
 
         return $Result;
     }

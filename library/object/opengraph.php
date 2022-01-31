@@ -183,7 +183,7 @@ class OpenGraph{
         }
         else{
             foreach($this->Property["Meta"] as $Meta)$HTML[] = $Meta->HTML();
-            $this->Property[__FUNCTION__] = implode(null, $HTML);
+            $this->Property[__FUNCTION__] = implode("", $HTML);
         }
         
         return $this->Property[__FUNCTION__];

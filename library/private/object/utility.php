@@ -38,7 +38,7 @@ class Utility{
 		$POSTFileField = array_keys($_FILES);
 		if(count($POSTFileField) && !is_dir($Path))mkdir($Path, 0777, true); // Create the target folder it doesn't exist
         //var_dump($POSTFileField);
-		foreach(isset($Field) ? array_intersect(explode(",", str_replace(" ", null, $Field)), $POSTFileField) : $POSTFileField as $Field){ //var_dump($Field);
+		foreach(isset($Field) ? array_intersect(explode(",", str_replace(" ", "", $Field)), $POSTFileField) : $POSTFileField as $Field){ //var_dump($Field);
 			if(is_array($_FILES[$Field]["name"])){ //var_dump($_FILES[$Field]["name"]);
 				foreach($_FILES[$Field]["name"] as $Key => $Value){ //DebugDump($_FILES[$Field]["size"][$Key]);
 					$Result[$Field][$Key] = (!$ByteLimit || $_FILES[$Field]["size"][$Key] <= $ByteLimit) ? $this->MoveUploadedItem($Path, $Value, $_FILES[$Field]["tmp_name"][$Key], $MustRename, $AllowedExtension, $ForbiddenExtension) : false;
@@ -110,7 +110,7 @@ class Utility{
 		if(is_null($DiscardSpace))$DiscardSpace = true;
 		if(is_null($IgnoreEmpty))$IgnoreEmpty = true;
 
-		if($DiscardSpace)$List = str_replace(" ", null, $List);
+		if($DiscardSpace)$List = str_replace(" ", "", $List);
 		$List = explode($Separator, trim($List));
 		if($IgnoreEmpty)$List = array_filter($List);
 
@@ -214,12 +214,12 @@ class Utility{
 			$RandomString = false;
 		}
 		else{
-			$Character = implode(null, $Character);
+			$Character = implode("", $Character);
 		    $CharacterLength = strlen($Character);
 
 		    for($CharacterCount = 0; $CharacterCount < $Length; $CharacterCount++)$RandomString[] = $Character[rand(0, $CharacterLength - 1)];
 
-		    $RandomString = implode(null, $RandomString);
+		    $RandomString = implode("", $RandomString);
 		}
 
 		return $RandomString;
@@ -514,8 +514,8 @@ class Utility{
 
 		if(
 				$File["basename"]
-			&&	(!isset($AllowedExtension) || in_array($File["extension"], array_filter(explode(",", str_replace(" ", null, $AllowedExtension)))))
-			&&	(!isset($ForbiddenExtension) || !in_array($File["extension"], array_filter(explode(",", str_replace(" ", null, $ForbiddenExtension)))))
+			&&	(!isset($AllowedExtension) || in_array($File["extension"], array_filter(explode(",", str_replace(" ", "", $AllowedExtension)))))
+			&&	(!isset($ForbiddenExtension) || !in_array($File["extension"], array_filter(explode(",", str_replace(" ", "", $ForbiddenExtension)))))
 		){
 			if($MustRename || file_exists("{$Path}" . ($FileName = "{$File["basename"]}") . ""))while(file_exists("{$Path}" . ($FileName = "" . ($MustRename ? null : "{$File["filename"]}") . "{$this->GUID()}{$this->GUID()}" . ($File["extension"] ? ".{$File["extension"]}" : null) . "") . ""));
 			$Result = move_uploaded_file($TemporaryFile, "{$Path}{$FileName}") ? $FileName : false;

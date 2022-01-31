@@ -340,7 +340,7 @@ class Form{
 			$this->Property[__FUNCTION__] = "
 					</div>
 					" . ($this->Property["Footer"] ? "<div class=\"Footer\">{$this->Property["Footer"]}</div>" : null) . "
-					" . (isset($ButtonHTML) ? implode(null, $ButtonHTML) : null) . "
+					" . (isset($ButtonHTML) ? implode("", $ButtonHTML) : null) . "
 					" . ($this->Property["Status"] ? "<div class=\"Status\">{$this->Property["Status"]}</div>" : null) . "
 					<input type=\"hidden\" name=\"_ID\" value=\"{$this->Property["ID"]}\">
 					<input type=\"hidden\" name=\"_Referer\" value=\"" . \sPHP\SetVariable("_Referer", $_SERVER["HTTP_REFERER"]) . "\">
@@ -358,7 +358,7 @@ class Form{
 	}
 
     public function HTML(){
-		if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = $this->BeginHTML() . (is_array($this->Property["Content"]) ? implode(null, $this->Property["Content"]) : $this->Property["Content"]) . $this->EndHTML();
+		if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = $this->BeginHTML() . (is_array($this->Property["Content"]) ? implode("", $this->Property["Content"]) : $this->Property["Content"]) . $this->EndHTML();
 
         $Result = $this->Property[__FUNCTION__];
 

@@ -871,7 +871,7 @@ class EntityManagement{
 					$this->Property["IconURL"], // Base URL for icons
 					"Total of {$this->Property["Table"]->Count()} record(s) took " . round($this->Property["Table"]->LastDuration() * 1000, 0) . " ms",
 					"
-						" . (is_array($this->Property["SearchUIHTML"]) ? implode(null, $this->Property["SearchUIHTML"]) : $this->Property["SearchUIHTML"]) . "<div class=\"ColumnWrapper\"></div>
+						" . (is_array($this->Property["SearchUIHTML"]) ? implode("", $this->Property["SearchUIHTML"]) : $this->Property["SearchUIHTML"]) . "<div class=\"ColumnWrapper\"></div>
 						<div class=\"ButtonRow\">" . (is_array($this->Property["BatchActionHTML"]) ? implode(" ", $this->Property["BatchActionHTML"]) : $this->Property["BatchActionHTML"]) . "</div>
 					",
 					null,
@@ -903,7 +903,7 @@ class EntityManagement{
 				<div class=\"AlignCenter\">
 					" . HTML\UI\Form(
 						$this->Property["URL"], // Submission URL
-						(is_array($this->Property["InputUIHTML"]) ? implode(null, $this->Property["InputUIHTML"]) : $this->Property["InputUIHTML"]) .
+						(is_array($this->Property["InputUIHTML"]) ? implode("", $this->Property["InputUIHTML"]) : $this->Property["InputUIHTML"]) .
 							HTML\UI\Input("btnInput", null, null, true, INPUT_TYPE_HIDDEN) .
 							HTML\UI\Input("{$this->Property["Table"]->Structure()["Primary"][0]}", null, $this->Property["EntityID"], true, INPUT_TYPE_HIDDEN),
 						$this->Property["EntityID"] ? "Update" : "Insert", // Submit button caption
@@ -1019,8 +1019,8 @@ class EntityManagement{
             #endregion Set argumewnt default value
 
             #region Validate argument
-            if(!is_array($Field))$Field = explode(",", str_replace(" ", null, $Field));
-            if(!count($Field))$Field = array_diff(array_keys($this->Property["Table"]->Structure()["Column"]), explode(",", str_replace(" ", null, "UserIDInserted, UserIDUpdated, UserIDLocked, TimeInserted, TimeUpdated, TimeLocked")));
+            if(!is_array($Field))$Field = explode(",", str_replace(" ", "", $Field));
+            if(!count($Field))$Field = array_diff(array_keys($this->Property["Table"]->Structure()["Column"]), explode(",", str_replace(" ", "", "UserIDInserted, UserIDUpdated, UserIDLocked, TimeInserted, TimeUpdated, TimeLocked")));
 
             if($KeepSearchInputPrefix)$KeepSearchInputPrefix = $SearchInputPrefix;
             #endregion Validate argument

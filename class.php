@@ -10,5 +10,5 @@
 namespace sPHP;
 
 $LibraryPath = __DIR__ . "/library/private/object/";
-foreach(array_filter(explode(",", str_replace(" ", null, "Environment, Terminal, Session, Application, Template, Utility, Graphic, Debug"))) as $Object)require $LibraryPath . strtolower($Object) . ".php";
+foreach(array_filter(explode(",", str_replace(" ", "", "Environment, Terminal, Session, Application, Template, Utility, Graphic, Debug"))) as $Object)require $LibraryPath . strtolower($Object) . ".php";
 ?>

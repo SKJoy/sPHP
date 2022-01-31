@@ -55,5 +55,5 @@ foreach($ENV->OSProcesses("Command", $_POST["CommandFilter"], $_POST["CommandFil
 			<th>Command</th>
 		</tr>
 	</thead>
-	<tbody><?=implode(null, $HTML)?></tbody>
+	<tbody><?=implode("", $HTML)?></tbody>
 </table>

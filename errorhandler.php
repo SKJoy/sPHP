@@ -38,9 +38,9 @@ function ___ErrorPage($Message, $File = null, $Line = null, $Number = null, $Typ
 	$ApplicationPath = str_replace("\\", "/", pathinfo($_SERVER["SCRIPT_FILENAME"])["dirname"]) . "/";
 	$SystemPath = str_replace("\\", "/", __DIR__) . "/";
 	$CallCount = count($Calls);
-	$DebugMode = in_array($_SERVER["SERVER_NAME"], explode(",", str_replace(" ", null, "LocalHost, 127.0.0.1, 192.168.0.1, 192.168.1.1, 192.168.137.1, ::1"))) || in_array($_SERVER["REMOTE_ADDR"], explode(",", str_replace(" ", null, "127.0.0.1, 192.168.0.1, 192.168.1.1, 192.168.137.1, ::1")));
+	$DebugMode = in_array($_SERVER["SERVER_NAME"], explode(",", str_replace(" ", "", "LocalHost, 127.0.0.1, 192.168.0.1, 192.168.1.1, 192.168.137.1, ::1"))) || in_array($_SERVER["REMOTE_ADDR"], explode(",", str_replace(" ", "", "127.0.0.1, 192.168.0.1, 192.168.1.1, 192.168.137.1, ::1")));
 	$FunctionList = get_defined_functions();
-	$PHPAdditionalInternalFunction = explode(",", str_replace(" ", null, "require"));
+	$PHPAdditionalInternalFunction = explode(",", str_replace(" ", "", "require"));
 	$CommandPromptPrefix = strpos($_SERVER["HTTP_USER_AGENT"], "Windows") !== false ? "[" : null;
 	$CommandPrompt = $CommandPromptPrefix ? "] X:\\&gt;" : ":~#";
 

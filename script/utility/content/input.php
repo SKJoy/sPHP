@@ -69,7 +69,7 @@ print "" . HTML\UI\Form(
 	"
 		" . HTML\UI\Field(HTML\UI\Input("" . ($Caption = "Name") . "", $Configuration["InputFullWidth"], $Content->Name(), true), "{$Caption}*", null, null, $Configuration["FieldCaptionWidth"], $Configuration["FieldContentFullWidth"]) . "			
 		" . HTML\UI\Field(HTML\UI\Select("" . ($Caption = "Language") . "HTMLCode", $LanguageOption, null, null, null, null, $Content->Language()->HTMLCode()), "{$Caption}", true, null, $Configuration["FieldCaptionWidth"]) . "
-		" . implode(null, $ValueInput) . "
+		" . implode("", $ValueInput) . "
 		" . HTML\UI\Input("Input", null, null, null, INPUT_TYPE_HIDDEN) . "
 		" . HTML\UI\Input("Field", null, null, null, INPUT_TYPE_HIDDEN) . "
 		" . HTML\UI\Input("AnchorID", null, null, null, INPUT_TYPE_HIDDEN) . "

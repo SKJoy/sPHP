@@ -11,7 +11,7 @@ if(isset($_POST["btnSubmit"])){
 
 print HTML\UI\Form(
 	$APP->URL($_POST["_Script"]), 
-	implode(null, [
+	implode("", [
 		HTML\UI\Field(HTML\UI\Select("" . ($Caption = "Language") . "HTMLCode", $LanguageOption, null, null, null, null, $APP->Language()->HTMLCode()), "{$Caption}", null, null), 
 	]), 
 	"Set", // Submit button caption

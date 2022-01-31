@@ -132,9 +132,9 @@ class Checkbox{
 
 			$HTML[] = "<input type=\"checkbox\" id=\"{$this->Property["ID"]}\" name=\"{$this->Property["Name"]}\" value=\"{$this->Property["Value"]}\"" . (isset($_POST[$this->Property["Name"]]) && $_POST[$this->Property["Name"]] == $this->Property["Value"] ? " checked" : null) . "" . (isset($EventHandler) ? " " . implode(" ", $EventHandler) . " " : null) . ">";
 			$HTML[] = "<label for=\"{$this->Property["ID"]}\"><span class=\"Caption\">{$this->Property["Caption"]}</span></label>";
-			if($this->Property["CSSSelector"])$HTML = ["<div class=\"{$this->Property["CSSSelector"]}\">" . implode(null, $HTML) . "</div>"];
+			if($this->Property["CSSSelector"])$HTML = ["<div class=\"{$this->Property["CSSSelector"]}\">" . implode("", $HTML) . "</div>"];
 
-			$this->Property[__FUNCTION__] = implode(null, $HTML);
+			$this->Property[__FUNCTION__] = implode("", $HTML);
 		}
 
 		$Result = $this->Property[__FUNCTION__];

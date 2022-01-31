@@ -80,7 +80,7 @@ else{ // Output only if not an sPHP Cron Job (service, background process)
 
 	print "
 		<h2>System: Database: Clean</h2>
-		<ul>" . implode(null, $HTML) . "</ul>
+		<ul>" . implode("", $HTML) . "</ul>
 	";
 }
 ?>

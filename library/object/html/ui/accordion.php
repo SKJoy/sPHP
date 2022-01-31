@@ -123,7 +123,7 @@ class Accordion{
 				$HTML[] = $Pad->HTML();
 			}
 
-			$this->Property[__FUNCTION__] = "<nav class=\"Accordion" . ($this->Property["CSSSelector"] ? " {$this->Property["CSSSelector"]}" : null) . "\">" . implode(null, $HTML) . "</nav>";
+			$this->Property[__FUNCTION__] = "<nav class=\"Accordion" . ($this->Property["CSSSelector"] ? " {$this->Property["CSSSelector"]}" : null) . "\">" . implode("", $HTML) . "</nav>";
 		}
 
 		$Result = $this->Property[__FUNCTION__];

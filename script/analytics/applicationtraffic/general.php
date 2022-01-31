@@ -3,7 +3,7 @@ namespace sPHP;
 
 print "
 	<h1>Traffic statistics</h1>
-	" . HTML\UI\Form($Application->URL($_POST["_Script"]), implode(null, [
+	" . HTML\UI\Form($Application->URL($_POST["_Script"]), implode("", [
 		HTML\UI\Field(HTML\UI\Input("ApplicationTrafficTime" . ($Caption = "From") . "", null, date("Y-m-01"), true, INPUT_TYPE_DATE), "{$Caption}", null, null),
 		HTML\UI\Field(HTML\UI\Input("ApplicationTrafficTime" . ($Caption = "To") . "", null, date("Y-m-t"), true, INPUT_TYPE_DATE), "{$Caption}", null, true),
 		HTML\UI\Field(HTML\UI\Button("Show", BUTTON_TYPE_SUBMIT, "btnShow"), null, null, true),

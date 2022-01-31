@@ -143,7 +143,7 @@ class Server{
 									// Count packet on buffer receiption
 									$this->Property["Client"]["PacketNumber"][$SocketKey] = isset($this->Property["Client"]["PacketNumber"][$SocketKey]) ? $this->Property["Client"]["PacketNumber"][$SocketKey] + 1 : 1;
 
-                                    $BufferData = implode(null, $this->Property["Client"]["Buffer"][$SocketKey]);
+                                    $BufferData = implode("", $this->Property["Client"]["Buffer"][$SocketKey]);
 
                                     // Detect terminal type
                                     if($this->Property["Client"]["PacketNumber"][$SocketKey] == 1){
@@ -187,7 +187,7 @@ class Server{
                                                 }
 
                                                 // Do not convert Identifier into a number, device identifiers can be of any type (should be)
-                                                $IdentifierField = implode(null, $IdentifierHEX);
+                                                $IdentifierField = implode("", $IdentifierHEX);
                                             }
 
                                             $this->Property["Client"]["Identifier"][$SocketKey] = $IdentifierField;
@@ -265,7 +265,7 @@ class Server{
 				$this->Property["Client"]["PacketNumber"][$Key] = isset($this->Property["Client"]["PacketNumber"][$Key]) ? $this->Property["Client"]["PacketNumber"][$Key] + 1 : 1;
 
                 $this->TriggerOnData($Key);
-                $this->TriggerOnLog($Key, implode(null, $this->Property["Client"]["Buffer"][$Key]));
+                $this->TriggerOnLog($Key, implode("", $this->Property["Client"]["Buffer"][$Key]));
 			}
 
 			// Clear information of the disconnected socket
@@ -709,7 +709,7 @@ class Server{
 		$Result = [
 			"TerminalType"   =>	$this->Property[__FUNCTION__]["TerminalType"][$Key],
 			"Identifier"     =>	$this->Property[__FUNCTION__]["Identifier"][$Key],
-			"Data"		     =>	implode(null, $this->Property[__FUNCTION__]["Buffer"][$Key]),
+			"Data"		     =>	implode("", $this->Property[__FUNCTION__]["Buffer"][$Key]),
 			"Number"         =>	$this->Property[__FUNCTION__]["PacketNumber"][$Key],
 			"Time"           =>	$this->Property[__FUNCTION__]["LastReceptionTime"][$Key],
 		];

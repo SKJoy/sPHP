@@ -218,7 +218,7 @@ class Select{
             #endregion DEBUG
 				
 			foreach($OptionSet as $Option)if(is_object($Option))$OptionHTML[] = "<option value=\"{$Option->Value()}\"" . (strlen($CurrentValue) == strlen($Option->Value()) && $CurrentValue == $Option->Value() ? " selected" : null) . ">" . ($Option->Caption() ? $Option->Caption() : $Option->Value()) . "</option>";
-			$this->Property[__FUNCTION__] = "<select id=\"{$this->Property["ID"]}\" name=\"{$this->Property["Name"]}\" class=\"{$this->Property["CSSSelector"]}\"" . (isset($EventHandler) ? " " . implode(" ", $EventHandler) . "" : null) . ">" . implode(null, $OptionHTML) . "</select>";
+			$this->Property[__FUNCTION__] = "<select id=\"{$this->Property["ID"]}\" name=\"{$this->Property["Name"]}\" class=\"{$this->Property["CSSSelector"]}\"" . (isset($EventHandler) ? " " . implode(" ", $EventHandler) . "" : null) . ">" . implode("", $OptionHTML) . "</select>";
 		}
 
 		$Result = $this->Property[__FUNCTION__];
