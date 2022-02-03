@@ -266,7 +266,7 @@ class Session{
     }
 
     public function IsGuest(){
-		if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = $_SESSION["User"]->Email() == $this->Property["Guest"]->Email() ? true : false;
+		if(is_null($this->Property[__FUNCTION__]))$this->Property[__FUNCTION__] = !isset($_SESSION["User"]) || $_SESSION["User"]->Email() == $this->Property["Guest"]->Email() ? true : false;
 
         $Result = $this->Property[__FUNCTION__];
 
