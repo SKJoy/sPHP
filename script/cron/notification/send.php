@@ -18,17 +18,48 @@ $NotificationUPDATESQL = [];
 $cURL = curl_init(); // Initialize cURL for repeatative use by single connection
 curl_setopt($cURL, CURLOPT_RETURNTRANSFER, TRUE); // Return the response as a string from curl_exec(), don't output it
 
-$NotificationRecordset = $Table["{$Entity}"]->Get("
-		" . ($Configuration["SendNotification"] ? "TRUE" : "FALSE") . " # Configuration: SendNotification
-	AND	N.{$Entity}SentTime IS NULL
-	#AND	N.TimeInserted > DATE_ADD(NOW(), INTERVAL -2 HOUR) # Ignore aged or expired, we should take this value from configuration, updated by below
-	AND	N.TimeInserted > DATE_ADD(NOW(), INTERVAL -{$Configuration["NotificationAgeHourToIgnore"]} HOUR) # Ignore aged or expired
-	AND	NT.{$Entity}TypeIdentifier IN ('" . NOTIFICATION_TYPE_MOBILE_SMS . "', '" . NOTIFICATION_TYPE_EMAIL . "') # Do not include NOTIFICATION_TYPE_APP here; Use firebase-push.php on application layer
-	AND	N.{$Entity}Attempt < 3
-	AND	N.{$Entity}IsActive = 1
-", "N.TimeInserted DESC", 1, 120);
+$NotificationRecordset = \sPHP::$Database->Query("
+	SET @TimeFrom := DATE_ADD(NOW(), INTERVAL -{$Configuration["NotificationAgeHourToIgnore"]} HOUR);
 
-if(is_array($NotificationRecordset))foreach($NotificationRecordset as $Notification){
+	LOCK TABLES	
+		sphp_notification AS N READ, 
+		sphp_notificationtype AS NT READ, 
+		sphp_notificationsource AS NS READ, 
+		sphp_user AS UI READ, 
+		sphp_user AS UU READ
+	;
+
+	# sPHP: Cron: Notification: Send
+		SELECT			N.*, 
+
+						CONCAT(N.NotificationSignature, '') AS NotificationLookupCaption,
+						CONCAT(NT.NotificationTypeName, '') AS NotificationTypeLookupCaption,
+						CONCAT(NS.NotificationSourceName, '') AS NotificationSourceLookupCaption,
+						
+						NT.NotificationTypeIdentifier, 					
+						UI.UserEmail AS UserEmailInserted,
+						UU.UserEmail AS UserEmailUpdated,
+						NULL AS _NULL
+		FROM			sphp_notification AS N
+			LEFT JOIN	sphp_notificationtype AS NT ON NT.NotificationTypeID = N.NotificationTypeID
+			LEFT JOIN	sphp_notificationsource AS NS ON NS.NotificationSourceID = N.NotificationSourceID
+			LEFT JOIN	sphp_user AS UI ON UI.UserID = N.UserIDInserted
+			LEFT JOIN	sphp_user AS UU ON UU.UserID = N.UserIDUpdated
+		WHERE			" . ($Configuration["SendNotification"] ? "TRUE" : "FALSE") . " # Configuration: SendNotification
+			AND			N.{$Entity}SentTime IS NULL
+			AND			N.TimeInserted > @TimeFrom # Ignore aged or expired
+			AND			NT.{$Entity}TypeIdentifier IN ('" . NOTIFICATION_TYPE_MOBILE_SMS . "', '" . NOTIFICATION_TYPE_EMAIL . "') # Do not include NOTIFICATION_TYPE_APP here; Use firebase-push.php on application layer
+			AND			N.{$Entity}Attempt < 3
+			AND			N.{$Entity}IsActive = 1
+		ORDER BY		N.TimeInserted DESC 
+		LIMIT			0, 120;
+
+	UNLOCK TABLES;
+");
+
+$NotificationRecordset = isset($NotificationRecordset[0]) ? $NotificationRecordset[0] : [];
+
+foreach($NotificationRecordset as $Notification){
 	$NotificationAttemptTime = microtime(true);
 	$NotificationUPDATESQL[] = "UPDATE sphp_notification SET {$Entity}AttemptTime = '" . date("Y-m-d H:i:s", $NotificationAttemptTime) . "', {$Entity}Attempt = " . ($Notification["{$Entity}Attempt"] + 1) . " WHERE {$Entity}ID = {$Notification["{$Entity}ID"]};";
 	$NotificationRecepient = trim($Notification["{$Entity}To"]);
