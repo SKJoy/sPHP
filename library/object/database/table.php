@@ -659,9 +659,11 @@ class Table{
     public function Structure(){
 		if(is_null($this->Property[__FUNCTION__])){
 			$this->Property[__FUNCTION__]["Primary"] = $this->Property[__FUNCTION__]["Nullable"] = $this->Property[__FUNCTION__]["AutoIncrement"] = $this->Property[__FUNCTION__]["Number"] = $this->Property[__FUNCTION__]["Integer"] = $this->Property[__FUNCTION__]["Float"] = $this->Property[__FUNCTION__]["String"] = $this->Property[__FUNCTION__]["VarChar"] = $this->Property[__FUNCTION__]["Text"] = $this->Property[__FUNCTION__]["Date"] = $this->Property[__FUNCTION__]["Time"] = $this->Property[__FUNCTION__]["DateTime"] = [];
+			$ColumnStructure = [];
 
 			if($this->Property["Database"]->Type() == \sPHP\DATABASE_TYPE_MYSQL){
-				$this->Property[__FUNCTION__]["Column"] = $this->Property["Database"]->Query("SHOW COLUMNS FROM {$this->Property["Prefix"]}{$this->Property["Name"]}")[0];
+				$ColumnList = $this->Property["Database"]->Query("SHOW COLUMNS FROM {$this->Property["Prefix"]}{$this->Property["Name"]}");
+				$this->Property[__FUNCTION__]["Column"] = isset($ColumnList[0]) ? $ColumnList[0] : [];
 
 				foreach($this->Property[__FUNCTION__]["Column"] as $Column){
 					$ColumnStructure[$Column["Field"]] = $Column;
