@@ -55,7 +55,7 @@ function ___ErrorPage($Message, $File = null, $Line = null, $Number = null, $Typ
 
 	foreach($Calls as $Key => $Call){
 		$Serial = $Key + 1;
-		$File = isset($Call["file"]) ? str_replace("\\", "/", $Call["file"]) : null;
+		$File = isset($Call["file"]) ? str_replace("\\", "/", $Call["file"]) : "";
 		$IsSystemFile = $SystemPath == substr($File, 0, strlen($SystemPath)) ? true : false;
 
 		if(
@@ -115,7 +115,7 @@ function ___ErrorPage($Message, $File = null, $Line = null, $Number = null, $Typ
 					<td>" . (isset($Call["class"]) ? $Call["class"] : null) . "</td>
 					<td class=\"Type\">" . (isset($Call["type"]) ? $Call["type"] : null) . "</td>
 					<td>{$Function}</td>
-					<td>" . (isset($Call["args"]) ? "<ul>" . implode(null, $ArgumentHTML) . "</ul>" : null) . "</td>
+					<td>" . (isset($Call["args"]) ? "<ul>" . implode("", $ArgumentHTML) . "</ul>" : null) . "</td>
 				</tr>
 			";
 		}
@@ -215,12 +215,12 @@ function ___ErrorPage($Message, $File = null, $Line = null, $Number = null, $Typ
 								</tr>
 							</thead>
 
-							<tbody>" . implode(null, $CallRow) . "</tbody>
+							<tbody>" . implode("", $CallRow) . "</tbody>
 						</table>" : null) . "
 					</div>
 				</div>
 
-				" . (isset($ResonHTML) ? "<div class=\"CommandPrompt\"><span class=\"Prompt\">{$CommandPromptPrefix}waste@Time{$CommandPrompt}</span><span class=\"Command\">reason</span><div class=\"Response\"><ul class=\"Reason\">" . implode(null, $ResonHTML) . "</ul></div></div>" : null) . "
+				" . (isset($ResonHTML) ? "<div class=\"CommandPrompt\"><span class=\"Prompt\">{$CommandPromptPrefix}waste@Time{$CommandPrompt}</span><span class=\"Command\">reason</span><div class=\"Response\"><ul class=\"Reason\">" . implode("", $ResonHTML) . "</ul></div></div>" : null) . "
 				<div class=\"CommandPrompt\"><span class=\"Prompt\">{$CommandPromptPrefix}bored@Work{$CommandPrompt}</span><span class=\"Command\">joke</span><div class=\"Response\">{$CurrentJoke}</div></div>
 				<div class=\"CommandPrompt\"><span class=\"Prompt\">{$CommandPromptPrefix}student@PHP{$CommandPrompt}</span><span class=\"Command\">learn</span><div class=\"Response\"><div class=\"Subject\">{$CurrentLearn[0]}</div><div class=\"Description\">{$CurrentLearn[1]}</div></div></div>
 				<div class=\"CommandPrompt\"><span class=\"Prompt\">{$CommandPromptPrefix}developer@Home{$CommandPrompt}</span><span class=\"Command\">practice</span><div class=\"Response\">{$CurrentPractice}</div></div>

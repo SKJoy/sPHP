@@ -357,7 +357,7 @@ class Database{
     }
 
     public function Encoding($Value = null){ //DebugDump($Value);
-		$Value = strtolower(str_replace("-", null, $Value)); // Adapt to MySQL syntax
+		$Value = strtolower(str_replace("-", "", $Value)); // Adapt to MySQL syntax
 		if($Value == "utf8")$Value = "utf8mb4"; // Fix for MySQL utf8 alias
 
         if(is_null($Value)){
