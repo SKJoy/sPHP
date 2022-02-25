@@ -102,7 +102,7 @@ class Pad{
 						}
 					}
 	
-					$this->Property["Item"]->URL("");
+					//$this->Property["Item"]->URL(""); //? Forcefully disable URL hyperlink for item with children
 				}
 			}
 
