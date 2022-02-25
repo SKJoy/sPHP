@@ -2,3 +2,5 @@
 *.zip
 *.mmdb
 script/management/generic/backup
+
+!/resource/application-structure.zip
