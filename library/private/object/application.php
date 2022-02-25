@@ -65,6 +65,18 @@ class Application{
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
 
+        if(!file_exists("{$this->Property["Terminal"]->Environment()->Path()}system/pre.php")){ //? Create application structure if required
+            $ZIP = new \ZipArchive;
+
+            if($ZIP->open("{$this->Property["Terminal"]->Environment()->SystemPath()}resource/application-structure.zip") === TRUE){
+                $ZIP->extractTo($this->Property["Terminal"]->Environment()->Path()); //* Extract resources to application path
+                $ZIP->close();
+            }
+            else{ //! Failed extracting application structure
+                die("Failed to create application structure!");
+            }
+        }
+
         return true;
     }
 
