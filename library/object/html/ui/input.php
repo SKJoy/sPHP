@@ -23,11 +23,12 @@ class Input{
 		"Minimum"					=>	null,
 		"Maximum"					=>	null,
 		"ReadOnly"					=>	false,
+		"Autocomplete"				=>	true,
         "HTML"						=>	null,
     ];
 
     #region Method
-    public function __construct($Name = null, $Width = null, $DefaultValue = null, $Required = null, $Type = null, $CSSSelector = null, $Placeholder = null, $EventHandlerJavaScript = null, $ID = null, $Step = null, $Minimum = null, $Maximum = null, $ReadOnly = null){
+    public function __construct($Name = null, $Width = null, $DefaultValue = null, $Required = null, $Type = null, $CSSSelector = null, $Placeholder = null, $EventHandlerJavaScript = null, $ID = null, $Step = null, $Minimum = null, $Maximum = null, $ReadOnly = null, $Autocomplete = null){
 		$this->Property["ID"] = "Input_" . \sPHP\GUID() . "";
 
         // Set property values from arguments passed during object instantiation
@@ -239,6 +240,21 @@ class Input{
         return $Result;
     }
 
+    public function Autocomplete($Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+			$this->Property["HTML"] = null;
+
+            $Result = true;
+        }
+
+        return $Result;
+    }
+
     public function HTML(){
 		if(!$this->Property[__FUNCTION__]){
 			if(is_array($this->Property["EventHandlerJavaScript"]))foreach(array_filter($this->Property["EventHandlerJavaScript"]) as $Event=>$Code)if(trim($Code))$EventHandler[] = "{$Event}=\"{$Code}\"";
@@ -258,7 +274,7 @@ class Input{
 				</div>
 			" : null) . "<input" . ($this->Property["ID"] ? " id=\"{$this->Property["ID"]}\"" : null) . " type=\"" . strtolower($this->Property["Type"]) . "\" name=\"{$this->Property["Name"]}\" value=\"" . ($this->Property["Type"] == \sPHP\INPUT_TYPE_FILE ? null : \sPHP\SetVariable($this->Property["Name"], $this->Property["DefaultValue"])) . "\"" . ($this->Property["Required"] ? " required" : null) . "" . ($this->Property["Placeholder"] ? " placeholder=\"{$this->Property["Placeholder"]}\"" : null) . "" . ($this->Property["ReadOnly"] ? " readonly" : null) . "" . ($this->Property["CSSSelector"] ? " class=\"{$this->Property["CSSSelector"]}\"" : null) . " style=\"" . implode(" ", array_filter([
 				$this->Property["Width"] ? "width: {$this->Property["Width"]}" . (strpos($this->Property["Width"], "%") === false ? "px" : null) . ";" : null,
-			])) . "\"" . ($this->Property["Step"] ? " step=\"{$this->Property["Step"]}\"" : null) . (strlen($this->Property["Minimum"]) ? " min=\"{$this->Property["Minimum"]}\"" : null) . ($this->Property["Maximum"] ? " max=\"{$this->Property["Maximum"]}\"" : null) . (isset($EventHandler) ? " " . implode(" ", $EventHandler) . "" : null) . " />";
+			])) . "\"" . ($this->Property["Step"] ? " step=\"{$this->Property["Step"]}\"" : null) . (strlen($this->Property["Minimum"]) ? " min=\"{$this->Property["Minimum"]}\"" : null) . ($this->Property["Maximum"] ? " max=\"{$this->Property["Maximum"]}\"" : null) . ($this->Property["Autocomplete"] === false ? " autocomplete=\"false\"" : null) . (isset($EventHandler) ? " " . implode(" ", $EventHandler) . "" : null) . " />";
 		}
 
 		$Result = $this->Property[__FUNCTION__];

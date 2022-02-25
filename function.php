@@ -288,8 +288,8 @@ namespace sPHP\HTML\UI{
 		return $Object->HTML();
 	}
 
-	function Input($Name = null, $Width = null, $DefaultValue = null, $Required = null, $Type = null, $CSSSelector = null, $Placeholder = null, $EventHandlerJavaScript = null, $ID = null, $Step = null, $Minimum = null, $Maximum = null, $ReadOnly = null){
-		$Object = new Input($Name, $Width, $DefaultValue, $Required, $Type, $CSSSelector, $Placeholder, $EventHandlerJavaScript, $ID, $Step, $Minimum, $Maximum, $ReadOnly);
+	function Input($Name = null, $Width = null, $DefaultValue = null, $Required = null, $Type = null, $CSSSelector = null, $Placeholder = null, $EventHandlerJavaScript = null, $ID = null, $Step = null, $Minimum = null, $Maximum = null, $ReadOnly = null, $Autocomplete = null){
+		$Object = new Input($Name, $Width, $DefaultValue, $Required, $Type, $CSSSelector, $Placeholder, $EventHandlerJavaScript, $ID, $Step, $Minimum, $Maximum, $ReadOnly, $Autocomplete);
 
 		return $Object->HTML();
 	}
