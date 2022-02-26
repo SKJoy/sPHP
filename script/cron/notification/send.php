@@ -45,9 +45,10 @@ $NotificationRecordset = \sPHP::$Database->Query("
 			LEFT JOIN	sphp_notificationsource AS NS ON NS.NotificationSourceID = N.NotificationSourceID
 			LEFT JOIN	sphp_user AS UI ON UI.UserID = N.UserIDInserted
 			LEFT JOIN	sphp_user AS UU ON UU.UserID = N.UserIDUpdated
-		WHERE			" . ($Configuration["SendNotification"] ? "TRUE" : "FALSE") . " # Configuration: SendNotification
-			AND			N.{$Entity}SentTime IS NULL
+		WHERE			TRUE
+			AND			" . ($Configuration["SendNotification"] ? "TRUE" : "FALSE") . " # Configuration: SendNotification
 			AND			N.TimeInserted > @TimeFrom # Ignore aged or expired
+			AND			N.{$Entity}SentTime IS NULL
 			AND			NT.{$Entity}TypeIdentifier IN ('" . NOTIFICATION_TYPE_MOBILE_SMS . "', '" . NOTIFICATION_TYPE_EMAIL . "') # Do not include NOTIFICATION_TYPE_APP here; Use firebase-push.php on application layer
 			AND			N.{$Entity}Attempt < 3
 			AND			N.{$Entity}IsActive = 1
