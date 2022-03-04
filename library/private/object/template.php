@@ -2,11 +2,10 @@
 namespace sPHP;
 
 class Template{
-    #region Property variable
-    private $Property = [
+    private $Property = [ // Property variable
 		"Application"				=>	null,
         "Configuration"				=>	null,
-        "Lifetime"					=>	60 * 5, // Seconds
+        "Lifetime"					=>	5 * 60, // N minutes
         "ActionMarker"				=>	"#",
 		"NoCache"					=>	false, // Trade off flag between performance and memory consumption
 		"ViewPath"					=>	"./template/view/",
@@ -20,7 +19,6 @@ class Template{
 		"Expired"					=>	true,
 		"LastContentLoadedFromCache"	=>	true,
     ];
-    #endregion Property variable
 
 	#region Private variable
 	private static $AlreadyInstantiated = false;
@@ -44,7 +42,16 @@ class Template{
         return true;
     }
 
-	public function Content($Name, $Variable = [], $Process = null, $Lifetime = null, $DefaultContent = null, $CacheName = null, $Debug = null){
+	public function Content(
+		$Name, 
+		$Variable = [], 
+		$Process = null, 
+		$Lifetime = null, 
+		$DefaultContent = null, 
+		$CacheName = null, 
+		$NestedPath = null,  // Create view & cache file as path structure following Name & CacheName, otherwise create file at base path
+		$Debug = null
+	){
         if($Debug)DebugDump([
             "Script" => __FILE__ . " : " . __LINE__, 
             "Caller" => get_class($this) . "->" . __FUNCTION__ . "()", 
@@ -52,7 +59,9 @@ class Template{
         ]);
 
         if(!isset($this->Cache[$Name])){ // Cache is not loaded into memory
-			if($this->Expired($Name, $Lifetime, $CacheName)){ // Cache is expired
+			if($this->Expired($Name, $Lifetime, $CacheName, $NestedPath)){ // Cache is expired
+                if($Debug)DebugDump("Template->Content: Creating cache");
+
 				// Create template view PHP with default content if missing
 				if(!file_exists($this->Property["ViewFilePath"]))file_put_contents($this->Property["ViewFilePath"], $DefaultContent ? $DefaultContent : "This is default content for the template '{$Name}' as set in the view script!");
 
@@ -73,7 +82,7 @@ class Template{
             }
             else{
                 $this->Property["LastContentLoadedFromCache"] = true;
-                //DebugDump("Template->Content: Loaded from cache");
+                if($Debug)DebugDump("Template->Content: Loaded from cache");
             }
 
 			$this->Cache[$Name] = file_get_contents($this->Property["CacheFilePath"]); // Load cache into memory
@@ -247,8 +256,8 @@ class Template{
         return $Result;
     }
 
-	public function TimeToExpire($Name, $Lifetime = null, $CacheName = null){
-		$this->SetName($Name, $CacheName);
+	public function TimeToExpire($Name, $Lifetime = null, $CacheName = null, $NestedPath = null){
+		$this->SetName($Name, $CacheName, $NestedPath);
 		if(is_null($Lifetime))$Lifetime = $this->Property["Lifetime"];
 
 		$Result = (
@@ -259,7 +268,7 @@ class Template{
 		return $Result;
 	}
 
-	public function Expired($Name, $Lifetime = null, $CacheName = null){
+	public function Expired($Name, $Lifetime = null, $CacheName = null, $NestedPath = null){
         /*
         DebugDump([
             "SOURCE" => [
@@ -272,7 +281,7 @@ class Template{
             "CacheName" => $CacheName, 
         ]);
         */
-		$Result = $this->TimeToExpire($Name, $Lifetime, $CacheName) == 0 ? true : false;
+		$Result = $this->TimeToExpire($Name, $Lifetime, $CacheName, $NestedPath) == 0 ? true : false;
 
 		return $Result;
     }
@@ -285,20 +294,42 @@ class Template{
     #endregion Property
 
 	#region Function
-    private function SetName($Value, $CacheName = null){
+    private function SetName($Value, $CacheName = null, $NestedPath = null){
         $Result = true;
         
-        $CacheNameModifier = $CacheName ? "_{$this->Property["Application"]->Terminal()->Environment()->Utility()->ValidFileName($CacheName)}" : null;
+        if($NestedPath){ //* New argument to create view & cache files with nested path
+			#region View file
+            $ViewFileInformation = pathinfo($Value);                        
+            if(!is_dir($PathToCreate = "{$this->Property["ViewPath"]}{$ViewFileInformation["dirname"]}"))mkdir($PathToCreate, 0777, true); // Create view & cache file paths if not exists
+            
+            $this->Property["FileName"] = "{$ViewFileInformation["dirname"]}/{$this->Property["Application"]->Terminal()->Environment()->Utility()->ValidFileName($ViewFileInformation["filename"])}";
+            $this->Property["ViewFile"] = "{$this->Property["FileName"]}.php";
+            $this->Property["ViewFilePath"] = "{$this->Property["ViewPath"]}{$this->Property["ViewFile"]}";
+			#endregion View file
 
-		$this->Property["FileName"] = "{$this->Property["Application"]->Terminal()->Environment()->Utility()->ValidFileName($Value)}";
+			#region Cache file
+            $CacheFileInformation = pathinfo($CacheName);
+            if(!is_dir($PathToCreate = "{$this->Property["CachePath"]}{$this->Property["FileName"]}/{$CacheFileInformation["dirname"]}"))mkdir($PathToCreate, 0777, true); // Create view & cache file paths if not exists
+			
+            $CacheNameModifier = $CacheName ? "{$CacheFileInformation["dirname"]}/{$this->Property["Application"]->Terminal()->Environment()->Utility()->ValidFileName($CacheFileInformation["filename"])}-" : null;
+            $CacheFilenamePrefix = "{$this->Property["FileName"]}/{$CacheNameModifier}UserID-{$this->Property["Application"]->Session()->User()->ID()}";
+			
+            $this->Property["CacheFile"] = "{$CacheFilenamePrefix}-" . md5($CacheFilenamePrefix) . ".tpc";
+            $this->Property["CacheFilePath"] = "{$this->Property["CachePath"]}{$this->Property["CacheFile"]}";
+			#endregion Cache file
+        }
+        else{
+            $CacheNameModifier = $CacheName ? "_{$this->Property["Application"]->Terminal()->Environment()->Utility()->ValidFileName($CacheName)}" : null;
 
-		$this->Property["ViewFile"] = "{$this->Property["FileName"]}.php";
-		$this->Property["ViewFilePath"] = "{$this->Property["ViewPath"]}{$this->Property["ViewFile"]}";
-
-		$CacheFilenamePrefix = "{$this->Property["FileName"]}{$CacheNameModifier}_UserID_{$this->Property["Application"]->Session()->User()->ID()}";
-
-		$this->Property["CacheFile"] = "{$CacheFilenamePrefix}_" . md5($CacheFilenamePrefix) . ".tpc";
-		$this->Property["CacheFilePath"] = "{$this->Property["CachePath"]}{$this->Property["CacheFile"]}";
+            $this->Property["FileName"] = "{$this->Property["Application"]->Terminal()->Environment()->Utility()->ValidFileName($Value)}";
+            $this->Property["ViewFile"] = "{$this->Property["FileName"]}.php";
+            $this->Property["ViewFilePath"] = "{$this->Property["ViewPath"]}{$this->Property["ViewFile"]}";
+            
+            $CacheFilenamePrefix = "{$this->Property["FileName"]}{$CacheNameModifier}_UserID_{$this->Property["Application"]->Session()->User()->ID()}";
+    
+            $this->Property["CacheFile"] = "{$CacheFilenamePrefix}_" . md5($CacheFilenamePrefix) . ".tpc";
+            $this->Property["CacheFilePath"] = "{$this->Property["CachePath"]}{$this->Property["CacheFile"]}";
+        }        
 
         return $Result;
     }
