@@ -9,8 +9,7 @@
 namespace sPHP;
 
 class Content{
-    #region Property
-    private $Property = [
+    private $Property = [ // Property
         "Name"				=>	null,
 		"DefaultValue"		=>	null,
         "Path"				=>	"./content/",
@@ -24,7 +23,6 @@ class Content{
 		"AnchorID"			=>	null,
 		"EditAnchor"		=>	null,
     ];
-    #endregion Property
 
     #region Variable
     private static $Cache = [];
