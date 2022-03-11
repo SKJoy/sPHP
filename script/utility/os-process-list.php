@@ -7,7 +7,7 @@ namespace sPHP;
 <?php
 print HTML\UI\Form($APP->URL($_POST["_Script"]), [
 	HTML\UI\Input("CommandFilter", null, null, null, null, null, "Command filter"), 
-	HTML\UI\Input("CommandFilterLeft", null, null, null, null, null, "Command filter from left"), 
+	HTML\UI\Input("CommandFilterLeft", null, "php ", null, null, null, "Command filter from left"), 
 	HTML\UI\Button("Filter", BUTTON_TYPE_SUBMIT)
 ], "", null, null, null, null, null, null, false);
 
