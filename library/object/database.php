@@ -179,7 +179,7 @@ class Database{
 		if(is_null($IgnoreError))$IgnoreError = $this->Property["IgnoreQueryError"];
 		#endregion Set default argument values
 
-		if($this->Property["Connection"]){ // Process the query
+		if($this->Property["Connection"]){ //* Process the query
 			if($Verbose)$this->ShowMessage("Initiating query execution.", $SQL, $Parameter);
 	
 			$LastDurationStart = microtime(true);
@@ -188,10 +188,10 @@ class Database{
 			$Result = []; // Initialize Result as an Array to hold the recordset(s)
 			$Query = $this->Property["Connection"]->prepare($SQL); // Does not throw error when PDO::ATTR_EMULATE_PREPARES = false
 
-			try{
+			try{ //? Execute query
 				$Query->execute($Parameter);
 			}
-			catch(\Throwable $Exception){
+			catch(\Throwable $Exception){ //! Error executing the query
 				$Result = false; // Return explicit FALSE as no statement could be executed successfully
 				$this->LogError($Exception->getMessage(), $SQL, $Parameter, true);
 				if(!$IgnoreError)trigger_error($Exception->getMessage(), E_USER_ERROR);
@@ -199,18 +199,19 @@ class Database{
 			#endregion Try executing the query
 			
 			#region Generate resulting recordset(s)
-			if($Result !== false)do{ // Generate mutiple recordset
-				try{ // Get current recordset by TRYing as this might result into a GENERAL ERROR which appears to be a false positive
+			if($Result !== false)do{ //? Generate mutiple recordset
+				try{ //? Get current recordset by TRYing as this might result into a GENERAL ERROR which appears to be a false positive
 					$Dataset = $Query->fetchAll(); //DebugDump($Dataset);
-					if($Dataset)$Result[] = $Dataset; // Take valid recordset only; Failed to find a reliable & generic way to filter out non SELECT recordset only
-				}catch(\Throwable $Exception){} // Is there really anything to do here!
+					if($Dataset)$Result[] = $Dataset; //* Take valid recordset only; Failed to find a reliable & generic way to filter out non SELECT recordset only
+				}catch(\Throwable $Exception){} //! Is there really anything to do here!
 
 				// Special thanks to Saiful Islam for the tricky flow control below
-				try{ // Advance the recordset pointer to the next available
+				try{ //? Advance the recordset pointer to the next available
 					$RecordsetLeft = $Query->nextRowset();
 				}
-				catch(\Throwable $Exception){ //DebugDump($Exception->errorInfo);
-					$RecordsetLeft = false; // Somehow the system sets the end value to FALSE and is able exit the DO WHILE loop! But this is phishy!
+				catch(\Throwable $Exception){ //! Error advancing to next available recordset
+					//DebugDump($Exception->errorInfo);
+					$RecordsetLeft = false; //! Somehow the system sets the end value to FALSE and is able exit the DO WHILE loop! But this is phishy!
 					$this->LogError($Exception->getMessage(), $SQL, $Parameter, true);
 					if(!$IgnoreError)trigger_error($Exception->getMessage(), E_USER_ERROR);
 				}
@@ -230,7 +231,7 @@ class Database{
 			];
 			#endregion Update query information & history
 		}
-		else{ // No database connection
+		else{ //! No database connection
 			$Result = false; // Return explicit FALSE on connection error
 			$this->LogError("No database connection", $SQL, $Parameter, true); // Show error message but do not throw Exception
 		} //DebugDump($Result);
