@@ -90,6 +90,7 @@ class Application{
 
         #region Set configuration
 		// Set up configuration with global vital effect
+		if(isset($Configuration["MemoryLimitMB"]))$this->Property["Terminal"]->Environment()->MemoryLimit($Configuration["MemoryLimitMB"]);
 		$this->Property["Terminal"]->Environment()->TimeZone($Configuration["Timezone"]);
 		$this->Property["Terminal"]->ThemeColor($Configuration["ThemeColor"]);
 
