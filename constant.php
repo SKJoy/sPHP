@@ -208,6 +208,7 @@ const LOG_DATA_TYPE_JSON = "JSON";
 const LOG_DATA_TYPE_OBJECT = "OBJECT";
 const LOG_DATA_TYPE_NUMERIC = "NUMERIC";
 #endregion Data
+#endregion Log
 
 #region Operating system
 const OS_LINUX = "LINUX";
@@ -215,9 +216,13 @@ const OS_MAC = "MAC";
 const OS_OTHER = "OTHER";
 const OS_WINDOWS = "WINDOWS";
 #endregion Operating system
-#endregion Log
 
 const IFRAME_LOAD_ALLOW = "ALLOW";
 const IFRAME_LOAD_DENY = "DENY";
 const IFRAME_LOAD_SAMEORIGIN = "SAMEORIGIN";
+
+const CACHE_TYPE_MEMORY = "MEMORY";
+const CACHE_TYPE_FILE = "FILE";
+const CACHE_TYPE_DATABASE = "DATABASE";
+const CACHE_TYPE_NONE = "NONE";
 ?>

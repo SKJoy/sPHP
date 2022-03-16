@@ -268,7 +268,7 @@ class Application{
 				"ApplicationTrafficResourceUsageDurationUser"	=>	$ResourceUsage["ru_utime.tv_usec"],
 				"ApplicationTrafficResourceUsageDurationSystem"	=>	$ResourceUsage["ru_stime.tv_usec"],
 				"ApplicationTrafficExecutionEnd"				=>	date("Y-m-d H:i:s", time()),
-			], "ApplicationTrafficID = {$ApplicationTrafficID}");
+			], "ApplicationTrafficID = {$ApplicationTrafficID}", null, null, null, true); //* Ignore error; just in case
 		}
 		#endregion Update traffic log with additional information upon each request
 
