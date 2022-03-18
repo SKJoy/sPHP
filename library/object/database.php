@@ -250,6 +250,16 @@ class Database{
 
 		return true;
 	}
+
+	public function Ping(){ // Wrapper for $this->Connected() for historical & aristrocrat background
+		//? Return response TIME in milisecond, FALSE if not connected to database
+
+		$TimeBegin = microtime(true);
+		$Result = $this->Connected();
+		if($Result)$Result = (microtime(true) - $TimeBegin) * 1000000;
+
+		return $Result;
+	}
     #endregion Method
 
     #region Property
@@ -484,6 +494,12 @@ class Database{
 
         return $Result;
     }
+
+	public function Connected(){
+		$Result = $this->Query("SELECT TRUE AS Connected", null, null, true, true); //* Awesome trick to check database connection
+		
+		return isset($Result[0][0]["Connected"]);
+	}
 	#endregion Property
 	
 	#region Function
