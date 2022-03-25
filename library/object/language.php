@@ -9,8 +9,7 @@
 namespace sPHP;
 
 class Language{
-    #region Property variable
-    private $Property = [
+    private $Property = [ // Property variable
         "Name"				=>	"English (United States)",
         "Code"				=>	"EN",
         "RegionCode"		=>	"US",
@@ -18,7 +17,6 @@ class Language{
         "NativelyName"		=>	"English (United States)",
         "HTMLCode"			=>	"en-US",
     ];
-    #endregion Property variable
 
     #region Method
     public function __construct($Name = null, $Code = null, $RegionCode = null, $NativeName = null, $NativelyName = null){
