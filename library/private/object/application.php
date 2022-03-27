@@ -382,7 +382,7 @@ class Application{
 				if(!$ThisNotification["Signature"])$ThisNotification["Signature"] = md5($ThisNotification["Message"]);
 
 				if(isset($this->NotificationType[$ThisNotification["Type"]]) && isset($this->NotificationSource[$ThisNotification["Source"]])){
-					foreach(array_filter(explode(",", str_replace(" ", "", $ThisNotification["To"]))) as $To){
+					foreach(array_filter(explode(",", str_replace(" ", "", $ThisNotification["To"]))) as $To){ // Create multiple notification for each contact address in the To attribute
 						$SQL_INSERT_VALUE[] = "(" . implode(", ", [
 							"'{$Database->Escape($ThisNotification["Signature"])}'",
 							"'{$Database->Escape($ThisNotification["EventTime"])}'",
