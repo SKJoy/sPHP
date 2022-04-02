@@ -209,7 +209,7 @@ class Database{
 				try{ //? Advance the recordset pointer to the next available
 					$RecordsetLeft = $Query->nextRowset();
 				}
-				catch(\Throwable $Exception){ //! Error advancing to next available recordset
+				catch(\Throwable $Exception){ //! WHY SHOULD WE BOTHER TO RAISE EXCEPTION WHEN THERE IS NO DATASET LEFT !!! //! Error advancing to next available recordset
 					//DebugDump($Exception->errorInfo);
 					$RecordsetLeft = false; //! Somehow the system sets the end value to FALSE and is able exit the DO WHILE loop! But this is phishy!
 					$this->LogError($Exception->getMessage(), $SQL, $Parameter, true);
