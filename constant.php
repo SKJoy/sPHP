@@ -114,6 +114,16 @@ const CHARACTER_SET_NONE = null;
 const HTTP_STATUS_CODE_OK = 200;
 const HTTP_STATUS_CODE_FORBIDDEN = 403;
 const HTTP_STATUS_CODE_NOT_FOUND = 404;
+const HTTP_STATUS_CODE_METHOD_NOT_ALLOWED = 405;
+const HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR = 500;
+
+const HTTP_STATUS_BY_CODE = [
+    200 => "OK", 
+    403 => "Forbidden", 
+    404 => "Not found", 
+    405 => "Method not allowed", 
+    500 => "Internal server error", 
+];
 
 const OUTPUT_BUFFER_MODE_HEADER = "HEADER";
 const OUTPUT_BUFFER_MODE_MAIN = "MAIN";

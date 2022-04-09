@@ -242,10 +242,10 @@ namespace sPHP\Comm{
 		return $Mail->Send();
 	}
 
-	function cURL(?string $URI = null, ?array $POST = null, ?array $FILE = null, ?string $CookiePath = null, $CookieFile = null, ?string $Method = null, ?bool $SSLVerifyPeer = null, ?bool $SSLVerifyHost = null, ?string $UserAgent = null, ?string $Referer = null, ?bool $FollowRedirection = null){
+	function cURL(?string $URI = null, ?array $GET = null, ?array $POST = null, ?array $FILE = null, ?array $HTTPHeader = null, ?string $CookiePath = null, $CookieFile = null, ?string $Method = null, ?bool $SSLVerifyPeer = null, ?bool $SSLVerifyHost = null, ?string $UserAgent = null, ?string $Referer = null, ?bool $FollowRedirection = null){
 		$cURL = new cURL();
 
-		return $cURL->Call($URI, $POST, $FILE, $CookiePath, $CookieFile, $Method, $SSLVerifyPeer, $SSLVerifyHost, $UserAgent, $Referer, $FollowRedirection);
+		return $cURL->Fetch($URI, $GET, $POST, $FILE, $HTTPHeader, $CookiePath, $CookieFile, $Method, $SSLVerifyPeer, $SSLVerifyHost, $UserAgent, $Referer, $FollowRedirection);
 	}
 }
 
