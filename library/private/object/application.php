@@ -165,11 +165,11 @@ class Application{
 			$this->Property["Database"]->ODBCDriver($Configuration["DatabaseODBCDriver"]);
 			$this->Property["Database"]->TablePrefix($Configuration["DatabaseTablePrefix"]);
 			$this->Property["Database"]->Timezone($Configuration["DatabaseTimezone"]);
-			$this->Property["Database"]->Encoding($Configuration["CharacterSet"]);
+			$this->Property["Database"]->Encoding(isset($Configuration[$ConfigurationKey = "DatabaseCharacterSet"]) ? $Configuration[$ConfigurationKey] : $Configuration["CharacterSet"]);
 			$this->Property["Database"]->Strict($Configuration["DatabaseStrictMode"]);
 			$this->Property["Database"]->ErrorLogPath("{$this->Property["Terminal"]->Environment()->LogPath()}error/");
 			$this->Property["Database"]->IgnoreQueryError($Configuration["DatabaseIgnoreQueryError"]);
-			if(isset($Configuration["DatabaseCollation"]))$this->Property["Database"]->Collation($Configuration["DatabaseCollation"]);
+			if(isset($Configuration[$ConfigurationKey = "DatabaseCollation"]))$this->Property["Database"]->Collation($Configuration[$ConfigurationKey]);
 			#endregion Database properties
 
 			$this->Property["Database"]->Connect();
