@@ -18,6 +18,7 @@ class Database{
 		"KeepQueryHistory"			=>	false, // Memory consuming!
 		"ErrorLogPath"				=>	null,
 		"IgnoreQueryError"			=>	false, // Trigger error on $this->Query() malfunction
+		"Collation"					=>	"utf8mb4_unicode_ci", 
 
 		// Read only
         "Connection"				=>	null,
@@ -34,7 +35,7 @@ class Database{
 	#endregion Variable
 
     #region Method
-    public function __construct($Type = null, $Host = null, $User = null, $Password = null, $Name = null, $ODBCDriver = null, $TablePrefix = null, $Timezone = null, $Encoding = null, $Strict = null, $Verbose = null, $ErrorLogPath = null, $IgnoreQueryError = null){
+    public function __construct($Type = null, $Host = null, $User = null, $Password = null, $Name = null, $ODBCDriver = null, $TablePrefix = null, $Timezone = null, $Encoding = null, $Strict = null, $Verbose = null, $ErrorLogPath = null, $IgnoreQueryError = null, $Collation = null){
         // Set property values from arguments passed during object instantiation
         foreach(get_defined_vars() as $ArgumentName=>$ArgumentValue)if(!is_null($ArgumentValue) && array_key_exists($ArgumentName, $this->Property))$this->$ArgumentName($ArgumentValue);
 
@@ -53,17 +54,19 @@ class Database{
 		if($this->Property["Type"] == DATABASE_TYPE_MYSQL){
 			try{
 				$this->Property["Connection"] = new \PDO("mysql:host={$this->Property["Host"]};dbname={$this->Property["Name"]};charset={$this->Property["Encoding"]}", $this->Property["User"], $this->Property["Password"], array_filter([
-    				\PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-					//\PDO::ATTR_EMULATE_PREPARES => false, //! This triggers false error with SET XXXX statements
+    				\PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC, // Fetch records as associative array with column names for values
+					//\PDO::ATTR_EMULATE_PREPARES => false, //! Triggers false error with SET XXXX statements
 					\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,					
 					//\PDO::ATTR_TIMEOUT => 300, //! Not reliable; policy deffers for MySQL/MySQLND & underlying PHP compilation
-					\PDO::MYSQL_ATTR_COMPRESS  => !in_array(strtoupper($this->Property["Host"]), ["LOCALHOST", "127.0.0.1", "::1", $_SERVER["LOCAL_ADDR"], ]), // Compress connection content for remote hosts
-					\PDO::MYSQL_ATTR_INIT_COMMAND => "SET time_zone = '{$this->Property["Timezone"]}'",
+					\PDO::MYSQL_ATTR_COMPRESS  => !in_array(strtoupper($this->Property["Host"]), ["LOCALHOST", "127.0.0.1", "::1", $_SERVER["LOCAL_ADDR"], ]), // Compress connection content for remote hosts					
 					\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY  => true, 
-				]));
 
-				//! Following does not work with PDO::ATTR_EMULATE_PREPARES = false; neither could be appended with MYSQL_ATTR_INIT_COMMAND
-				if($this->Property["Strict"])$this->Query("SET sql_mode = 'STRICT_ALL_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO'", null, null, null, true);
+					\PDO::MYSQL_ATTR_INIT_COMMAND => "SET " . implode(",", array_filter([ // Initialization commands (SET) on connection
+						"time_zone = '{$this->Property["Timezone"]}'", 
+						$this->Property["Strict"] ? "sql_mode = 'STRICT_ALL_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO'" : null, //! Does not work with PDO::ATTR_EMULATE_PREPARES = false											
+						"NAMES {$this->Property["Encoding"]} COLLATE {$this->Property["Collation"]}", //* Fix collation issue; https://stackoverflow.com/questions/4361459/php-pdo-charset-set-names
+					])) . "",
+				]));
 
 				if($this->Property["Transactional"])$this->Property["Connection"]->beginTransaction(); // Encapsulate execution within transaction
 				
@@ -449,6 +452,11 @@ class Database{
     }
 
 	public function IgnoreQueryError($Value = null){
+		if(is_null($Value))return $this->Property[__FUNCTION__];
+		$this->Property[__FUNCTION__] = $Value;
+	}
+
+	public function Collation($Value = null){
 		if(is_null($Value))return $this->Property[__FUNCTION__];
 		$this->Property[__FUNCTION__] = $Value;
 	}
