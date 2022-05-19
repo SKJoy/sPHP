@@ -206,8 +206,8 @@ class Utility{
 		if($Number)$Character[] = "0123456789";
 		if($Lowercase)$Character[] = "abcdefghijklmnopqrstuvwxyz";
 		if($Uppercase)$Character[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		if($Symbol)$Character[] = "`-=~!@#\$%^&*()_+[]\\{}|;':\",./?";
-		if($Symbol && !$TagSafe)$Character[] = "<>";
+		if($Symbol)$Character[] = "`-=~!@#\$%^&*()_+[]\\{}|;:,./?";
+		if($Symbol && !$TagSafe)$Character[] = "'\"<>";
 
 		if(!isset($Character)){
 			var_dump("function " . __FUNCTION__ . "()- At least one scope is required to generate a random string.");
