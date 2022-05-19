@@ -2,19 +2,21 @@
 namespace sPHP;
 $Entity = "User";
 
-$Record = $Table["{$User}"]->Get($SQL = "
+$Record = $Table["{$Entity}"]->Get($SQL = "
 		U.{$Entity}Email = '{$Database->Escape(SetVariable("{$Entity}Email"))}'
 	AND	U.{$Entity}PasswordResetKey = '{$Database->Escape(SetVariable("{$Entity}PasswordResetKey"))}'
 	AND	TIME_TO_SEC(TIMEDIFF(NOW(), U.{$Entity}PasswordResetAttemptTime)) < 5 * 60
 	AND	U.{$Entity}IsActive = 1
-");
-//DebugDump($SQL);
+"); //DebugDump($SQL);
+
 if(count($Record)){ // User record found
 	$Record = $Record[0];
 	$Password = RandomString();
+	$PasswordHashSalt = RandomString();
 
-	$Table["{$User}"]->Put([
-		"{$Entity}PasswordHash" => md5($Password),
+	$Table["{$Entity}"]->Put([
+		"UserPasswordHashSalt" => $PasswordHashSalt,
+		"{$Entity}PasswordHash" => md5($Password . $PasswordHashSalt),
 		"{$Entity}PasswordResetKey" => null,
 		"{$Entity}PasswordResetAttemptTime" => null,
 		"{$Entity}PasswordResetAttemptCount" => null,

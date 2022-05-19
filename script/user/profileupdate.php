@@ -43,14 +43,16 @@ if($Form->Verify($APP->EncryptionKey())){
 					}
 				}
 
-				// Create thumbnail
-				foreach(ListToArray("{$Entity}Picture") as $Column){
+				foreach(ListToArray("{$Entity}Picture") as $Column){ // Create thumbnail
 					$_POST[$ThumbnailField = "{$Column}Thumbnail"] = $_POST[$Column] ? ($_POST[$Column] != $Record[$Column] ? Graphic\Resample("{$EntityUploadPath}{$_POST[$Column]}", $Configuration["ThumbnailMaximumDimension"], $Configuration["ThumbnailMaximumDimension"]) : $Record[$ThumbnailField]) : null;
 					if(isset($Record) && $_POST[$ThumbnailField] != $Record[$ThumbnailField] && $Record[$ThumbnailField] && file_exists($ExistingFile = "{$EntityUploadPath}{$Record[$ThumbnailField]}"))unlink($ExistingFile);
 				}
 
 				#region Custom data
-				if($_POST["{$Entity}Password"])$_POST["{$Entity}PasswordHash"] = md5($_POST["{$Entity}Password"]);
+				if($_POST["{$Entity}Password"]){
+					$_POST["{$Entity}PasswordHashSalt"] = RandomString();
+					$_POST["{$Entity}PasswordHash"] = md5($_POST["{$Entity}Password"] . $_POST["{$Entity}PasswordHashSalt"]);
+				}
 				#endregion Custom data
 
 				$TBL["{$Entity}"]->Put($_POST, "{$Entity}ID = {$SSN->User()->ID()}");

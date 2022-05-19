@@ -1,6 +1,5 @@
 <?php
 namespace sPHP;
-
 $Entity = "User";
 
 if($DTB->Connection()){
