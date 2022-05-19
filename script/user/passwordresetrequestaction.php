@@ -2,8 +2,15 @@
 namespace sPHP;
 $Entity = "User";
 $Record = $TBL[$Entity]->Get("U.{$Entity}Email = '{$DTB->Escape(SetVariable("{$Entity}Email"))}' AND U.{$Entity}IsActive = 1");
-$EmailLength = strlen($_POST["{$Entity}Email"]);
-$MaskedEmail = substr($_POST["{$Entity}Email"], 0, 1) . str_repeat("*", $EmailLength - 2) . substr($_POST["{$Entity}Email"], $EmailLength - 1, 1);
+
+#region Create masked email
+$EmailPart = explode(".", $_POST["{$Entity}Email"]);
+$EmailGTLD = $EmailPart[count($EmailPart) - 1];
+$EmailMaskPart = substr($_POST["{$Entity}Email"], 0, strlen($_POST["{$Entity}Email"]) - strlen($EmailGTLD) - 1);
+$EmailMaskPartLength = strlen($EmailMaskPart);
+$EmailMaskLength = 2;
+$MaskedEmail = substr($EmailMaskPart, 0, $EmailMaskLength) . str_repeat("*", $EmailMaskPartLength - ($EmailMaskLength * 2)) . substr($EmailMaskPart, $EmailMaskPartLength - $EmailMaskLength, $EmailMaskPartLength) . ".{$EmailGTLD}";
+#endregion Create masked email
 
 if(count($Record)){ // User record found
 	$Record = $Record[0];

@@ -32,9 +32,7 @@ if(count($Record)){ // User record found
 		Dear <b>{$Record["{$Entity}Name"]}</b>,<br>
 		<br>
 		Your account password has successfully been reset. Find below your new password, and change it from your user profile area if required.<br>
-		<br>
-		<span style=\"display: inline-block; box-shadow: 0 0 5px 0 Black; border: 1px White solid; padding: 15px; color: Red; font-size: 150%; letter-spacing: 5px; user-select: all;\">{$Password}</span><br>
-		<br>
+		<span style=\"display: inline-block; margin: 1em; box-shadow: 0 0 5px 0 Black; border: 1px White solid; padding: 1em 1.5em; color: Red; font-size: 150%; letter-spacing: 5px; user-select: all;\">{$Password}</span><br>
 		Warm regards,<br>
 		<br>
 		<a href=\"{$Application->URL()}\" style=\"display: inline-block; color: Navy; font-weight: bold; text-decoration: none;\">{$Application->Name()}</a>
