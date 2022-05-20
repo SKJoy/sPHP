@@ -185,11 +185,11 @@ class Table{
 		}
 
 		if($sPHPColumn && in_array("UserIDInserted", $this->Structure()["Number"])){
-			if($WHERE){
+			if($WHERE){ // Update
 				$Field[] = "UserIDUpdated";
 				$Field[] = "TimeUpdated";
 			}
-			else{
+			else{ // INSERT
 				$Field[] = "UserIDInserted";
 				$Field[] = "TimeInserted";
 			}
@@ -201,8 +201,7 @@ class Table{
 		$ApplicableSQL = $WHERE ? $UPDATESQL : $INSERTSQL;
 
 		if(is_null($this->Property["BeforePut"]) || $this->Property["BeforePut"]($Data, $Field)){
-			if(is_null($this->Property["Before{$ModeName}"]) || $this->Property["Before{$ModeName}"]($ApplicableSQL, $Data, $Field)){
-				//var_dump($ApplicableSQL);
+			if(is_null($this->Property["Before{$ModeName}"]) || $this->Property["Before{$ModeName}"]($ApplicableSQL, $Data, $Field)){ //var_dump($ApplicableSQL);
 				$Result = $this->Property["Database"]->Query($ApplicableSQL, null, $Verbose);
 				if($Result !== false)$Result = true; // Let the Result contain the status of the operation
 				if(!is_null($this->Property["After{$ModeName}"]))$Result = $this->Property["After{$ModeName}"]($Result, $ApplicableSQL, $Data, $Field);
@@ -699,6 +698,10 @@ class Table{
 						$this->Property[__FUNCTION__]["Integer"][] = $ColumnStructure[$Column["Field"]]["Field"];
 					}
 					elseif(substr($ColumnStructure[$Column["Field"]]["Type"], 0, 4) == "INT"){
+						$this->Property[__FUNCTION__]["Number"][] = $ColumnStructure[$Column["Field"]]["Field"];
+						$this->Property[__FUNCTION__]["Integer"][] = $ColumnStructure[$Column["Field"]]["Field"];
+					}
+					elseif(substr($ColumnStructure[$Column["Field"]]["Type"], 0, 6) == "BIGINT"){
 						$this->Property[__FUNCTION__]["Number"][] = $ColumnStructure[$Column["Field"]]["Field"];
 						$this->Property[__FUNCTION__]["Integer"][] = $ColumnStructure[$Column["Field"]]["Field"];
 					}
