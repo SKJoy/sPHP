@@ -15,6 +15,7 @@ class cURL{
         "POST"				=>	[], // Array of POST data/field to submit
         "FILE"				=>	[], // Array of FILE field to upload
         "HTTPHeader"		=>	[], // Array of HTTP header to send as (key value pair)
+		"CookiePath"		=>	null, // Cookie file path
 		"CookieFile"		=>	null, // Cookie file to read/write, without extension (name only with full path)
         "Method"			=>	\sPHP\HTTP_METHOD_GET, // Connection method; HTTP_METHOD_GET | HTTP_METHOD_POST
         "SSLVerifyPeer"		=>	false, // SSL verification for peer connection
@@ -35,7 +36,7 @@ class cURL{
     #endregion Variable
 
     #region Method
-    public function __construct(?string $URI = null, ?array $GET = null, ?array $POST = null, ?array $FILE = null, ?array $HTTPHeader = null, $CookieFile = null, ?string $Method = null, ?bool $SSLVerifyPeer = null, ?bool $SSLVerifyHost = null, ?string $UserAgent = null, ?string $Referer = null, ?bool $FollowRedirection = null){
+    public function __construct(?string $URI = null, ?array $GET = null, ?array $POST = null, ?array $FILE = null, ?array $HTTPHeader = null, ?string $CookiePath = null, $CookieFile = null, ?string $Method = null, ?bool $SSLVerifyPeer = null, ?bool $SSLVerifyHost = null, ?string $UserAgent = null, ?string $Referer = null, ?bool $FollowRedirection = null){
 		#region Default property value for objects
         //$this->Utility = new Utility;
         //$this->Property["From"] = new MailContact();
@@ -208,6 +209,19 @@ class cURL{
     }
 
     public function HTTPHeader(?array $Value = null){
+        if(is_null($Value)){
+            $Result = $this->Property[__FUNCTION__];
+        }
+        else{
+            $this->Property[__FUNCTION__] = $Value;
+
+            $Result = true;
+        }
+
+        return $Result;
+    }
+
+    public function CookiePath($Value = null){
         if(is_null($Value)){
             $Result = $this->Property[__FUNCTION__];
         }
