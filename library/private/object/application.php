@@ -322,7 +322,7 @@ class Application{
     }
 
 	public function Notify( // Create notification records to be processed by the notifcation dispatcher
-		$Notification = [
+		$Notification = [ //* Can also be an Array of multiple notification item
 			"To" => null, // Email address | Mobile phone number
 			"Subject" => null,
 			"Message" => null,
