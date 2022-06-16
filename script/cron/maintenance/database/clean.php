@@ -32,7 +32,7 @@ $Recordset = $Database->Query("
 		WHERE			ApplicationTrafficTime < @TimeToKeepFrom
 			OR			ApplicationTrafficScript LIKE 'cron/%'
 			OR			ApplicationTrafficScript LIKE 'api/%'
-			OR			ApplicationTrafficScript IN ('user/signout', 'user/signin', 'user/signinaction', 'home')
+			OR			ApplicationTrafficScript IN ('user/signin', 'user/signinaction', 'user/signout', 'home')
 			OR			ApplicationTrafficIP IN (
 							'127.0.0.1', # Local IPv4
 							'::' # Local IPv6
