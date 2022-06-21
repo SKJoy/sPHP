@@ -55,7 +55,10 @@ class Session{
             $this->Property["IsFresh"] = true;
             $this->Reset(); // Reset session to set up guest properties
         }
-        else{ // Session exists, Old            
+        else{ // Session exists, Old
+			//! We found some variables lost after a while, reset these properties to default value
+			if(!isset($_SESSION["DebugMode"]))$_SESSION["DebugMode"] = false;
+
             if((time() - $_SESSION["LastActivityTime"]) > $this->Property["Lifetime"]){ // Reset session upon activity time out
 				$this->Reset(); // Reset session to set up guest properties
 			}
