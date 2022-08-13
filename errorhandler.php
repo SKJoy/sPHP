@@ -18,8 +18,9 @@ ini_set("error_append_string", "</div>");
 if(!isset($_SERVER["HTTP_USER_AGENT"]))$_SERVER["HTTP_USER_AGENT"] = null;
 
 function ___ErrorPage($Message, $File = null, $Line = null, $Number = null, $Type = "User error"){
-	//if(ob_get_contents())ob_end_clean(); // Discard all other output			NOTE: Check line below
-	ob_end_clean(); // We need to discard and flush no matter content is there or not!
+	//if(ob_get_contents())ob_end_clean(); // Discard all other output			//! NOTE: Check line below
+	//ob_end_clean(); // We need to discard and flush no matter content is there or not! //! NOTE: Check line below
+	if(ob_get_length())ob_end_clean(); //* In roder to avoid the error "...failed to delete buffer. No buffer to delete..."
 
 	// PHP doesn't seem to write error log when handled with custom handler! So we write/append the log here
 	file_put_contents(ini_get("error_log"), "[" . date("d-M-Y H:i:s e") . "] {$Type}: {$Message} in {$File} on line {$Line}" . PHP_EOL, FILE_APPEND);
