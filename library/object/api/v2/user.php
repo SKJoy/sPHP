@@ -150,7 +150,7 @@ class User extends \sPHP\API\V2{
 			if(is_null($Data)){ // Get
 				$Record = \sPHP::$Table[$this->Entity]->Get("U.{$this->Entity}ID = {$this->ID}");
 	
-				if(count($Record)){
+				if(is_array($Record) && count($Record)){
 					$Record = $Record[0];
 					$UserGroupIdentifierHighest = explode("; ", $Record["{$this->Entity}GroupIdentifier"])[0];
 	
