@@ -5,8 +5,9 @@ $CronHTML = [];
 $DateTimeFormat = "{$Configuration["ShortDateFormat"]} {$Configuration["TimeFormat"]}"; //DebugDump($DateTimeFormat);
 $JobDurationWarning = isset($CronJobDurationWarning) ? $CronJobDurationWarning : 30; // N seconds or get from application script
 
+//? Loop for default process or Application defined custom process
 foreach(isset($CronNameFromApplicationScript) && is_array($CronNameFromApplicationScript) ? $CronNameFromApplicationScript : [
-	"Application",
+	"Application", // Default: Only the Application cron process
 	//"Non critical", 
 	//"Test", 
 ] as $CronIndex => $Cron){
@@ -83,16 +84,22 @@ foreach(isset($CronNameFromApplicationScript) && is_array($CronNameFromApplicati
 			$JobTableRowHTML = [];
 
 			foreach($Status->Job as $JobName => $Job){ //DebugDump($Job);
-				if($Job->Active){					
+				if($Job->Active){
+					#region Mnemonic script path
+					$JobCommand = $Job->Configuration->Command;
+					if(substr($JobCommand, 0, $PathLength = strlen($Marker = "{$ENV->SystemPath()}script/")) == $Marker)$JobCommand = "<img src=\"{$ENV->IconURL()}system.png\" alt=\"sPHP\" title=\"sPHP\" class=\"Icon\"> " . substr($JobCommand, $PathLength);
+					if(substr($JobCommand, 0, $PathLength = strlen($Marker = "{$ENV->Path()}script/")) == $Marker)$JobCommand = "<img src=\"{$ENV->IconURL()}application.png\" alt=\"Application\" title=\"Application\" class=\"Icon\"> " . substr($JobCommand, $PathLength);
+					#endregion Mnemonic script path
+
 					$JobTableRowHTML[$Job->Configuration->Order] = "
 						<tr id=\"CronJob-{$CronFileBaseName[$CronIndex]}-{$JobName}\" class=\"JobRunning_" . (isset($Job->Running) && $Job->Running ? "Yes" : "No") . "\">
 							<td id=\"CronJob-{$CronFileBaseName[$CronIndex]}-{$JobName}-Serial\" class=\"Serial\">{$Job->Configuration->Order}</td>
 							<td>
 								<span class=\"Important\">{$JobName}</span><br>
-								<span class=\"Command\">{$Job->Configuration->Command}</span>
+								<span class=\"Command\">{$JobCommand}</span>
 							</td>
 							<td>
-								Interval: {$Utility->SecondToTime($Job->Configuration->Interval)}<br>
+								Interval: <span class=\"Important\">{$Utility->SecondToTime($Job->Configuration->Interval)}</span><br>
 								Limit: {$Utility->SecondToTime($Job->Configuration->MaximumExecutionTime)}
 							</td>
 							<td class=\"Time\">
@@ -128,42 +135,6 @@ foreach(isset($CronNameFromApplicationScript) && is_array($CronNameFromApplicati
 	}
 }
 ?>
-
-<style>
-	h1{border-bottom: 1px Silver solid; padding-bottom: 5px;}
-	h2{font-weight: bold;}
-	h2 > .Icon{height: 1.61em;}
-	h2 > .Action{float: right; color: Blue; font-weight: normal;}
-	h2 > .Action > .Item:hover{text-decoration: none;}
-	h2 > .Action > .Item > .Icon{margin-right: 5px; height: 1.61em;}
-	h2:after{display: block; clear: both; content: '';}
-
-	table > tbody > tr .Important{font-weight: bold;}
-	table > tbody > tr .Highlight{background-color: Yellow; text-shadow: 1px 1px White;}
-	table > tbody > tr .Warning{background-color: Orange; color: White; text-shadow: -1px -1px Black;}
-	table > tbody > tr .Error{color: Red;}
-	table > tbody > tr .Red{color: Red;}
-
-	#CronUpdateIndicator{display: none; position: absolute; top: 5px; right: 5px; height: 32px;}
-
-	.CronTable{width: 100%; text-align: center;}
-	.CronTable > thead > tr:first-child{background-color: Black;}
-	.CronTable > tbody > tr > td:first-child{font-weight: bold; text-transform: uppercase;}
-	.CronTable > tbody > tr > .CronRunning_Yes{background-color: Lime; text-shadow: 1px 1px White;}
-	.CronTable > tbody > tr > .CronRunning_No{background-color: Red; color: White; text-shadow: 1px 1px Black;}
-	.CronTable > tbody > tr > .IterationCount{background-color: Cyan; font-weight: bold; text-shadow: 1px 1px White;}
-
-	.JobTable{margin-bottom: 15px; width: 100%;}
-	.JobTable > tbody > tr > td > .Title{font-weight: bold;}
-	.JobTable > tbody > tr > td > .Command{color: Blue;}
-	.JobTable > tbody > tr > td > .Warning{background: none; color: inherit; font-weight: bold; text-shadow: none;}
-	.JobTable > tbody > tr > td > .Warning:after{margin-left: 5px; color: Red; content: '⚠';}
-	.JobTable > tbody > tr > .Serial{text-align: right; transition: all 1s;}
-	.JobTable > tbody > tr > .Serial:after{content: '.';}
-
-	.JobTable > tbody > .JobRunning_Yes > .Serial{background: Lime; font-weight: bold; text-shadow: 1px 1px White; transition: all 1s;}
-	.JobTable > tbody > .JobRunning_No > .Serial{}
-</style>
 
 <h1><img src="<?=$Environment->IconURL()?>cron.png" alt="Cron" class="Icon"> Cron status</h1>
 <img id="CronUpdateIndicator" src="./image/icon/signal.png">
