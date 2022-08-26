@@ -137,7 +137,7 @@ foreach(isset($CronNameFromApplicationScript) && is_array($CronNameFromApplicati
 ?>
 
 <h1><img src="<?=$Environment->IconURL()?>cron.png" alt="Cron" class="Icon"> Cron status</h1>
-<img id="CronUpdateIndicator" src="./image/icon/signal.png">
+<img id="CronUpdateIndicator" src="./image/icon/signal.png" alt="Cron update indicator">
 <?=implode("", $CronHTML)?>
 
 <script>
