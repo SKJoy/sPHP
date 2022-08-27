@@ -120,7 +120,7 @@ foreach(isset($CronNameFromApplicationScript) && is_array($CronNameFromApplicati
 				<table class=\"JobTable\">
 					<thead>
 						<tr>
-							<th>#</th>
+							<th class=\"Serial\">#</th>
 							<th>Job / Command</th>
 							<th>Configuration</th>
 							<th>Time</th>
