@@ -152,7 +152,7 @@ class Table{
 				}
 				#endregion DEBUG
 
-				if(!strlen($Row[$ColumnIndex]) && in_array($Column, $this->Structure()["Nullable"])){
+				if(!strlen(is_null($Row[$ColumnIndex]) ? "" : $Row[$ColumnIndex]) && in_array($Column, $this->Structure()["Nullable"])){
 					$Value = "NULL";
 				}
 				else{

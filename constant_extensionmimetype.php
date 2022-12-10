@@ -1,6 +1,6 @@
 <?php
-	// Automatically updated on Sat, 11 Aug 2018 07:25:30 +0000 by system
-	// Do not modify this script, instead, use 'F:\Web\sPHPX\sphp\constant_mimetypeextension.php' to create new extensions and rearrange their order
+	// Automatically updated on Sat, 05 Nov 2022 15:46:53 +0000 by system
+	// Do not modify this script, instead, use 'C:\Work\Web\sPHPX\sphp\constant_mimetypeextension.php' to create new extensions and rearrange their order
 
 namespace sPHP;
 

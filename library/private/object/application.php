@@ -216,7 +216,7 @@ class Application{
 				"ApplicationTrafficQuery"			=>	$_SERVER["QUERY_STRING"],
 				"ApplicationTrafficReferer"			=>	$_SERVER["HTTP_REFERER"],
 				"ApplicationTrafficUserAgent"		=>	substr($_SERVER["HTTP_USER_AGENT"], 0, 255),
-				"ApplicationTrafficExecutionBegin"	=>	date("Y-m-d H:i:s", $this->Property["Terminal"]->Environment()->Utility()->Debug()->BeginTime()),
+				"ApplicationTrafficExecutionBegin"	=>	date("Y-m-d H:i:s", intval($this->Property["Terminal"]->Environment()->Utility()->Debug()->BeginTime())),
 				"UserID"							=>	$this->Property["Session"]->User()->ID(),
 				"ApplicationTrafficIsActive"		=>	1,
 			]);

@@ -356,7 +356,6 @@ if(!file_exists($ConstantExtensionMIMETypeFile = __DIR__ . "/constant_extensionm
 	ksort($Holder);
 	foreach($Holder as $Extension=>$MIMEType)$Line[] = "\"{$Extension}\" => \"{$MIMEType}\", ";
 	file_put_contents($ConstantExtensionMIMETypeFile, "<?php\n	// Automatically updated on " . date("r") . " by system\n	// Do not modify this script, instead, use '" . __FILE__ . "' to create new extensions and rearrange their order\n\nnamespace sPHP;\n\nconst EXTENSION_MIMETYPE = array(\n	" . implode("\n	", $Line) . "\n	);\n?>");
-//var_dump(null, $ConstantExtensionMIMETypeFile . " updated");
 }
 
 require $ConstantExtensionMIMETypeFile;

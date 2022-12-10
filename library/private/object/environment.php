@@ -118,7 +118,7 @@ class Environment{
 		if(!isset($_SERVER[$VariableName = "COMPUTERNAME"]))$_SERVER["{$VariableName}"] = null;
 		if(!isset($_SERVER[$VariableName = "HTTP_REFERER"]))$_SERVER["{$VariableName}"] = null;
 		if(!isset($_SERVER[$VariableName = "HTTP_USER_AGENT"]))$_SERVER["{$VariableName}"] = null;
-		if(!isset($_SERVER[$VariableName = "HTTPS"]))$_SERVER["{$VariableName}"] = null;
+		if(!isset($_SERVER[$VariableName = "HTTPS"]))$_SERVER["{$VariableName}"] = "";
 
 		#region Command line execution
 		if(!isset($_SERVER[$VariableName = "REMOTE_ADDR"]))$_SERVER["{$VariableName}"] = "127.0.0.1";
