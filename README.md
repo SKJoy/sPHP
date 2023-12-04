@@ -34,8 +34,6 @@ Help & support is available only over GIT at this moment. We have every dream to
 ## What do we need?
 Are you willing to help us? Just help others to learn sPHP, we need nothing more than that at this good moment :)
 ## Gratitude
-> **FMZ Hossain**: The person with the ability to seed knowledge and foresight.
-
-> **MS Islam** & **ZS Chowdhury**: Dared to try out sPHP for enterprise level solutions with a blind faith.
-
-> **SI Faisal** & **A Mondal**: Who came forward to hold sPHP up without asking for anything in return.
+> **Fakir Mohammad Zakir Hossain**: The person with the ability to seed knowledge & foresight.
+> **Mir Shahrukh Islam** & **Zafir Shafiee Chowdhury**: Thank you for providing me with such an ideal play ground (BondStein Technologies Ltd, BD) to test the system. Wouldn't find this testing ground anywhere else in the universe!
+> **Saiful Islam Faisal** & **Anup Mondal**: Who came forward to hold sPHP up without asking for anything in return.
